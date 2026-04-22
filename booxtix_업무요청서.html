@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>부스틱스 업무요청서</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F6F3;
+    --surface: #FFFFFF;
+    --border: #E0DDD6;
+    --border-dark: #C8C4BA;
+    --text: #1A1915;
+    --text-sub: #7A776E;
+    --text-placeholder: #B5B2A9;
+    --accent: #1A1915;
+    --tag-bg: #EFEFEC;
+    --required: #C94040;
+    --input-focus: #1A1915;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04);
+    --radius: 10px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 100px;
+  }
+
+  /* ── 헤더 ─────────────────────────────── */
+  .header {
+    background: var(--text);
+    color: #fff;
+    padding: 28px 20px 22px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    color: rgba(255,255,255,0.45);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .header-title {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+  }
+  .header-desc {
+    font-size: 11.5px;
+    color: rgba(255,255,255,0.5);
+    margin-top: 7px;
+    line-height: 1.6;
+    font-weight: 300;
+  }
+
+  /* ── 진행 바 ──────────────────────────── */
+  .progress-bar {
+    height: 2px;
+    background: rgba(255,255,255,0.12);
+    margin-top: 16px;
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: #fff;
+    border-radius: 2px;
+    transition: width 0.4s ease;
+    width: 0%;
+  }
+
+  /* ── 폼 본문 ─────────────────────────── */
+  .form-body {
+    padding: 20px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  /* ── 섹션 카드 ───────────────────────── */
+  .card {
+    background: var(--surface);
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+
+  .card-header {
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-sub);
+    background: var(--tag-bg);
+    padding: 2px 7px;
+    border-radius: 4px;
+    letter-spacing: 0.05em;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+  }
+  .required-dot {
+    width: 5px; height: 5px;
+    background: var(--required);
+    border-radius: 50%;
+    margin-left: auto;
+    flex-shrink: 0;
+  }
+
+  .card-body { padding: 14px 16px; }
+
+  /* ── 입력 공통 ───────────────────────── */
+  input[type="text"],
+  input[type="date"],
+  textarea,
+  select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 11px 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  input[type="text"]::placeholder,
+  textarea::placeholder { color: var(--text-placeholder); }
+  input[type="text"]:focus,
+  input[type="date"]:focus,
+  textarea:focus,
+  select:focus {
+    border-color: var(--input-focus);
+    box-shadow: 0 0 0 3px rgba(26,25,21,0.08);
+    background: #fff;
+  }
+  textarea {
+    resize: none;
+    line-height: 1.65;
+    min-height: 100px;
+  }
+
+  /* ── 2열 그리드 ──────────────────────── */
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+  .field-label {
+    font-size: 11.5px;
+    font-weight: 500;
+    color: var(--text-sub);
+    margin-bottom: 6px;
+    display: block;
+    letter-spacing: 0.01em;
+  }
+
+  /* ── 체크박스 그룹 ───────────────────── */
+  .check-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 4px 0;
+  }
+  .check-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    cursor: pointer;
+  }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-chip {
+    padding: 7px 13px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--text-sub);
+    background: var(--bg);
+    transition: all 0.18s;
+    user-select: none;
+    white-space: nowrap;
+  }
+  .check-item input:checked + .check-chip {
+    background: var(--text);
+    border-color: var(--text);
+    color: #fff;
+    font-weight: 500;
+  }
+
+  /* ── 사진 첨부 ───────────────────────── */
+  .photo-zone {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .photo-add {
+    aspect-ratio: 1;
+    border: 1.5px dashed var(--border-dark);
+    border-radius: 8px;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    gap: 5px;
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-add:active { background: var(--border); }
+  .photo-add input[type="file"] {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+    font-size: 0;
+  }
+  .photo-add-icon {
+    font-size: 22px;
+    color: var(--text-sub);
+    line-height: 1;
+  }
+  .photo-add-text {
+    font-size: 10px;
+    color: var(--text-placeholder);
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+  .photo-thumb {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    position: relative;
+    overflow: hidden;
+  }
+  .photo-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .photo-del {
+    position: absolute;
+    top: 4px; right: 4px;
+    width: 20px; height: 20px;
+    background: rgba(0,0,0,0.55);
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 12px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    line-height: 1;
+  }
+
+  /* ── 피드백 섹션 ─────────────────────── */
+  .feedback-card {
+    background: var(--tag-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .feedback-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-sub);
+    font-family: 'DM Mono', monospace;
+  }
+  .feedback-body { padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; }
+
+  /* ── 제출 버튼 ───────────────────────── */
+  .submit-wrap {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 16px 28px;
+    background: linear-gradient(to top, var(--bg) 70%, transparent);
+    z-index: 99;
+  }
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: var(--text);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    cursor: pointer;
+    transition: opacity 0.2s, transform 0.1s;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  }
+  .submit-btn:active { transform: scale(0.98); opacity: 0.85; }
+
+  /* ── 완료 토스트 ─────────────────────── */
+  .toast {
+    position: fixed;
+    bottom: 90px; left: 50%; transform: translateX(-50%) translateY(20px);
+    background: var(--text);
+    color: #fff;
+    padding: 12px 22px;
+    border-radius: 24px;
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s, transform 0.3s;
+    white-space: nowrap;
+    z-index: 200;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* ── 날짜 input 아이콘 색 ────────────── */
+  input[type="date"]::-webkit-calendar-picker-indicator {
+    opacity: 0.4;
+    cursor: pointer;
+  }
+
+  /* ── 구분선 ──────────────────────────── */
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 4px 0;
+  }
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<div class="header">
+  <div class="header-label">BOOXTIX · INTERNAL</div>
+  <div class="header-title">부스틱스 업무요청서</div>
+  <div class="header-desc">부서 간 요청 내용을 명확히 정리하고,<br>누락 없는 업무 진행을 위해 작성하는 내부 실무용 양식입니다.</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+</div>
+
+<!-- 폼 -->
+<div class="form-body">
+
+  <!-- 프로젝트명 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">01</span>
+      <span class="card-title">프로젝트 명</span>
+      <span class="required-dot"></span>
+    </div>
+    <div class="card-body">
+      <input type="text" id="f-project" placeholder="프로젝트 이름을 입력하세요" oninput="updateProgress()">
+    </div>
+  </div>
+
+  <!-- 발주부서 / 발주자 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">02</span>
+      <span class="card-title">발주 정보</span>
+      <span class="required-dot"></span>
+    </div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">발주부서</label>
+          <input type="text" id="f-dept" placeholder="부서명" oninput="updateProgress()">
+        </div>
+        <div>
+          <label class="field-label">발주자</label>
+          <input type="text" id="f-requester" placeholder="이름" oninput="updateProgress()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 날짜 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">03</span>
+      <span class="card-title">일정</span>
+      <span class="required-dot"></span>
+    </div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">발주일자</label>
+          <input type="date" id="f-order-date" oninput="updateProgress()">
+        </div>
+        <div>
+          <label class="field-label">완성 희망일자</label>
+          <input type="date" id="f-due-date" oninput="updateProgress()">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 수량 / 소재 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">04</span>
+      <span class="card-title">수량 / 소재</span>
+    </div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">수량</label>
+          <input type="text" id="f-qty" placeholder="예: 1 SET, 500매">
+        </div>
+        <div>
+          <label class="field-label">소재</label>
+          <input type="text" id="f-material" placeholder="예: 스티커, 현수막">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사용용도 / 사용장소 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">05</span>
+      <span class="card-title">사용 정보</span>
+    </div>
+    <div class="card-body">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">사용용도</label>
+          <input type="text" id="f-purpose" placeholder="예: 이벤트, 홍보">
+        </div>
+        <div>
+          <label class="field-label">사용장소</label>
+          <input type="text" id="f-location" placeholder="예: 매장, 본사">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 사이즈 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">06</span>
+      <span class="card-title">사이즈</span>
+    </div>
+    <div class="card-body">
+      <input type="text" id="f-size" placeholder="예: 86×54mm, 1080×1920px">
+    </div>
+  </div>
+
+  <!-- 작업 유형 체크 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">07</span>
+      <span class="card-title">작업 유형</span>
+    </div>
+    <div class="card-body">
+      <div class="check-group">
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">인쇄물</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">디지털</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">영상</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">간판</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">패키지</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">SNS</span></label>
+        <label class="check-item"><input type="checkbox" name="type"><span class="check-chip">기타</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 들어갈 내용 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">08</span>
+      <span class="card-title">들어갈 내용 (상세히)</span>
+      <span class="required-dot"></span>
+    </div>
+    <div class="card-body">
+      <textarea id="f-content" rows="5" placeholder="들어가야 할 텍스트, 정보, 구성 요소 등을 상세히 기재해주세요." oninput="updateProgress()"></textarea>
+    </div>
+  </div>
+
+  <!-- 희망 이미지 / 사진 첨부 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">09</span>
+      <span class="card-title">희망 이미지 / 참고 사진</span>
+    </div>
+    <div class="card-body">
+      <textarea id="f-image-desc" rows="3" placeholder="원하는 스타일, 레퍼런스 URL, 색감 등을 자유롭게 적어주세요." style="margin-bottom:12px;"></textarea>
+      <div class="photo-zone" id="photoZone">
+        <label class="photo-add" id="photoAddBtn">
+          <input type="file" accept="image/*" multiple onchange="addPhotos(this)">
+          <span class="photo-add-icon">+</span>
+          <span class="photo-add-text">사진 추가</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 주의사항 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">10</span>
+      <span class="card-title">주의사항</span>
+    </div>
+    <div class="card-body">
+      <textarea id="f-caution" rows="3" placeholder="마감 조건, 파일 포맷, 제약 사항 등을 입력하세요."></textarea>
+    </div>
+  </div>
+
+  <!-- 우선순위 -->
+  <div class="card">
+    <div class="card-header">
+      <span class="card-num">11</span>
+      <span class="card-title">우선순위</span>
+    </div>
+    <div class="card-body">
+      <div class="check-group">
+        <label class="check-item"><input type="radio" name="priority" style="display:none"><span class="check-chip">🔴 긴급</span></label>
+        <label class="check-item"><input type="radio" name="priority" style="display:none"><span class="check-chip">🟡 보통</span></label>
+        <label class="check-item"><input type="radio" name="priority" style="display:none"><span class="check-chip">🟢 여유</span></label>
+      </div>
+    </div>
+  </div>
+
+  <!-- 디자인팀 피드백 (수신용) -->
+  <div class="feedback-card">
+    <div class="feedback-header">디자인팀 피드백 — 수신용</div>
+    <div class="feedback-body">
+      <div class="grid-2">
+        <div>
+          <label class="field-label">금액</label>
+          <input type="text" placeholder="견적 입력">
+        </div>
+        <div>
+          <label class="field-label">완료기간</label>
+          <input type="date">
+        </div>
+      </div>
+      <div>
+        <label class="field-label">비고</label>
+        <textarea rows="3" placeholder="디자인팀 전달 사항"></textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- 제출 버튼 -->
+<div class="submit-wrap">
+  <button class="submit-btn" onclick="submitForm()">요청서 제출하기</button>
+</div>
+
+<!-- 토스트 -->
+<div class="toast" id="toast">✓ 업무요청서가 제출되었습니다</div>
+
+<script>
+// ── 라디오 체크박스 단일 선택 ─────────────────────
+document.querySelectorAll('input[type="radio"]').forEach(r => {
+  r.addEventListener('change', () => {
+    document.querySelectorAll(`input[name="${r.name}"]`).forEach(o => {
+      o.checked = false;
+    });
+    r.checked = true;
+  });
+  // 클릭으로 토글 UI
+  r.closest('.check-item')?.addEventListener('click', function(e) {
+    const inp = this.querySelector('input[type="radio"]');
+    const wasChecked = inp.checked;
+    document.querySelectorAll(`input[name="${inp.name}"]`).forEach(o => o.checked = false);
+    inp.checked = !wasChecked;
+  });
+});
+
+// ── 진행률 계산 ───────────────────────────────────
+function updateProgress() {
+  const fields = ['f-project','f-dept','f-requester','f-order-date','f-due-date','f-content'];
+  const filled = fields.filter(id => document.getElementById(id)?.value?.trim()).length;
+  const pct = Math.round((filled / fields.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+}
+updateProgress();
+
+// ── 사진 첨부 ─────────────────────────────────────
+let photos = [];
+
+function addPhotos(input) {
+  const files = Array.from(input.files);
+  files.forEach(file => {
+    if (!file.type.startsWith('image/')) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      photos.push({ src: e.target.result, name: file.name });
+      renderPhotos();
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value = '';
+}
+
+function removePhoto(idx) {
+  photos.splice(idx, 1);
+  renderPhotos();
+}
+
+function renderPhotos() {
+  const zone = document.getElementById('photoZone');
+  const addBtn = document.getElementById('photoAddBtn');
+  zone.innerHTML = '';
+
+  photos.forEach((p, i) => {
+    const thumb = document.createElement('div');
+    thumb.className = 'photo-thumb';
+    thumb.innerHTML = `
+      <img src="${p.src}" alt="${p.name}">
+      <button class="photo-del" onclick="removePhoto(${i})">✕</button>
+    `;
+    zone.appendChild(thumb);
+  });
+
+  // 추가 버튼 다시 붙이기
+  const btn = document.createElement('label');
+  btn.className = 'photo-add';
+  btn.id = 'photoAddBtn';
+  btn.innerHTML = `
+    <input type="file" accept="image/*" multiple onchange="addPhotos(this)">
+    <span class="photo-add-icon">+</span>
+    <span class="photo-add-text">사진 추가</span>
+  `;
+  zone.appendChild(btn);
+}
+
+// ── 제출 ──────────────────────────────────────────
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzBdtueL4Pz-g8vTkCZe3ejTvBne304xqDQazc9lQrbgxuEDpPNF3skNo0SlXh9dEn7/exec';
+
+async function submitForm() {
+  const required = [
+    { id: 'f-project', label: '프로젝트 명' },
+    { id: 'f-dept', label: '발주부서' },
+    { id: 'f-requester', label: '발주자' },
+    { id: 'f-order-date', label: '발주일자' },
+    { id: 'f-due-date', label: '완성 희망일자' },
+    { id: 'f-content', label: '들어갈 내용' },
+  ];
+
+  for (const f of required) {
+    const el = document.getElementById(f.id);
+    if (!el?.value?.trim()) {
+      el?.focus();
+      el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el?.style && (el.style.borderColor = '#C94040');
+      setTimeout(() => el?.style && (el.style.borderColor = ''), 2000);
+      showToast(`⚠ '${f.label}' 항목을 입력해주세요`);
+      return;
+    }
+  }
+
+  // 작업유형 체크된 것 수집
+  const workTypes = [...document.querySelectorAll('input[name="type"]:checked')]
+    .map(el => el.closest('.check-item')?.querySelector('.check-chip')?.textContent)
+    .filter(Boolean).join(', ');
+
+  // 우선순위 수집
+  const priorityEl = document.querySelector('input[name="priority"]:checked');
+  const priority = priorityEl
+    ? priorityEl.closest('.check-item')?.querySelector('.check-chip')?.textContent
+    : '';
+
+  const payload = {
+    project:    document.getElementById('f-project').value.trim(),
+    dept:       document.getElementById('f-dept').value.trim(),
+    requester:  document.getElementById('f-requester').value.trim(),
+    orderDate:  document.getElementById('f-order-date').value,
+    dueDate:    document.getElementById('f-due-date').value,
+    qty:        document.getElementById('f-qty').value.trim(),
+    material:   document.getElementById('f-material').value.trim(),
+    purpose:    document.getElementById('f-purpose').value.trim(),
+    location:   document.getElementById('f-location').value.trim(),
+    size:       document.getElementById('f-size').value.trim(),
+    workType:   workTypes,
+    content:    document.getElementById('f-content').value.trim(),
+    imageDesc:  document.getElementById('f-image-desc').value.trim(),
+    caution:    document.getElementById('f-caution').value.trim(),
+    priority:   priority,
+  };
+
+  // 버튼 로딩 상태
+  const btn = document.querySelector('.submit-btn');
+  btn.textContent = '제출 중...';
+  btn.disabled = true;
+
+  try {
+    await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+
+    document.getElementById('progressFill').style.width = '100%';
+    showToast('✓ 구글 시트에 저장되었습니다');
+    btn.textContent = '✓ 제출 완료';
+    btn.style.background = '#2D6A4F';
+    setTimeout(() => {
+      btn.textContent = '요청서 제출하기';
+      btn.style.background = '';
+      btn.disabled = false;
+    }, 3000);
+
+  } catch (err) {
+    showToast('⚠ 제출 실패 — 네트워크를 확인해주세요');
+    btn.textContent = '요청서 제출하기';
+    btn.disabled = false;
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── 오늘 날짜 기본값 ─────────────────────────────
+const today = new Date().toISOString().split('T')[0];
+document.getElementById('f-order-date').value = today;
+updateProgress();
+</script>
+</body>
+</html>
