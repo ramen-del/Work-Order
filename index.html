@@ -617,7 +617,7 @@ function addPhotos(input) {
     if (!file.type.startsWith('image/')) return;
     const reader = new FileReader();
     reader.onload = e => {
-      photos.push({ src: e.target.result, name: file.name });
+      photos.push({ src: e.target.result, name: file.name, type: file.type });
       renderPhotos();
     };
     reader.readAsDataURL(file);
@@ -658,7 +658,7 @@ function renderPhotos() {
 }
 
 // ── 제출 ──────────────────────────────────────────
-const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxugX3fymYfOoXRDQCFUvy-Cdc2l5zunVUb5KN3QphCSowNri3aqdfBdOKpD7D9prA/exec';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwmHoTE1rQ22eNWaaBirnmDsfwB45xOo1cCxHohY05q045TmS5rl_w45Cp_1ZafoVHP/exec';
 
 async function submitForm() {
   const required = [
@@ -709,6 +709,7 @@ async function submitForm() {
     imageDesc:  document.getElementById('f-image-desc').value.trim(),
     caution:    document.getElementById('f-caution').value.trim(),
     priority:   priority,
+    images:     photos.map(p => ({ data: p.src, type: p.type || 'image/jpeg' })),
   };
 
   // 버튼 로딩 상태
