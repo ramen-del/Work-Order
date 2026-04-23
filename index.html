@@ -12,11 +12,13 @@ html{font-size:16px}
 body{font-family:"Noto Sans KR",sans-serif;background:#fff;color:var(--text);padding-bottom:120px}
 .nav{background:#fff;border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:100}
 .nav img{height:24px}
-.progress-wrap{background:#fff;padding:10px 20px 14px;border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:99}
+.progress-wrap{background:#fff;padding:10px 0 14px;border-bottom:1px solid var(--border);position:sticky;top:57px;z-index:99}
+.progress-inner{max-width:680px;margin:0 auto;padding:0 20px}
 .progress-steps{display:flex;gap:5px;margin-bottom:6px}
 .step-dot{flex:1;height:2px;border-radius:2px;background:#F0F0EE;transition:background .3s}
 .step-dot.done{background:var(--text)}.step-dot.active{background:#aaa}
 .progress-label{font-size:11px;color:var(--sub);font-family:"DM Mono",monospace}
+.page-wrap{max-width:680px;margin:0 auto}
 .section{padding:32px 20px 0}
 .section-header{margin-bottom:20px}
 .section-emoji{font-size:20px;margin-bottom:6px}
@@ -74,6 +76,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 .photo-thumb img{width:100%;height:100%;object-fit:cover;display:block}
 .photo-del{position:absolute;top:4px;right:4px;width:20px;height:20px;background:rgba(0,0,0,.5);border-radius:50%;border:none;color:#fff;font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .submit-wrap{position:fixed;bottom:0;left:0;right:0;padding:12px 20px 34px;background:linear-gradient(to top,#fff 65%,transparent);z-index:100}
+.submit-btn-inner{max-width:680px;margin:0 auto}
 .submit-btn{width:100%;padding:17px;background:var(--text);color:#fff;border:none;border-radius:14px;font-family:"Noto Sans KR",sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s,transform .1s;box-shadow:0 4px 20px rgba(0,0,0,.15)}
 .submit-btn:active{transform:scale(.98);opacity:.85}
 .submit-btn:disabled{opacity:.5}
@@ -118,6 +121,16 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 .picker-btns{display:flex;gap:8px;margin-top:14px}
 .picker-cancel{flex:1;padding:13px;background:rgba(255,255,255,.12);color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:"Noto Sans KR",sans-serif}
 .picker-confirm{flex:2;padding:13px;background:#fff;color:#1A1A1A;border:none;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;font-family:"Noto Sans KR",sans-serif}
+.success-modal{display:none;position:fixed;inset:0;z-index:500;align-items:center;justify-content:center;padding:20px}
+.success-modal.show{display:flex}
+.success-overlay{position:absolute;inset:0;background:rgba(0,0,0,.55)}
+.success-sheet{position:relative;background:#fff;border-radius:24px;padding:36px 24px 24px;width:100%;max-width:320px;z-index:1;text-align:center}
+.success-icon{width:64px;height:64px;background:#1A1A1A;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;font-size:26px}
+.success-title{font-size:20px;font-weight:700;letter-spacing:-.03em;margin-bottom:8px}
+.success-desc{font-size:13px;color:#999;line-height:1.7;margin-bottom:16px}
+.success-project{font-size:13px;font-weight:600;color:#1A1A1A;background:#F5F5F3;padding:10px 16px;border-radius:10px;margin-bottom:20px;word-break:break-all;text-align:left}
+.success-btn{width:100%;padding:15px;background:#1A1A1A;color:#fff;border:none;border-radius:12px;font-family:"Noto Sans KR",sans-serif;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.success-btn-sub{width:100%;padding:12px;background:transparent;color:#999;border:none;font-family:"Noto Sans KR",sans-serif;font-size:13px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -127,7 +140,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 </div>
 
 <div class="progress-wrap">
-  <div class="progress-steps">
+  <div class="progress-inner">
+    <div class="progress-steps">
     <div class="step-dot active" id="dot1"></div>
     <div class="step-dot" id="dot2"></div>
     <div class="step-dot" id="dot3"></div>
@@ -136,7 +150,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     <div class="step-dot" id="dot6"></div>
   </div>
   <div class="progress-label" id="progressLabel">STEP 1 / 6 — 기본 정보</div>
+  </div>
 </div>
+
+<div class="page-wrap">
 
 <!-- STEP 1 -->
 <div class="section">
@@ -307,8 +324,12 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
   </div></div>
 </div>
 
+</div><!-- /page-wrap -->
+
 <div class="submit-wrap">
-  <button class="submit-btn" id="submitBtn" onclick="submitForm()">요청서 제출하기</button>
+  <div class="submit-btn-inner">
+    <button class="submit-btn" id="submitBtn" onclick="submitForm()">요청서 제출하기</button>
+  </div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -362,6 +383,19 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
       <button class="picker-cancel" onclick="closePicker()">취소</button>
       <button class="picker-confirm" onclick="confirmColor()">선택 완료</button>
     </div>
+  </div>
+</div>
+
+<!-- SUCCESS MODAL -->
+<div class="success-modal" id="successModal">
+  <div class="success-overlay"></div>
+  <div class="success-sheet">
+    <div class="success-icon">✓</div>
+    <div class="success-title">요청서 제출 완료!</div>
+    <div class="success-desc">디자인팀에 전달되었습니다.<br>검토 후 순서대로 진행해드릴게요.</div>
+    <div class="success-project" id="successProject"></div>
+    <button class="success-btn" onclick="closeSuccess()">확인</button>
+    <button class="success-btn-sub" onclick="resetForm()">새 요청서 작성하기</button>
   </div>
 </div>
 
@@ -630,13 +664,30 @@ async function submitForm(){
   try{
     const fd=new FormData();fd.append("data",JSON.stringify(payload));
     await fetch(APPS_SCRIPT_URL,{method:"POST",mode:"no-cors",body:fd});
-    showToast("✓ 요청서가 제출되었습니다");
     btn.textContent="✓ 제출 완료";btn.style.background="#2D7A55";
     for(let i=1;i<=6;i++)document.getElementById("dot"+i).className="step-dot done";
+    document.getElementById("successProject").textContent="📋 "+payload.project+" · "+payload.requester;
+    document.getElementById("successModal").classList.add("show");
     setTimeout(()=>{btn.textContent="요청서 제출하기";btn.style.background="";btn.disabled=false},4000);
   }catch(e){showToast("⚠ 제출 실패 — 네트워크를 확인해주세요");btn.textContent="요청서 제출하기";btn.disabled=false}
 }
 function showToast(msg){const t=document.getElementById("toast");t.textContent=msg;t.classList.add("show");setTimeout(()=>t.classList.remove("show"),3000)}
+function closeSuccess(){document.getElementById("successModal").classList.remove("show")}
+function resetForm(){
+  document.getElementById("successModal").classList.remove("show");
+  // 폼 초기화
+  ["f-project","f-dept","f-requester","f-due-date","f-qty","f-material","f-purpose","f-location","f-size","f-address","f-address-detail","f-content","f-image-desc","f-caution","f-memo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
+  document.getElementById("f-order-date").value=new Date().toISOString().split("T")[0];
+  document.querySelectorAll(".style-card.active,.chip.active,.color-swatch-btn.active").forEach(el=>el.classList.remove("active"));
+  document.getElementById("addressDisplay").textContent="주소 검색하기";
+  document.getElementById("addressDisplay").closest(".address-search-btn").classList.remove("filled");
+  document.getElementById("f-address-detail").style.display="none";
+  document.getElementById("selectedColors").innerHTML="";
+  photos=[];renderPhotos();
+  for(let i=1;i<=6;i++)document.getElementById("dot"+i).className="step-dot"+(i===1?" active":"");
+  document.getElementById("progressLabel").textContent="STEP 1 / 6 — 기본 정보";
+  window.scrollTo({top:0,behavior:"smooth"});
+}
 
 function openAddressSearch(){
   function execDaum(){
