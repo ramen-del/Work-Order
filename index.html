@@ -400,7 +400,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
 </div>
 
 <script>
-const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycbzsumiardkKgQ24OL6Ljqx9kNhYGsIhXjcRb3rkoutmWjlYtEfESztGEPnk0EWCxVDa/exec";
+const APPS_SCRIPT_URL="https://script.google.com/macros/s/AKfycby7hoEPP1t-0stx80MwMa4HfJi5ipGUMDPcuBIbu406KECACY2afFgoky4rPhK_V70J/exec";
 document.getElementById("f-order-date").value=new Date().toISOString().split("T")[0];
 
 function countChar(el,id){document.getElementById(id).textContent=el.value.length}
@@ -680,8 +680,24 @@ async function submitForm(){
     size:document.getElementById("f-size").value.trim(),
     workType:workTypes,
     content:document.getElementById("f-content").value.trim(),
-    imageDesc:document.getElementById("f-image-desc").value.trim()+" | 색상:"+colors+" | 스타일:"+sliders,
-    caution:document.getElementById("f-caution").value.trim()+" | 배송지:"+document.getElementById("f-address").value.trim()+" "+document.getElementById("f-address-detail").value.trim()+" | 메모:"+document.getElementById("f-memo").value.trim(),
+    imageDesc:(()=>{
+      const parts=[];
+      const desc=document.getElementById("f-image-desc").value.trim();
+      if(desc) parts.push(desc);
+      if(colors) parts.push("색상:"+colors);
+      parts.push("스타일:"+sliders);
+      return parts.join(" | ");
+    })(),
+    caution:(()=>{
+      const parts=[];
+      const c=document.getElementById("f-caution").value.trim();
+      if(c) parts.push(c);
+      const addr=(document.getElementById("f-address").value.trim()+" "+document.getElementById("f-address-detail").value.trim()).trim();
+      if(addr) parts.push("배송지:"+addr);
+      const memo=document.getElementById("f-memo").value.trim();
+      if(memo) parts.push("메모:"+memo);
+      return parts.join(" | ");
+    })(),
     priority:priority,
     images:photos.map(p=>({data:p.src,type:p.type||"image/jpeg"})),
   };
