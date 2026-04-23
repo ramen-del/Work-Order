@@ -179,7 +179,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
     </div>
     <div class="divider"></div>
     <div class="grid2">
-      <div><label class="field-label">수량</label><input type="text" id="f-qty" placeholder="예: 1 SET"></div>
+      <div><label class="field-label">수량 <span class="required">*</span></label><input type="text" id="f-qty" placeholder="예: 1 SET"></div>
       <div><label class="field-label">소재</label><input type="text" id="f-material" placeholder="예: 스티커"></div>
     </div>
     <div class="divider"></div>
@@ -188,11 +188,11 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;heigh
       <div><label class="field-label">사용장소</label><input type="text" id="f-location" placeholder="예: 매장"></div>
     </div>
     <div class="divider"></div>
-    <label class="field-label">사이즈</label>
+    <label class="field-label">사이즈 <span class="required">*</span></label>
     <input type="text" id="f-size" placeholder="예: 86×54mm">
   </div></div>
   <div class="card"><div class="card-inner">
-    <label class="field-label">수령 배송지</label>
+    <label class="field-label">수령 배송지 <span class="required">*</span></label>
     <div class="address-wrap">
       <div class="address-search-btn" onclick="openAddressSearch()">
         <span class="address-search-icon">📍</span>
@@ -632,11 +632,14 @@ function renderPhotos(){
 
 // ── 제출 ──────────────────────────────────────────
 async function submitForm(){
-  const req=[{id:"f-project",label:"프로젝트 명"},{id:"f-dept",label:"발주부서"},{id:"f-requester",label:"발주자"},{id:"f-order-date",label:"발주일자"},{id:"f-due-date",label:"완성 희망일"},{id:"f-content",label:"들어갈 내용"}];
+  const req=[{id:"f-project",label:"프로젝트 명"},{id:"f-dept",label:"발주부서"},{id:"f-requester",label:"발주자"},{id:"f-order-date",label:"발주일자"},{id:"f-due-date",label:"완성 희망일"},{id:"f-qty",label:"수량"},{id:"f-size",label:"사이즈"},{id:"f-content",label:"들어갈 내용"}];
   for(const f of req){
     const el=document.getElementById(f.id);
     if(!el?.value?.trim()){el?.scrollIntoView({behavior:"smooth",block:"center"});el.style.borderColor="#E05252";setTimeout(()=>el.style.borderColor="",2000);showToast("⚠ '"+f.label+"' 항목을 입력해주세요");return}
   }
+  // 배송지 별도 체크
+  const addrEl=document.getElementById("f-address");
+  if(!addrEl?.value?.trim()){document.querySelector(".address-search-btn").scrollIntoView({behavior:"smooth",block:"center"});showToast("⚠ '수령 배송지' 항목을 입력해주세요");return}
   const workTypes=[...document.querySelectorAll(".style-card.active")].map(el=>el.querySelector(".style-card-name").textContent).join(", ");
   const priority=document.querySelector(".chip.active")?.textContent||"";
   const colors=[...document.querySelectorAll(".color-swatch-btn.active")].map(el=>el.dataset.name+" ("+el.dataset.color+")").join(", ");
