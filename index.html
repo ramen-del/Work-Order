@@ -705,6 +705,8 @@ function resetForm(){
   ["f-project","f-dept","f-requester","f-due-date","f-qty","f-material","f-purpose","f-location","f-size","f-address","f-address-detail","f-content","f-image-desc","f-caution","f-memo"].forEach(id=>{const el=document.getElementById(id);if(el)el.value=""});
   document.getElementById("f-order-date").value=new Date().toISOString().split("T")[0];
   document.querySelectorAll(".style-card.active,.chip.active,.color-swatch-btn.active").forEach(el=>el.classList.remove("active"));
+  // 슬라이더 중간값으로 초기화
+  document.querySelectorAll("input[type=range]").forEach(r=>{r.value=5;updateSliderBg(r)});
   document.getElementById("addressDisplay").textContent="주소 검색하기";
   document.getElementById("addressDisplay").closest(".address-search-btn").classList.remove("filled");
   document.getElementById("f-address-detail").style.display="none";
