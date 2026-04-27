@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOOXTIX · 상담 관리자 원본엔진 표시수정</title>
+<title>BOOXTIX · 상담 관리자 ONLY FIX</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -32,6 +32,13 @@ html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8AkKjfDUzGZzKEHv7XY2vUJyDdcar6sLR5bjpJB5rKd-hqZ4JxISttYdn8OB6xscr8g/exec";
+// 관리자 전용 안전장치: 접수폼이 예전 배포 URL에 물려 있어도 관리자에서 함께 읽어옵니다.
+// 저장/수정은 해당 리드가 실제로 조회된 URL로 다시 보냅니다.
+const APPS_SCRIPT_URLS = [
+  "https://script.google.com/macros/s/AKfycbw8AkKjfDUzGZzKEHv7XY2vUJyDdcar6sLR5bjpJB5rKd-hqZ4JxISttYdn8OB6xscr8g/exec",
+  "https://script.google.com/macros/s/AKfycbzG8j8CW4nktZs-erFLTCGFLZqYDQFcfLeyWbmnHDilvWzCxGN8YvOANXPPfRViBTZIQw/exec",
+  "https://script.google.com/macros/s/AKfycbxNnfuB6Ft357S-QsWxRROnUsx5R1gNT2csqZwYuEcwOdEx8yL4wdYeh7L04fEszaDEkg/exec"
+];
 const BASIC_FIELDS = ['inquiryDate','inquiryTime','name','phone','hasStore','desiredRegion','source','sourceEtc','note'];
 const FIRST_FIELDS = ['callStatus','workType','recordFiles','currentSituation','inquiryTopic','detailInquiryMemo','answerType','answerMemo'];
 const NEXT_FIELDS = ['nextStep','nextActionDetail','nextActionDate','nextActionTime','nextActionOwner','nextActionMemo','finalStatus'];
@@ -42,6 +49,7 @@ let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_origina
 
 function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function pick(o, keys, fallback=''){for(const k of keys){if(o && o[k] !== undefined && o[k] !== null && String(o[k]).trim() !== '') return String(o[k]).trim();}return fallback;}
+function normalizeAdminTime(v){v=String(v||'').trim();if(!v)return '';if(/^1899-12-3[01]/.test(v))return '';const m=v.match(/(\d{1,2}):(\d{2})/);if(m)return `${String(m[1]).padStart(2,'0')}:${m[2]}`;if(/^\d{1,2}:\d{2}$/.test(v))return v;return v;}
 function todayKST(){const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const m=Object.fromEntries(parts.map(p=>[p.type,p.value]));return `${m.year}-${m.month}-${m.day}`;}
 function nowKST(){return new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});}
 function rowId(d){return d.id || d.consultId || [d.inquiryDate,d.inquiryTime,d.name,d.phone].join('|');}
@@ -63,7 +71,7 @@ function normalize(raw){
   d.id = pick(raw,['id','consultId','상담번호','접수번호']) || '';
   d.consultId = pick(raw,['consultId','id','상담번호','접수번호']) || d.id;
   d.inquiryDate = pick(raw,['inquiryDate','문의일자','문의 일자','date','날짜','callDate','통화날짜']);
-  d.inquiryTime = pick(raw,['inquiryTime','문의시간','문의 시간','time','시간','callTime','통화시간']);
+  d.inquiryTime = normalizeAdminTime(pick(raw,['inquiryTime','문의시간','문의 시간','time','시간','callTime','통화시간']));
   d.name = pick(raw,['name','이름','고객명']);
   d.phone = pick(raw,['phone','연락처','전화번호']);
   d.hasStore = pick(raw,['hasStore','점포유무','점포 유/무','점포','storeStatus']);
@@ -79,18 +87,19 @@ function normalize(raw){
   d.recordFiles = parseRecordFiles(raw);
   d.currentSituation = pick(raw,['currentSituation','현재상황','현재 상황','situation']);
   d.inquiryTopic = pick(raw,['inquiryTopic','문의주제','문의 주제','topic']);
-  d.detailInquiryMemo = pick(raw,['detailInquiryMemo','상세문의메모','상세문의 메모','inquiry','문의내용','문의 내용']);
+  d.detailInquiryMemo = pick(raw,['detailInquiryMemo','상세문의메모','상세문의 메모','상세 문의 메모','detailInquiry','inquiry','문의내용','문의 내용']);
   d.answerType = pick(raw,['answerType','답변유형','답변 유형']);
-  d.answerMemo = pick(raw,['answerMemo','답변메모','답변 메모']);
+  d.answerMemo = pick(raw,['answerMemo','답변메모','답변 메모','answer','answerContent']);
   d.nextStep = pick(raw,['nextStep','다음단계','다음 단계'],'상담 대기');
-  d.nextActionDetail = pick(raw,['nextActionDetail','다음액션상세','다음액션 상세','다음단계상세내용','다음단계 상세내용']);
+  d.nextActionDetail = pick(raw,['nextActionDetail','다음단계상세','다음단계 상세','다음액션상세','다음액션 상세','다음단계상세내용','다음단계 상세내용','nextDetail']);
   d.nextActionDate = pick(raw,['nextActionDate','다음액션예정일','다음액션 예정일','recallDate','meetingDate']);
-  d.nextActionTime = pick(raw,['nextActionTime','다음액션예정시간','다음액션 예정시간','recallTime']);
+  d.nextActionTime = normalizeAdminTime(pick(raw,['nextActionTime','다음액션예정시간','다음액션 예정시간','recallTime']));
   d.nextActionOwner = pick(raw,['nextActionOwner','담당자','manager']);
-  d.nextActionMemo = pick(raw,['nextActionMemo','다음액션메모','다음액션 메모','internalMemo','내부메모']);
+  d.nextActionMemo = pick(raw,['nextActionMemo','다음액션메모','다음액션 메모','다음액션내부메모','내부메모','내부 메모','internalMemo']);
   d.finalStatus = pick(raw,['finalStatus','최종상태','최종 상태','leadStatus'], d.firstConsultStatus === '1차 상담 완료' ? '후속관리' : '신규 문의');
   d.inquiryDateTime = `${d.inquiryDate || '0000-00-00'} ${d.inquiryTime || '00:00'}`;
   d._rowId = rowId(d);
+  d._sourceUrl = raw._sourceUrl || APPS_SCRIPT_URL;
   return d;
 }
 function hasRealLead(d){
@@ -119,21 +128,49 @@ function extractRowsFromResponse(json){
   return [];
 }
 async function loadData(){
-  const btn = document.getElementById('refreshBtn');btn.classList.add('loading');btn.textContent='↻ 로딩 중';
+  const btn = document.getElementById('refreshBtn');
+  btn.classList.add('loading');btn.textContent='↻ 로딩 중';
   document.getElementById('tableBody').innerHTML='<div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>';
   try{
-    const res = await fetch(APPS_SCRIPT_URL + '?action=list&ts=' + Date.now());
-    const text = await res.text();
-    let json = {};
-    try{ json = JSON.parse(text); }catch(parseErr){ throw new Error('JSON 응답이 아닙니다: ' + text.slice(0,80)); }
-    const rows = extractRowsFromResponse(json);
-    allData = rows.map(normalize).filter(hasRealLead);
+    const settled = await Promise.allSettled(APPS_SCRIPT_URLS.map(async (url) => {
+      const res = await fetch(url + '?action=list&ts=' + Date.now(), { cache:'no-store' });
+      const text = await res.text();
+      let json = {};
+      try{ json = JSON.parse(text); }catch(parseErr){ throw new Error('JSON 응답 아님: ' + text.slice(0,80)); }
+      const rows = extractRowsFromResponse(json).map(r => ({...r, _sourceUrl:url}));
+      return {url, rows, json};
+    }));
+
+    const merged = [];
+    const seen = new Set();
+    const errors = [];
+
+    settled.forEach((r) => {
+      if(r.status !== 'fulfilled'){
+        errors.push(String(r.reason && r.reason.message || r.reason));
+        return;
+      }
+      r.value.rows.map(normalize).filter(hasRealLead).forEach(d => {
+        const key = d.consultId || d.id || [d.inquiryDate,d.inquiryTime,d.name,d.phone,d.desiredRegion].join('|');
+        if(seen.has(key)) return;
+        seen.add(key);
+        merged.push(d);
+      });
+    });
+
+    allData = merged;
     updateSourceFilter();applyFilter();updateKpi();setStatus(true);
     if(!allData.length){
-      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. 원본 Apps Script의 가맹상담 시트에 표시 가능한 행이 없습니다.' : '서버 응답에 목록 배열이 없습니다.');
+      const msg = errors.length ? ('조회 실패: ' + errors.slice(0,2).join(' / ')) : '연결된 배포 URL들에서 표시할 상담 행을 찾지 못했습니다.';
       document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🗂️</span><b>관리자 표시 데이터 0건</b><br>'+esc(msg)+'</div>';
     }
-  }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.<br>'+esc(err.message)+'</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
+  }catch(err){
+    setStatus(false);
+    document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.<br>'+esc(err.message)+'</div>';
+    showToast('⚠ 데이터 불러오기 실패: '+err.message);
+  }finally{
+    btn.classList.remove('loading');btn.textContent='↻ 새로고침';
+  }
 }
 function updateSourceFilter(){const sel=document.getElementById('filterSource');const current=sel.value;const sources=[...new Set(allData.map(d=>d.source).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));sel.innerHTML='<option value="">유입 전체</option>'+sources.map(s=>`<option>${esc(s)}</option>`).join('');sel.value=current;}
 function updateKpi(){const today=todayKST();document.getElementById('kpiTotal').textContent=allData.length;document.getElementById('kpiToday').textContent=allData.filter(d=>d.inquiryDate===today).length;document.getElementById('kpiDate').textContent=today;document.getElementById('kpiWaiting').textContent=allData.filter(d=>d.firstConsultStatus!=='1차 상담 완료').length;document.getElementById('kpiNext').textContent=allData.filter(d=>d.firstConsultStatus==='1차 상담 완료' && !['종료','보류'].includes(d.nextStep)).length;}
@@ -195,7 +232,8 @@ async function persistUpdates(d, updates, section, changes){
   const newRecords=getNewRecordFiles();
   fd.append('action','update');
   fd.append('data',JSON.stringify({id:rowId(d),consultId:d.consultId,updates:cleanUpdates,newRecords}));
-  const res=await fetch(APPS_SCRIPT_URL + '?action=update',{method:'POST',body:fd});
+  const targetUrl = d._sourceUrl || APPS_SCRIPT_URL;
+  const res=await fetch(targetUrl + '?action=update',{method:'POST',body:fd});
   const text=await res.text();
   let result={};
   try{result=JSON.parse(text);}catch(err){result={result:res.ok?'success':'error',raw:text};}
