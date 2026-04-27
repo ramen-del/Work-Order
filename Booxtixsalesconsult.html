@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>BOOXTIX · 1차 문의 접수 v10</title>
+<title>BOOXTIX · 1차 문의 접수 v11</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -54,7 +54,7 @@ body{padding-bottom:96px}.header{background:#fff;border-bottom:1px solid var(--b
 <div class="modal" id="successModal"><div class="modal-content"><div class="modal-icon">✅</div><div class="modal-title">1차 문의 접수 완료</div><div class="modal-desc" id="successDesc">관리자 페이지 기본 탭에서 확인할 수 있습니다.</div><button class="modal-btn" onclick="closeSuccess()">새 문의 등록</button></div></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFbBAXGl4wo1AZ4KEj0K_g_x4Xw9h5K0pU56L8_sjdi1pGgUbm9BgEX31uYAJnrLPNnQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOcMs0UGDv6ZDU2-ZA3pcZjMTa4BRJEFHdkAMIG8smIXOHxvU5Ei522-I7WdSr7W-R9w/exec";
 let toastTimer = null;
 
 function getKstNowParts(){
@@ -74,9 +74,8 @@ function buildPayload(){
   const sourceEtc = document.getElementById('f-source-etc').value.trim();
   const inquiryDate = document.getElementById('f-inquiry-date').value;
   const inquiryTime = document.getElementById('f-inquiry-time').value;
-  const id = makeId();
   return {
-    id, consultId:id, createdAt:new Date().toISOString(), sourcePage:'1차 문의 접수',
+    createdAt:new Date().toISOString(), sourcePage:'1차 문의 접수',
     inquiryDate, inquiryTime, inquiryDateTime:`${inquiryDate} ${inquiryTime}`,
     name:document.getElementById('f-name').value.trim(),
     phone:document.getElementById('f-phone').value.trim(),
@@ -104,7 +103,7 @@ async function submitLead(e){
     const res = await fetch(APPS_SCRIPT_URL + '?action=create', {method:'POST', body:fd});
     const text = await res.text();let result = {};try{result = JSON.parse(text);}catch(err){result = {result: res.ok ? 'success' : 'error', raw:text};}
     if(!res.ok || (result.result && result.result !== 'success') || (result.status && !['success','ok'].includes(result.status))){throw new Error(result.error || result.message || '저장 실패');}
-    document.getElementById('successDesc').innerHTML = `접수번호 <b>${result.consultId || result.id || payload.id}</b><br>관리자 페이지 기본 탭에서 확인할 수 있습니다.`;
+    document.getElementById('successDesc').innerHTML = `접수번호 <b>${result.consultId || result.id || '저장완료'}</b><br>관리자 페이지 기본 탭에서 확인할 수 있습니다.`;
     document.getElementById('successModal').classList.add('show');
   }catch(err){showToast('⚠ 저장 실패: ' + err.message);}finally{btn.disabled = false;btn.textContent = '접수 저장';}
 }
