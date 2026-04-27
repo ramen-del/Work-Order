@@ -3,29 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>BOOXTIX · 1차 문의 접수 v13</title>
+<title>BOOXTIX · 1차 문의 접수 v14</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#F7F7F5;--card:#fff;--text:#1A1A1A;--sub:#888;--border:#E8E8E4;--soft:#F5F5F3;--err:#E05252;--ok:#2D7A55;--radius:16px}
-html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text);-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#F7F7F5;
+  --card:#fff;
+  --text:#1A1A1A;
+  --sub:#888;
+  --border:#E8E8E4;
+  --soft:#F5F5F3;
+  --err:#E05252;
+  --ok:#2D7A55;
+  --radius:16px;
+}
+html,body{
+  min-height:100vh;
+  background:var(--bg);
+  font-family:'Noto Sans KR',sans-serif;
+  color:var(--text);
+  -webkit-tap-highlight-color:transparent;
+}
 body{padding-bottom:96px}
-.header{background:#fff;border-bottom:1px solid var(--border);padding:18px 18px 14px;position:sticky;top:0;z-index:20}
+.header{
+  background:#fff;
+  border-bottom:1px solid var(--border);
+  padding:18px 18px 14px;
+  position:sticky;
+  top:0;
+  z-index:20;
+}
 .header-inner{max-width:720px;margin:0 auto}
-.brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--sub);text-transform:uppercase;text-align:center}
+.brand{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.18em;
+  color:var(--sub);
+  text-transform:uppercase;
+  text-align:center;
+}
 .brand b{color:var(--text)}
-.headline{max-width:720px;margin:0 auto;padding:28px 18px 14px}
-.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;margin-bottom:8px}
-.title{font-size:26px;font-weight:900;letter-spacing:-.04em;line-height:1.22}
-.desc{font-size:13px;color:var(--sub);line-height:1.55;margin-top:8px}
-.container{max-width:720px;margin:0 auto;padding:0 18px 28px}
-.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px;box-shadow:0 8px 26px rgba(0,0,0,.035)}
-.section-title{font-size:12px;font-weight:800;color:#555;margin-bottom:14px;letter-spacing:-.01em}
-.field-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.headline{
+  max-width:720px;
+  margin:0 auto;
+  padding:28px 18px 14px;
+}
+.eyebrow{
+  font-family:'DM Mono',monospace;
+  font-size:11px;
+  letter-spacing:.14em;
+  color:var(--sub);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.title{
+  font-size:26px;
+  font-weight:900;
+  letter-spacing:-.04em;
+  line-height:1.22;
+}
+.desc{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.55;
+  margin-top:8px;
+}
+.container{
+  max-width:720px;
+  margin:0 auto;
+  padding:0 18px 28px;
+}
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:0 8px 26px rgba(0,0,0,.035);
+}
+.section-title{
+  font-size:12px;
+  font-weight:800;
+  color:#555;
+  margin-bottom:14px;
+  letter-spacing:-.01em;
+}
+.field-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+}
 .field-group{margin-bottom:17px}
-.field-label{display:block;font-size:12px;font-weight:700;color:#555;margin-bottom:8px}
-.required{color:var(--err);font-weight:900;margin-left:2px}
-.optional{color:#BBB;font-size:10px;font-weight:600;margin-left:6px}
+.field-label{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  color:#555;
+  margin-bottom:8px;
+}
+.required{
+  color:var(--err);
+  font-weight:900;
+  margin-left:2px;
+}
+.optional{
+  color:#BBB;
+  font-size:10px;
+  font-weight:600;
+  margin-left:6px;
+}
 input[type=text],input[type=tel],input[type=date],select,textarea{
   width:100%;
   padding:13px 14px;
@@ -37,7 +123,11 @@ input[type=text],input[type=tel],input[type=date],select,textarea{
   background:#fff;
   transition:border-color .15s,box-shadow .15s;
 }
-input:focus,select:focus,textarea:focus{outline:none;border-color:#1A1A1A;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+input:focus,select:focus,textarea:focus{
+  outline:none;
+  border-color:#1A1A1A;
+  box-shadow:0 0 0 3px rgba(0,0,0,.04);
+}
 select{
   appearance:none;
   background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3e%3cpath d='M1 1l5 5 5-5' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e");
@@ -46,31 +136,267 @@ select{
   padding-right:38px;
   cursor:pointer;
 }
-.time-wrap{position:relative}
-.time-wrap input{padding-right:42px}
-.time-icon{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:16px;color:#999;pointer-events:none}
-textarea{resize:vertical;min-height:92px;line-height:1.6}
-.hint{background:#FFF8E7;border:1px solid #F5DC8A;color:#75580A;border-radius:12px;padding:12px 14px;font-size:12px;line-height:1.55;margin-bottom:18px}
+textarea{
+  resize:vertical;
+  min-height:92px;
+  line-height:1.6;
+}
+.hint{
+  background:#FFF8E7;
+  border:1px solid #F5DC8A;
+  color:#75580A;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:12px;
+  line-height:1.55;
+  margin-bottom:18px;
+}
 .hidden{display:none!important}
-.nav-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);padding:14px 16px;z-index:30}
-.nav-inner{max-width:720px;margin:0 auto;display:flex;gap:8px}
-.submit-btn,.reset-btn{border-radius:12px;font-size:15px;font-weight:800;font-family:inherit;cursor:pointer;transition:.15s;padding:15px 16px}
-.submit-btn{flex:2;background:#1A1A1A;color:#fff;border:1px solid #1A1A1A}
-.reset-btn{flex:1;background:#fff;color:#1A1A1A;border:1px solid var(--border)}
-button:disabled{opacity:.45;cursor:not-allowed}
+.nav-bar{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  background:#fff;
+  border-top:1px solid var(--border);
+  padding:14px 16px;
+  z-index:30;
+}
+.nav-inner{
+  max-width:720px;
+  margin:0 auto;
+  display:flex;
+  gap:8px;
+}
+.submit-btn,.reset-btn{
+  border-radius:12px;
+  font-size:15px;
+  font-weight:800;
+  font-family:inherit;
+  cursor:pointer;
+  transition:.15s;
+  padding:15px 16px;
+}
+.submit-btn{
+  flex:2;
+  background:#1A1A1A;
+  color:#fff;
+  border:1px solid #1A1A1A;
+}
+.reset-btn{
+  flex:1;
+  background:#fff;
+  color:#1A1A1A;
+  border:1px solid var(--border);
+}
+button:disabled{
+  opacity:.45;
+  cursor:not-allowed;
+}
 .submit-btn:hover:not(:disabled),.reset-btn:hover:not(:disabled){opacity:.86}
-.toast{position:fixed;bottom:88px;left:50%;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:12px 20px;border-radius:999px;font-size:13px;font-weight:600;z-index:100;opacity:0;transition:.25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
-.toast.show{opacity:1;bottom:102px}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.42);z-index:90;align-items:center;justify-content:center;padding:20px}
+.toast{
+  position:fixed;
+  bottom:88px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#1A1A1A;
+  color:#fff;
+  padding:12px 20px;
+  border-radius:999px;
+  font-size:13px;
+  font-weight:600;
+  z-index:100;
+  opacity:0;
+  transition:.25s;
+  pointer-events:none;
+  max-width:calc(100vw - 32px);
+  text-align:center;
+}
+.toast.show{
+  opacity:1;
+  bottom:102px;
+}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.42);
+  z-index:90;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
 .modal.show{display:flex}
-.modal-content{background:#fff;border-radius:20px;padding:30px 24px;max-width:380px;width:100%;text-align:center;box-shadow:0 16px 50px rgba(0,0,0,.16)}
-.modal-icon{font-size:44px;margin-bottom:10px}
-.modal-title{font-size:20px;font-weight:900;margin-bottom:8px;letter-spacing:-.03em}
-.modal-desc{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:18px}
-.modal-btn{width:100%;padding:14px;border:0;border-radius:12px;background:#1A1A1A;color:#fff;font-size:14px;font-weight:800;font-family:inherit;cursor:pointer}
-.mini{font-size:11px;color:#AAA;margin-top:8px;line-height:1.45}
-.time-mini{font-size:10px;color:#AAA;margin-top:6px;line-height:1.4}
-@media(max-width:520px){.field-row{grid-template-columns:1fr}.title{font-size:23px}.card{padding:18px}}
+.modal-content{
+  background:#fff;
+  border-radius:20px;
+  padding:30px 24px;
+  max-width:380px;
+  width:100%;
+  text-align:center;
+  box-shadow:0 16px 50px rgba(0,0,0,.16);
+}
+.modal-icon{
+  font-size:44px;
+  margin-bottom:10px;
+}
+.modal-title{
+  font-size:20px;
+  font-weight:900;
+  margin-bottom:8px;
+  letter-spacing:-.03em;
+}
+.modal-desc{
+  font-size:13px;
+  color:var(--sub);
+  line-height:1.6;
+  margin-bottom:18px;
+}
+.modal-btn{
+  width:100%;
+  padding:14px;
+  border:0;
+  border-radius:12px;
+  background:#1A1A1A;
+  color:#fff;
+  font-size:14px;
+  font-weight:800;
+  font-family:inherit;
+  cursor:pointer;
+}
+.mini{
+  font-size:11px;
+  color:#AAA;
+  margin-top:8px;
+  line-height:1.45;
+}
+.time-mini{
+  font-size:10px;
+  color:#AAA;
+  margin-top:6px;
+  line-height:1.4;
+}
+.time-wrap{
+  position:relative;
+}
+.time-wrap input{
+  padding-right:52px;
+}
+.time-icon-btn{
+  position:absolute;
+  right:8px;
+  top:50%;
+  transform:translateY(-50%);
+  width:36px;
+  height:36px;
+  border:0;
+  border-radius:9px;
+  background:#fff;
+  color:#555;
+  cursor:pointer;
+  font-size:17px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.time-icon-btn:hover{
+  background:var(--soft);
+}
+.time-picker{
+  display:none;
+  position:absolute;
+  top:calc(100% + 8px);
+  right:0;
+  width:min(300px,calc(100vw - 58px));
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 18px 50px rgba(0,0,0,.14);
+  padding:14px;
+  z-index:80;
+}
+.time-picker.show{
+  display:block;
+}
+.time-picker-title{
+  font-size:12px;
+  font-weight:900;
+  color:#333;
+  margin-bottom:10px;
+}
+.time-picker-sub{
+  font-size:10px;
+  color:#999;
+  line-height:1.45;
+  margin-bottom:12px;
+}
+.time-picker-row{
+  display:grid;
+  grid-template-columns:1fr auto 1fr;
+  gap:10px;
+  align-items:center;
+}
+.time-picker-row select{
+  height:48px;
+  padding:0 34px 0 14px;
+  font-size:18px;
+  font-family:'DM Mono',monospace;
+  font-weight:600;
+}
+.time-colon{
+  font-size:22px;
+  font-family:'DM Mono',monospace;
+  font-weight:700;
+  color:#333;
+}
+.time-picker-actions{
+  display:flex;
+  gap:8px;
+  margin-top:12px;
+}
+.time-picker-actions button{
+  flex:1;
+  height:40px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#fff;
+  color:#333;
+  font-size:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.time-picker-actions button:hover{
+  background:var(--soft);
+}
+.time-picker-actions .primary{
+  background:#1A1A1A;
+  border-color:#1A1A1A;
+  color:#fff;
+}
+.quick-times{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:6px;
+  margin-top:10px;
+}
+.quick-times button{
+  height:30px;
+  border:1px solid var(--border);
+  background:#FAFAF9;
+  border-radius:8px;
+  font-size:11px;
+  font-family:'DM Mono',monospace;
+  cursor:pointer;
+  color:#555;
+}
+.quick-times button:hover{
+  background:#F0F0EC;
+}
+@media(max-width:520px){
+  .field-row{grid-template-columns:1fr}
+  .title{font-size:23px}
+  .card{padding:18px}
+}
 </style>
 </head>
 
@@ -104,7 +430,7 @@ button:disabled{opacity:.45;cursor:not-allowed}
 
       <div class="field-group">
         <label class="field-label">문의 시간 <span class="required">*</span></label>
-        <div class="time-wrap">
+        <div class="time-wrap" id="timeWrap">
           <input
             type="text"
             id="f-inquiry-time"
@@ -114,9 +440,33 @@ button:disabled{opacity:.45;cursor:not-allowed}
             autocomplete="off"
             required
           >
-          <span class="time-icon">🕘</span>
+          <button type="button" class="time-icon-btn" id="timeIconBtn" aria-label="문의 시간 선택">🕘</button>
+
+          <div class="time-picker" id="timePicker">
+            <div class="time-picker-title">문의 시간 선택</div>
+            <div class="time-picker-sub">24시 형식으로 저장됩니다. 예: 09:30 / 17:30 / 23:05</div>
+
+            <div class="time-picker-row">
+              <select id="pickHour"></select>
+              <div class="time-colon">:</div>
+              <select id="pickMinute"></select>
+            </div>
+
+            <div class="quick-times">
+              <button type="button" onclick="setQuickTime('09:00')">09:00</button>
+              <button type="button" onclick="setQuickTime('12:00')">12:00</button>
+              <button type="button" onclick="setQuickTime('15:00')">15:00</button>
+              <button type="button" onclick="setQuickTime('18:00')">18:00</button>
+            </div>
+
+            <div class="time-picker-actions">
+              <button type="button" onclick="setCurrentTimeToInput()">현재시간</button>
+              <button type="button" onclick="closeTimePicker()">닫기</button>
+              <button type="button" class="primary" onclick="applyPickedTime()">적용</button>
+            </div>
+          </div>
         </div>
-        <div class="time-mini">24시 형식으로 입력됩니다. 예: 09:30 / 17:30 / 23:05</div>
+        <div class="time-mini">오른쪽 시계를 누르면 시간 선택창이 열립니다.</div>
       </div>
     </div>
 
@@ -201,6 +551,71 @@ const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6xm8AvczOUgBh
 
 let toastTimer = null;
 
+function initTimePicker(){
+  const hour = document.getElementById('pickHour');
+  const minute = document.getElementById('pickMinute');
+
+  hour.innerHTML = '';
+  minute.innerHTML = '';
+
+  for(let h = 0; h < 24; h++){
+    const v = pad2(h);
+    hour.insertAdjacentHTML('beforeend', `<option value="${v}">${v}</option>`);
+  }
+
+  for(let m = 0; m < 60; m++){
+    const v = pad2(m);
+    minute.insertAdjacentHTML('beforeend', `<option value="${v}">${v}</option>`);
+  }
+}
+
+function openTimePicker(){
+  syncPickerFromInput();
+  document.getElementById('timePicker').classList.add('show');
+}
+
+function closeTimePicker(){
+  document.getElementById('timePicker').classList.remove('show');
+}
+
+function syncPickerFromInput(){
+  const input = document.getElementById('f-inquiry-time');
+  const normalized = normalizeTime24(input.value) || getKstNowParts().time;
+  const parts = normalized.split(':');
+
+  document.getElementById('pickHour').value = parts[0];
+  document.getElementById('pickMinute').value = parts[1];
+}
+
+function applyPickedTime(){
+  const h = document.getElementById('pickHour').value;
+  const m = document.getElementById('pickMinute').value;
+
+  document.getElementById('f-inquiry-time').value = `${h}:${m}`;
+  closeTimePicker();
+}
+
+function setQuickTime(value){
+  const t = normalizeTime24(value);
+
+  if(!t) return;
+
+  const parts = t.split(':');
+
+  document.getElementById('pickHour').value = parts[0];
+  document.getElementById('pickMinute').value = parts[1];
+  document.getElementById('f-inquiry-time').value = t;
+}
+
+function setCurrentTimeToInput(){
+  const now = getKstNowParts();
+  const parts = now.time.split(':');
+
+  document.getElementById('pickHour').value = parts[0];
+  document.getElementById('pickMinute').value = parts[1];
+  document.getElementById('f-inquiry-time').value = now.time;
+}
+
 function getKstNowParts(){
   const parts = new Intl.DateTimeFormat('en-CA', {
     timeZone:'Asia/Seoul',
@@ -226,6 +641,7 @@ function setNow(){
 
   document.getElementById('f-inquiry-date').value = now.date;
   document.getElementById('f-inquiry-time').value = now.time;
+  syncPickerFromInput();
 }
 
 function toggleSourceEtc(){
@@ -255,13 +671,39 @@ document.getElementById('f-phone').addEventListener('input', function(e){
 
 document.getElementById('f-inquiry-time').addEventListener('input', function(e){
   e.target.value = formatTimeTyping(e.target.value);
+  syncPickerFromInput();
+});
+
+document.getElementById('f-inquiry-time').addEventListener('focus', function(){
+  openTimePicker();
 });
 
 document.getElementById('f-inquiry-time').addEventListener('blur', function(e){
-  const normalized = normalizeTime24(e.target.value);
+  setTimeout(function(){
+    const normalized = normalizeTime24(e.target.value);
 
-  if(normalized){
-    e.target.value = normalized;
+    if(normalized){
+      e.target.value = normalized;
+      syncPickerFromInput();
+    }
+  }, 120);
+});
+
+document.getElementById('timeIconBtn').addEventListener('click', function(e){
+  e.preventDefault();
+  e.stopPropagation();
+  openTimePicker();
+});
+
+document.getElementById('timePicker').addEventListener('click', function(e){
+  e.stopPropagation();
+});
+
+document.addEventListener('click', function(e){
+  const wrap = document.getElementById('timeWrap');
+
+  if(!wrap.contains(e.target)){
+    closeTimePicker();
   }
 });
 
@@ -394,7 +836,6 @@ async function submitLead(e){
   e.preventDefault();
 
   const form = document.getElementById('leadForm');
-
   const timeInput = document.getElementById('f-inquiry-time');
   const normalizedTime = normalizeTime24(timeInput.value);
 
@@ -465,6 +906,7 @@ function pad2(v){
   return String(v).padStart(2, '0');
 }
 
+initTimePicker();
 setNow();
 toggleSourceEtc();
 </script>
