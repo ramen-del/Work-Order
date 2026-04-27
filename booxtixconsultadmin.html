@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOOXTIX · 상담 관리자 v7</title>
+<title>BOOXTIX · 상담 관리자 v10</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -31,7 +31,7 @@ html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxuxGE2sYZYSL-RICWAPWH51iwS2BZjUhAix_V02a3MRFV5jTcWEWpPUN4QQ4oqU92A-g/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFbBAXGl4wo1AZ4KEj0K_g_x4Xw9h5K0pU56L8_sjdi1pGgUbm9BgEX31uYAJnrLPNnQ/exec";
 const BASIC_FIELDS = ['inquiryDate','inquiryTime','name','phone','hasStore','desiredRegion','source','sourceEtc','note'];
 const FIRST_FIELDS = ['callStatus','workType','recordFiles','currentSituation','inquiryTopic','detailInquiryMemo','answerType','answerMemo'];
 const NEXT_FIELDS = ['nextStep','nextActionDetail','nextActionDate','nextActionTime','nextActionOwner','nextActionMemo','finalStatus'];
@@ -87,6 +87,17 @@ function normalize(raw){
   d._rowId = rowId(d);
   return d;
 }
+function hasRealLead(d){
+  const clean = v => String(v || '').trim();
+  const isDash = v => /^[-\s]*$/.test(clean(v));
+  const phoneLike = v => /\d{2,4}[-\s]?\d{3,4}[-\s]?\d{4}/.test(clean(v));
+  const dateLike = v => /^\d{4}-\d{2}-\d{2}$/.test(clean(v));
+  const statusLike = v => ['미작성','1차 상담 완료','통화 완료','부재','문자 발송','카톡 발송','재통화 예정','관심 없음','신규 문의','상담 대기'].includes(clean(v));
+  if(clean(d.name) && !isDash(d.name) && !dateLike(d.name) && !statusLike(d.name)) return true;
+  if(clean(d.phone) && !isDash(d.phone) && phoneLike(d.phone)) return true;
+  const strong = [d.inquiryDate,d.desiredRegion,d.note,d.callStatus,d.workType,d.currentSituation,d.inquiryTopic,d.detailInquiryMemo,d.answerMemo,d.nextActionDetail];
+  return strong.some(v => clean(v) && !isDash(v) && !statusLike(v)) && (dateLike(d.inquiryDate) || clean(d.note || d.detailInquiryMemo || d.answerMemo));
+}
 function extractRowsFromResponse(json){
   if(Array.isArray(json)) return json;
   if(!json || typeof json !== 'object') return [];
@@ -110,10 +121,10 @@ async function loadData(){
     let json = {};
     try{ json = JSON.parse(text); }catch(parseErr){ throw new Error('JSON 응답이 아닙니다: ' + text.slice(0,80)); }
     const rows = extractRowsFromResponse(json);
-    allData = rows.map(normalize).filter(d => d.name || d.phone || d.inquiryDate || d.desiredRegion || d.source || d.note || d.callStatus || d.nextStep);
+    allData = rows.map(normalize).filter(hasRealLead);
     updateSourceFilter();applyFilter();updateKpi();setStatus(true);
     if(!allData.length){
-      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. Apps Script v7 Code.gs를 적용하면 기존 시트/다른 시트까지 자동 탐색합니다.' : '서버 응답에 목록 배열이 없습니다.');
+      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. Apps Script v9 Code.gs를 적용하면 기존 시트/다른 시트까지 자동 탐색합니다.' : '서버 응답에 목록 배열이 없습니다.');
       document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🗂️</span><b>관리자 표시 데이터 0건</b><br>'+esc(msg)+'</div>';
     }
   }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.<br>'+esc(err.message)+'</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
@@ -171,7 +182,7 @@ async function persistUpdates(d, updates, section, changes){
   const fd=new FormData();
   fd.append('action','update');
   fd.append('data',JSON.stringify({id:rowId(d),consultId:d.consultId,updates,historyEntry:{time:nowKST(),editor:'관리자',section,changes}}));
-  const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:fd});
+  const res=await fetch(APPS_SCRIPT_URL + '?action=update',{method:'POST',body:fd});
   const text=await res.text();
   let result={};
   try{result=JSON.parse(text);}catch(err){result={result:res.ok?'success':'error',raw:text};}
