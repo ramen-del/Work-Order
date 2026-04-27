@@ -39,8 +39,8 @@ button,input,select,textarea{font-family:inherit}
 .count{font-size:14px;color:var(--sub);white-space:nowrap}
 .table-box{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
 .table-scroll{overflow:auto}
-.table{min-width:1320px}
-.thead,.row{display:grid;grid-template-columns:110px 90px 120px 150px 110px 120px 70px 150px 130px 1fr;align-items:center}
+.table{min-width:1420px}
+.thead,.row{display:grid;grid-template-columns:110px 90px 120px 150px 110px 90px 120px 70px 150px 130px 1fr;align-items:center}
 .thead{min-height:44px;background:#FAFAF9;border-bottom:1px solid var(--border)}
 .th{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;padding:0 12px}
 .th:hover{color:var(--text)}
@@ -57,7 +57,7 @@ button,input,select,textarea{font-family:inherit}
 .consult-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:#CFCFC8}
 .consult-dot.need{background:#E05252;box-shadow:0 0 0 4px rgba(224,82,82,.12)}
 .consult-dot.done{background:#2D7A55;opacity:.55}
-.store-pill,.stage-pill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--border);font-size:11px;font-weight:900;line-height:1;white-space:nowrap}
+.store-pill,.stage-pill,.grade-pill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--border);font-size:11px;font-weight:900;line-height:1;white-space:nowrap}
 .store-pill.has{background:#E8F5EE;color:#2D7A55;border-color:#CDE9D9}
 .store-pill.none{background:#F2F4F7;color:#667085;border-color:#D0D5DD}
 .store-pill.unknown{background:#FFF7E8;color:#B7791F;border-color:#F4D9A4}
@@ -69,6 +69,12 @@ button,input,select,textarea{font-family:inherit}
 .stage-pill.done{background:#ECFDF3;color:#027A48;border-color:#ABEFC6}
 .stage-pill.hold{background:#FFFBEB;color:#B54708;border-color:#FEDF89}
 .stage-pill.closed{background:#F8FAFC;color:#475467;border-color:#EAECF0}
+.grade-pill.a{background:#E8F5EE;color:#027A48;border-color:#ABEFC6}
+.grade-pill.b{background:#EFF6FF;color:#2563EB;border-color:#BFDBFE}
+.grade-pill.c{background:#F2F4F7;color:#667085;border-color:#D0D5DD}
+.grade-pill.hold{background:#FFFBEB;color:#B54708;border-color:#FEDF89}
+.grade-pill.bad{background:#F8FAFC;color:#475467;border-color:#EAECF0}
+.grade-pill.none{background:#FAFAF9;color:#98A2B3;border-color:#EAECF0}
 .empty,.loading{padding:60px 20px;text-align:center;color:var(--sub);font-size:13px}
 .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -171,6 +177,7 @@ button,input,select,textarea{font-family:inherit}
     <div class="search"><span>🔍</span><input id="q" placeholder="이름, 연락처, 지역 검색..." oninput="applyFilter()"></div>
     <select id="filter-hasStore" class="filter-select" onchange="applyFilter()"><option value="">점포 전체</option><option>점포 있음</option><option>점포 없음</option><option>확인 필요</option></select>
     <select id="filter-stage" class="filter-select" onchange="applyFilter()"><option value="">상담단계 전체</option></select>
+    <select id="filter-grade" class="filter-select" onchange="applyFilter()"><option value="">가망등급 전체</option></select>
     <select id="filter-region" class="filter-select" onchange="applyFilter()"><option value="">지역 전체</option></select>
     <select id="filter-source" class="filter-select" onchange="applyFilter()"><option value="">유입경로 전체</option></select>
     <div class="count" id="count">0 건</div>
@@ -185,6 +192,7 @@ button,input,select,textarea{font-family:inherit}
           <div class="th" onclick="sortBy('name')">이름</div>
           <div class="th">연락처</div>
           <div class="th">점포</div>
+          <div class="th">가망등급</div>
           <div class="th">상담단계</div>
           <div class="th">회차</div>
           <div class="th">창업희망</div>
@@ -218,7 +226,7 @@ button,input,select,textarea{font-family:inherit}
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzx52KgFM4uE3kmgcEoQ94ejoewzk2-7Lu3YhgtKL32dBVgptsdOy_SPlQrCNk8TRBN0A/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwRwMJ94InwpdjC1VHys9Tc6bKzxMHiHx5rwTCFIDdijgZK4hPNy5Wqi9W7fYKEz3K5sg/exec";
 const AUTO_REFRESH_MS = 60000;
 
 let all = [];
@@ -234,6 +242,7 @@ const OPTIONS = {
   hasStore: ['', '점포 있음', '점포 없음', '확인 필요'],
   firstConsultStatus: ['미작성', '1차 상담 완료'],
   consultStage: ['신규접수', '1차 상담', '2차 상담', '3차 상담', '추가 상담', '계약 검토', '계약 완료', '보류', '종결'],
+  prospectGrade: ['', 'A급', 'B급', 'C급', '보류', '부적합'],
   callStatus: ['', '통화완료', '부재', '재통화필요', '상담거절', '번호오류'],
   workType: ['', '신규 창업', '업종 변경', '기존 매장 추가', '배달 전문', '샵인샵', '확인 필요'],
   currentSituation: ['', '점포 보유', '점포 탐색 중', '업종 고민 중', '비용 확인 단계', '타 브랜드 비교 중', '즉시 창업 희망', '단순 문의'],
@@ -329,6 +338,8 @@ function normalize(r){
     consultStage: stage,
     consultRound: round,
     lastConsultAt: normalizeDateTime(r.lastConsultAt || r.최근상담일시 || ''),
+    prospectGrade: normalizeProspectGrade(r.prospectGrade || r.가망등급 || ''),
+    prospectMemo: r.prospectMemo || r.등급메모 || '',
     callStatus: r.callStatus || r.상담상태 || '',
     workType: r.workType || r.작업형태 || '',
     currentSituation: r.currentSituation || r.현재상황 || '',
@@ -366,6 +377,7 @@ function buildFilters(){
   fillSelect('filter-region', unique(all.map(x => x.desiredRegion).filter(Boolean)), '지역 전체');
   fillSelect('filter-source', unique(all.map(x => x.source).filter(Boolean)), '유입경로 전체');
   fillSelect('filter-stage', unique(OPTIONS.consultStage.concat(all.map(x => x.consultStage).filter(Boolean))), '상담단계 전체');
+  fillSelect('filter-grade', unique(OPTIONS.prospectGrade.concat(all.map(x => x.prospectGrade).filter(Boolean))), '가망등급 전체');
 }
 
 function fillSelect(id, vals, first){
@@ -385,13 +397,15 @@ function applyFilter(){
   const q = document.getElementById('q').value.toLowerCase().trim();
   const hs = document.getElementById('filter-hasStore').value;
   const st = document.getElementById('filter-stage').value;
+  const gr = document.getElementById('filter-grade').value;
   const rg = document.getElementById('filter-region').value;
   const sr = document.getElementById('filter-source').value;
 
   filtered = all.filter(d => {
-    if(q && !['id','name','phone','desiredRegion','source','note','callStatus','nextStep','finalStatus','consultStage'].some(k => String(d[k] || '').toLowerCase().includes(q))) return false;
+    if(q && !['id','name','phone','desiredRegion','source','note','callStatus','nextStep','finalStatus','consultStage','prospectGrade','prospectMemo'].some(k => String(d[k] || '').toLowerCase().includes(q))) return false;
     if(hs && d.hasStore !== hs) return false;
     if(st && d.consultStage !== st) return false;
+    if(gr && d.prospectGrade !== gr) return false;
     if(rg && d.desiredRegion !== rg) return false;
     if(sr && d.source !== sr) return false;
     return true;
@@ -445,6 +459,7 @@ function renderRows(){
         </div>
         <div class="td sub">${esc(d.phone || '-')}</div>
         <div class="td">${renderStoreBadge(d.hasStore)}</div>
+        <div class="td">${renderGradeBadge(d.prospectGrade)}</div>
         <div class="td">${renderStageBadge(d.consultStage)}</div>
         <div class="td sub">${esc(d.consultRound || '0')}</div>
         <div class="td sub">${esc(d.desiredRegion || '-')}</div>
@@ -494,6 +509,7 @@ function renderPanel(){
           <div class="summary-grid">
             <div class="summary-item"><div class="summary-label">STORE</div><div class="summary-value">${stripHtml(renderStoreBadge(current.hasStore))}</div></div>
             <div class="summary-item"><div class="summary-label">STAGE</div><div class="summary-value">${esc(current.consultStage || '-')}</div></div>
+            <div class="summary-item"><div class="summary-label">GRADE</div><div class="summary-value">${esc(current.prospectGrade || '-')}</div></div>
             <div class="summary-item"><div class="summary-label">ROUND</div><div class="summary-value">${esc(current.consultRound || '0')}회차</div></div>
             <div class="summary-item"><div class="summary-label">LAST</div><div class="summary-value">${esc(current.lastConsultAt || '-')}</div></div>
           </div>
@@ -540,6 +556,11 @@ function renderPanel(){
           <div class="grid">
             ${selectField('상담단계', 'edit-consultStage', OPTIONS.consultStage, current.consultStage || '신규접수', 'onchange="syncRoundFromStage()"')}
             ${inputField('상담회차', 'edit-consultRound', 'number', current.consultRound || '0')}
+            ${selectField('가망등급', 'edit-prospectGrade', OPTIONS.prospectGrade, current.prospectGrade || '')}
+            <div class="field full">
+              <label class="label">등급메모</label>
+              <textarea class="textarea" id="edit-prospectMemo" placeholder="예: 점포 보유, 비용 확인 완료, 이번 주 미팅 희망 등 등급 판단 이유를 적어주세요.">${escTextarea(current.prospectMemo)}</textarea>
+            </div>
             <div class="field full">
               <label class="label">최근상담일시</label>
               <div class="inline-actions">
@@ -789,6 +810,8 @@ function collectUpdates(){
     consultStage: valueOf('edit-consultStage'),
     consultRound: valueOf('edit-consultRound'),
     lastConsultAt: valueOf('edit-lastConsultAt'),
+    prospectGrade: valueOf('edit-prospectGrade'),
+    prospectMemo: valueOf('edit-prospectMemo'),
 
     callStatus: valueOf('edit-callStatus'),
     workType: valueOf('edit-workType'),
@@ -929,6 +952,33 @@ function storeClass(value){
   if(v === '점포 있음') return 'has';
   if(v === '점포 없음') return 'none';
   return 'unknown';
+}
+
+function renderGradeBadge(value){
+  const v = normalizeProspectGrade(value);
+  const label = v || '미분류';
+  return `<span class="grade-pill ${gradeClass(v)}">${esc(label)}</span>`;
+}
+
+function gradeClass(value){
+  const v = String(value || '').trim();
+  if(v === 'A급') return 'a';
+  if(v === 'B급') return 'b';
+  if(v === 'C급') return 'c';
+  if(v === '보류') return 'hold';
+  if(v === '부적합') return 'bad';
+  return 'none';
+}
+
+function normalizeProspectGrade(value){
+  const v = String(value || '').trim();
+  if(!v) return '';
+  if(v === 'A' || v.toUpperCase() === 'A' || v === 'A급') return 'A급';
+  if(v === 'B' || v.toUpperCase() === 'B' || v === 'B급') return 'B급';
+  if(v === 'C' || v.toUpperCase() === 'C' || v === 'C급') return 'C급';
+  if(v === '보류') return '보류';
+  if(v === '부적합') return '부적합';
+  return v;
 }
 
 function renderStageBadge(value){
