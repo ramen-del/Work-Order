@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOOXTIX · 상담 관리자 v5</title>
+<title>BOOXTIX · 상담 관리자 v7</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -87,16 +87,36 @@ function normalize(raw){
   d._rowId = rowId(d);
   return d;
 }
+function extractRowsFromResponse(json){
+  if(Array.isArray(json)) return json;
+  if(!json || typeof json !== 'object') return [];
+  const keys = ['data','rows','items','records','list','values','resultRows','leads'];
+  for(const k of keys){
+    if(Array.isArray(json[k])) return json[k];
+  }
+  if(json.result && typeof json.result === 'object'){
+    for(const k of keys){
+      if(Array.isArray(json.result[k])) return json.result[k];
+    }
+  }
+  return [];
+}
 async function loadData(){
   const btn = document.getElementById('refreshBtn');btn.classList.add('loading');btn.textContent='↻ 로딩 중';
   document.getElementById('tableBody').innerHTML='<div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>';
   try{
     const res = await fetch(APPS_SCRIPT_URL + '?action=list&ts=' + Date.now());
-    const json = await res.json();
-    const rows = Array.isArray(json) ? json : (json.data || json.rows || []);
-    allData = rows.map(normalize);
+    const text = await res.text();
+    let json = {};
+    try{ json = JSON.parse(text); }catch(parseErr){ throw new Error('JSON 응답이 아닙니다: ' + text.slice(0,80)); }
+    const rows = extractRowsFromResponse(json);
+    allData = rows.map(normalize).filter(d => d.name || d.phone || d.inquiryDate || d.desiredRegion || d.source || d.note || d.callStatus || d.nextStep);
     updateSourceFilter();applyFilter();updateKpi();setStatus(true);
-  }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
+    if(!allData.length){
+      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. Apps Script v7 Code.gs를 적용하면 기존 시트/다른 시트까지 자동 탐색합니다.' : '서버 응답에 목록 배열이 없습니다.');
+      document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🗂️</span><b>관리자 표시 데이터 0건</b><br>'+esc(msg)+'</div>';
+    }
+  }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.<br>'+esc(err.message)+'</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
 }
 function updateSourceFilter(){const sel=document.getElementById('filterSource');const current=sel.value;const sources=[...new Set(allData.map(d=>d.source).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));sel.innerHTML='<option value="">유입 전체</option>'+sources.map(s=>`<option>${esc(s)}</option>`).join('');sel.value=current;}
 function updateKpi(){const today=todayKST();document.getElementById('kpiTotal').textContent=allData.length;document.getElementById('kpiToday').textContent=allData.filter(d=>d.inquiryDate===today).length;document.getElementById('kpiDate').textContent=today;document.getElementById('kpiWaiting').textContent=allData.filter(d=>d.firstConsultStatus!=='1차 상담 완료').length;document.getElementById('kpiNext').textContent=allData.filter(d=>d.firstConsultStatus==='1차 상담 완료' && !['종료','보류'].includes(d.nextStep)).length;}
