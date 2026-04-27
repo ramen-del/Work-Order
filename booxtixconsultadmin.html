@@ -47,9 +47,20 @@ button,input,select,textarea{font-family:inherit}
 #rows{max-height:calc(100vh - 380px);overflow-y:auto}
 .row{min-height:54px;border-bottom:1px solid #F5F5F3;cursor:pointer;transition:background .12s}
 .row:hover{background:#FAFAF9}
+.row.needs-consult{background:linear-gradient(90deg,rgba(224,82,82,.09),#fff 42px)}
+.row.needs-consult:hover{background:linear-gradient(90deg,rgba(224,82,82,.14),#FAFAF9 42px)}
 .td{font-size:13px;color:var(--text);padding:8px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .td.sub{color:var(--sub);font-size:12px}
 .td.mono{font-family:"DM Mono",monospace;font-size:11px}
+.name-wrap{display:flex;align-items:center;gap:7px;min-width:0}
+.name-wrap b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.consult-dot{width:9px;height:9px;border-radius:50%;flex:0 0 auto;background:#CFCFC8}
+.consult-dot.need{background:#E05252;box-shadow:0 0 0 4px rgba(224,82,82,.12)}
+.consult-dot.done{background:#2D7A55;opacity:.55}
+.store-pill{display:inline-flex;align-items:center;justify-content:center;min-height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--border);font-size:11px;font-weight:900;line-height:1;white-space:nowrap}
+.store-pill.has{background:#E8F5EE;color:#2D7A55;border-color:#CDE9D9}
+.store-pill.none{background:#FFF0F0;color:#D63D3D;border-color:#F3CACA}
+.store-pill.unknown{background:#F4F1EA;color:#8A6B2D;border-color:#E6D8B8}
 .empty,.loading{padding:60px 20px;text-align:center;color:var(--sub);font-size:13px}
 .spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
 @keyframes spin{to{transform:rotate(360deg)}}
@@ -76,6 +87,7 @@ button,input,select,textarea{font-family:inherit}
 .summary-name{font-size:24px;font-weight:900;letter-spacing:-.04em;line-height:1.15}
 .summary-phone{font-family:"DM Mono",monospace;font-size:13px;color:rgba(255,255,255,.68);margin-top:5px}
 .summary-badge{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:800;white-space:nowrap}
+.summary-badge.need{background:#E05252;color:#fff}
 .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
 .summary-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px;min-width:0}
 .summary-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:5px}
@@ -400,7 +412,7 @@ function updateKpi(){
   document.getElementById('k-today').textContent = all.filter(x => String(x.inquiryDate || x.submittedAt || '').startsWith(today)).length;
   document.getElementById('k-date').textContent = today;
   document.getElementById('k-hasStore').textContent = all.filter(x => x.hasStore === '점포 있음').length;
-  document.getElementById('k-consultDone').textContent = all.filter(x => x.firstConsultStatus === '1차 상담 완료').length;
+  document.getElementById('k-consultDone').textContent = all.filter(x => !needsFirstConsult(x)).length;
 }
 
 function renderRows(){
@@ -409,18 +421,27 @@ function renderRows(){
     return;
   }
 
-  document.getElementById('rows').innerHTML = filtered.map((d,i) => `
-    <div class="row" onclick="openPanel(${i})">
-      <div class="td mono">${esc(d.inquiryDate || '-')}</div>
-      <div class="td sub">${esc(d.inquiryTime || '-')}</div>
-      <div class="td"><b>${esc(d.name || '-')}</b></div>
-      <div class="td sub">${esc(d.phone || '-')}</div>
-      <div class="td">${esc(d.hasStore || '-')}</div>
-      <div class="td sub">${esc(d.desiredRegion || '-')}</div>
-      <div class="td sub">${esc(d.source || '-')}</div>
-      <div class="td sub">${esc(d.note || '-')}</div>
-    </div>
-  `).join('');
+  document.getElementById('rows').innerHTML = filtered.map((d,i) => {
+    const needs = needsFirstConsult(d);
+
+    return `
+      <div class="row ${needs ? 'needs-consult' : ''}" onclick="openPanel(${i})">
+        <div class="td mono">${esc(d.inquiryDate || '-')}</div>
+        <div class="td sub">${esc(normalizeTime(d.inquiryTime) || '-')}</div>
+        <div class="td">
+          <div class="name-wrap">
+            <span class="consult-dot ${needs ? 'need' : 'done'}" title="${needs ? '1차 상담 미완료' : '1차 상담 완료'}"></span>
+            <b>${esc(d.name || '-')}</b>
+          </div>
+        </div>
+        <div class="td sub">${esc(d.phone || '-')}</div>
+        <div class="td">${renderStoreBadge(d.hasStore)}</div>
+        <div class="td sub">${esc(d.desiredRegion || '-')}</div>
+        <div class="td sub">${esc(d.source || '-')}</div>
+        <div class="td sub">${esc(d.note || '-')}</div>
+      </div>
+    `;
+  }).join('');
 }
 
 function openPanel(i){
@@ -442,6 +463,8 @@ function renderPanel(){
   if(!current) return;
 
   const htmlLinks = [];
+  const needs = needsFirstConsult(current);
+
   if(current.htmlUrl) htmlLinks.push(`<a class="small-link" href="${escAttr(current.htmlUrl)}" target="_blank">HTML 기록 보기</a>`);
   if(current.folderUrl) htmlLinks.push(`<a class="small-link" href="${escAttr(current.folderUrl)}" target="_blank">Drive 폴더 보기</a>`);
 
@@ -454,11 +477,11 @@ function renderPanel(){
               <div class="summary-name">${esc(current.name || '-')}</div>
               <div class="summary-phone">${esc(current.phone || '-')}</div>
             </div>
-            <div class="summary-badge">${esc(current.finalStatus || '신규 문의')}</div>
+            <div class="summary-badge ${needs ? 'need' : ''}">${needs ? '1차 상담 대기' : esc(current.finalStatus || '상담 완료')}</div>
           </div>
 
           <div class="summary-grid">
-            <div class="summary-item"><div class="summary-label">STORE</div><div class="summary-value">${esc(current.hasStore || '-')}</div></div>
+            <div class="summary-item"><div class="summary-label">STORE</div><div class="summary-value">${stripHtml(renderStoreBadge(current.hasStore))}</div></div>
             <div class="summary-item"><div class="summary-label">REGION</div><div class="summary-value">${esc(current.desiredRegion || '-')}</div></div>
             <div class="summary-item"><div class="summary-label">SOURCE</div><div class="summary-value">${esc(current.source || '-')}</div></div>
             <div class="summary-item"><div class="summary-label">STATUS</div><div class="summary-value">${esc(current.firstConsultStatus || '미작성')}</div></div>
@@ -481,7 +504,7 @@ function renderPanel(){
 
           <div class="grid">
             ${inputField('문의일자', 'edit-inquiryDate', 'date', current.inquiryDate)}
-            ${inputField('문의시간', 'edit-inquiryTime', 'time', current.inquiryTime)}
+            ${inputField('문의시간', 'edit-inquiryTime', 'time', normalizeTime(current.inquiryTime))}
             ${inputField('이름', 'edit-name', 'text', current.name)}
             ${inputField('연락처', 'edit-phone', 'tel', current.phone)}
             ${selectField('점포 유/무', 'edit-hasStore', OPTIONS.hasStore, current.hasStore)}
@@ -546,7 +569,7 @@ function renderPanel(){
             ${selectField('다음 단계', 'edit-nextStep', OPTIONS.nextStep, current.nextStep || '상담 대기')}
             ${inputField('담당자', 'edit-nextActionOwner', 'text', current.nextActionOwner)}
             ${inputField('다음액션 예정일', 'edit-nextActionDate', 'date', current.nextActionDate)}
-            ${inputField('다음액션 예정시간', 'edit-nextActionTime', 'time', current.nextActionTime)}
+            ${inputField('다음액션 예정시간', 'edit-nextActionTime', 'time', normalizeTime(current.nextActionTime))}
             <div class="field full">
               <label class="label">다음단계 상세</label>
               <textarea class="textarea" id="edit-nextActionDetail" placeholder="예: 김해 장유 상권 가능 여부 확인 후 내일 오후 3시 재통화">${escTextarea(current.nextActionDetail)}</textarea>
@@ -735,7 +758,7 @@ async function saveConsult(){
 function collectUpdates(){
   return {
     inquiryDate: valueOf('edit-inquiryDate'),
-    inquiryTime: valueOf('edit-inquiryTime'),
+    inquiryTime: normalizeTime(valueOf('edit-inquiryTime')),
     name: valueOf('edit-name'),
     phone: valueOf('edit-phone'),
     hasStore: valueOf('edit-hasStore'),
@@ -757,7 +780,7 @@ function collectUpdates(){
     nextStep: valueOf('edit-nextStep'),
     nextActionDetail: valueOf('edit-nextActionDetail'),
     nextActionDate: valueOf('edit-nextActionDate'),
-    nextActionTime: valueOf('edit-nextActionTime'),
+    nextActionTime: normalizeTime(valueOf('edit-nextActionTime')),
     nextActionOwner: valueOf('edit-nextActionOwner'),
     nextActionMemo: valueOf('edit-nextActionMemo'),
 
@@ -767,7 +790,6 @@ function collectUpdates(){
 
 function getFormState(){
   if(!current) return {};
-
   return collectUpdates();
 }
 
@@ -861,9 +883,29 @@ function fallbackCopy(text){
   document.body.removeChild(input);
 }
 
+function renderStoreBadge(value){
+  const v = String(value || '').trim();
+  const cls = storeClass(v);
+  const label = v || '확인 필요';
+
+  return `<span class="store-pill ${cls}">${esc(label)}</span>`;
+}
+
+function storeClass(value){
+  const v = String(value || '').trim();
+
+  if(v === '점포 있음') return 'has';
+  if(v === '점포 없음') return 'none';
+  return 'unknown';
+}
+
+function needsFirstConsult(d){
+  const s = String(d.firstConsultStatus || '').trim();
+  return !(s === '1차 상담 완료' || s === '완료');
+}
+
 function parseRecordLinks(raw){
   if(Array.isArray(raw)) return raw.filter(Boolean);
-
   return String(raw || '').split('\n').map(x => x.trim()).filter(Boolean);
 }
 
@@ -893,11 +935,41 @@ function normalizeDateTime(v){
 }
 
 function normalizeTime(v){
-  const s = String(v || '').trim();
+  let s = String(v || '').trim();
   if(!s) return '';
-  if(/^\d{2}:\d{2}/.test(s)) return s.slice(0,5);
   if(s === '1899-12-31') return '';
-  return s;
+
+  const iso = s.match(/T(\d{1,2}):(\d{2})/);
+  if(iso){
+    return pad2(iso[1]) + ':' + iso[2];
+  }
+
+  const hasKoreanAm = s.includes('오전');
+  const hasKoreanPm = s.includes('오후');
+  const hasEnglishAm = /\bAM\b/i.test(s);
+  const hasEnglishPm = /\bPM\b/i.test(s);
+
+  const m = s.match(/(\d{1,2}):(\d{2})/);
+  if(!m) return s;
+
+  let h = Number(m[1]);
+  const min = m[2];
+
+  if(hasKoreanPm || hasEnglishPm){
+    if(h < 12) h += 12;
+  }
+
+  if(hasKoreanAm || hasEnglishAm){
+    if(h === 12) h = 0;
+  }
+
+  if(h >= 24) h = h % 24;
+
+  return pad2(h) + ':' + min;
+}
+
+function pad2(v){
+  return String(v).padStart(2, '0');
 }
 
 function getKstToday(){
@@ -907,8 +979,17 @@ function getKstToday(){
 }
 
 function getNowTimeText(){
-  const parts = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date());
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone:'Asia/Seoul',
+    hour:'2-digit',
+    minute:'2-digit',
+    second:'2-digit',
+    hour12:false,
+    hourCycle:'h23'
+  }).formatToParts(new Date());
+
   const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+
   return `${m.hour}:${m.minute}:${m.second}`;
 }
 
@@ -918,6 +999,12 @@ function onlyPhoneNumber(v){
 
 function unique(arr){
   return [...new Set(arr.map(v => String(v || '').trim()).filter(Boolean))];
+}
+
+function stripHtml(html){
+  const div = document.createElement('div');
+  div.innerHTML = html || '';
+  return div.textContent || div.innerText || '';
 }
 
 function esc(s){
