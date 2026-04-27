@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOOXTIX · 상담 관리자 v10</title>
+<title>BOOXTIX · 상담 관리자 v11</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -31,14 +31,14 @@ html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxFbBAXGl4wo1AZ4KEj0K_g_x4Xw9h5K0pU56L8_sjdi1pGgUbm9BgEX31uYAJnrLPNnQ/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzOcMs0UGDv6ZDU2-ZA3pcZjMTa4BRJEFHdkAMIG8smIXOHxvU5Ei522-I7WdSr7W-R9w/exec";
 const BASIC_FIELDS = ['inquiryDate','inquiryTime','name','phone','hasStore','desiredRegion','source','sourceEtc','note'];
 const FIRST_FIELDS = ['callStatus','workType','recordFiles','currentSituation','inquiryTopic','detailInquiryMemo','answerType','answerMemo'];
 const NEXT_FIELDS = ['nextStep','nextActionDetail','nextActionDate','nextActionTime','nextActionOwner','nextActionMemo','finalStatus'];
 const LABELS = {inquiryDate:'문의 일자',inquiryTime:'문의 시간',name:'이름',phone:'연락처',hasStore:'점포 유/무',desiredRegion:'창업 희망지역',source:'유입경로',sourceEtc:'기타 유입경로',note:'비고',callStatus:'상담상태',workType:'작업형태',recordFiles:'통화녹음 업로드',currentSituation:'현재상황',inquiryTopic:'문의주제',detailInquiryMemo:'상세문의 메모',answerType:'답변유형',answerMemo:'답변메모',firstConsultStatus:'1차 상담 상태',firstConsultCompletedAt:'1차 상담 완료일시',nextStep:'다음단계',nextActionDetail:'다음단계 상세내용',nextActionDate:'다음액션 예정일',nextActionTime:'다음액션 예정시간',nextActionOwner:'담당자',nextActionMemo:'다음액션 내부메모',finalStatus:'최종상태'};
 let allData = [], filtered = [], currentIdx = null, currentRecordFiles = [];
 let sortKey = 'inquiryDateTime', sortAsc = false;
-let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_v5') || '{}');
+let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_v11') || '{}');
 
 function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function pick(o, keys, fallback=''){for(const k of keys){if(o && o[k] !== undefined && o[k] !== null && String(o[k]).trim() !== '') return String(o[k]).trim();}return fallback;}
@@ -177,7 +177,7 @@ function readNext(){return {nextStep:val('n-nextStep'),nextActionDetail:val('n-n
 function val(id){const el=document.getElementById(id);return el ? el.value.trim() : '';}
 function diffAndApply(d, updates){const changes=[];Object.keys(updates).forEach(k=>{const oldVal = k==='recordFiles' ? JSON.stringify(d[k]||[]) : String(d[k]||'');const newVal = k==='recordFiles' ? JSON.stringify(updates[k]||[]) : String(updates[k]||'');if(oldVal!==newVal){changes.push({field:LABELS[k]||k,old:displayVal(d[k]),new:displayVal(updates[k])});d[k]=updates[k];}});if(updates.inquiryDate||updates.inquiryTime)d.inquiryDateTime=`${d.inquiryDate||'0000-00-00'} ${d.inquiryTime||'00:00'}`;return changes;}
 function displayVal(v){if(Array.isArray(v))return v.map(x=>x.name||'파일').join(', ') || '없음';return String(v||'없음');}
-function addHistory(id,section,changes){if(!editHistory[id]) editHistory[id]=[];editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});localStorage.setItem('booxtix_admin_history_v5',JSON.stringify(editHistory));}
+function addHistory(id,section,changes){if(!editHistory[id]) editHistory[id]=[];editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});localStorage.setItem('booxtix_admin_history_v11',JSON.stringify(editHistory));}
 async function persistUpdates(d, updates, section, changes){
   const fd=new FormData();
   fd.append('action','update');
