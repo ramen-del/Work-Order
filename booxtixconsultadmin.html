@@ -7,737 +7,147 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --text:#1A1A1A;
-  --sub:#999;
-  --border:#E8E8E4;
-  --soft:#F5F5F3;
-  --soft2:#FAFAF9;
-  --ok:#2D7A55;
-  --err:#E05252;
-  --warn:#D97706;
-  --info:#1565C0;
-  --radius:12px;
-}
-html,body{
-  min-height:100vh;
-  background:#F7F7F5;
-  font-family:"Noto Sans KR",sans-serif;
-  color:var(--text);
-}
-button,input,select,textarea{
-  font-family:inherit;
-}
-.nav{
-  height:70px;
-  background:#fff;
-  border-bottom:1px solid var(--border);
-  padding:0 20px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:sticky;
-  top:0;
-  z-index:100;
-}
-.nav-logo{
-  font-size:22px;
-  font-weight:900;
-  letter-spacing:-.035em;
-  color:#333;
-}
-.sub-header{
-  height:46px;
-  background:#fff;
-  padding:0 20px;
-  border-bottom:1px solid var(--border);
-  position:sticky;
-  top:70px;
-  z-index:99;
-  display:flex;
-  align-items:center;
-}
-.sub-header-inner{
-  max-width:none;
-  width:100%;
-  margin:0 auto;
-  position:relative;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
-}
-.page-label{
-  font-family:"DM Mono",monospace;
-  font-size:13px;
-  letter-spacing:.28em;
-  color:var(--sub);
-  font-weight:400;
-}
-.page-label b{
-  color:var(--text);
-  font-weight:700;
-}
-.sub-header-right{
-  position:absolute;
-  right:0;
-  top:50%;
-  transform:translateY(-50%);
-  display:flex;
-  align-items:center;
-  gap:10px;
-}
-.status-dot{
-  width:8px;
-  height:8px;
-  border-radius:50%;
-  background:#2D7A55;
-}
-.status-text{
-  font-size:13px;
-  color:var(--sub);
-}
-.refresh-btn{
-  height:38px;
-  padding:0 18px;
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:10px;
-  color:var(--text);
-  font-size:14px;
-  font-weight:700;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  transition:.15s;
-}
-.refresh-btn:hover{
-  background:var(--soft);
-}
-.refresh-btn.loading{
-  opacity:.6;
-  pointer-events:none;
-}
-.main{
-  max-width:100%;
-  margin:0;
-  padding:36px 34px 60px;
-}
-.kpis{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:18px;
-  margin-bottom:30px;
-}
-.kpi{
-  background:#fff;
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:28px 30px;
-  min-height:124px;
-}
-.kpi-label{
-  font-size:14px;
-  font-weight:700;
-  color:var(--sub);
-  margin-bottom:12px;
-}
-.kpi-value{
-  font-size:36px;
-  font-weight:900;
-  letter-spacing:-.04em;
-  line-height:1;
-  color:#0b0b0b;
-}
-.kpi-value.ok{
-  color:var(--ok);
-}
-.kpi-value.warn{
-  color:var(--warn);
-}
-.kpi-sub{
-  font-size:14px;
-  color:var(--sub);
-  margin-top:8px;
-}
-.filters{
-  background:#fff;
-  border-radius:14px;
-  border:1px solid var(--border);
-  padding:22px 26px;
-  margin-bottom:24px;
-  display:flex;
-  gap:14px;
-  align-items:center;
-}
-.search{
-  flex:1;
-  min-width:320px;
-  position:relative;
-}
-.search input{
-  width:100%;
-  height:46px;
-  padding:0 14px 0 46px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  font-size:16px;
-  color:var(--text);
-  outline:none;
-  background:#fff;
-}
-.search input:focus{
-  border-color:#1A1A1A;
-  box-shadow:0 0 0 3px rgba(0,0,0,.04);
-}
-.search span{
-  position:absolute;
-  left:20px;
-  top:50%;
-  transform:translateY(-50%);
-  font-size:17px;
-  color:var(--sub);
-}
-.filter-select{
-  height:46px;
-  min-width:136px;
-  padding:0 42px 0 18px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  font-size:16px;
-  color:var(--text);
-  background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 16px center;
-  -webkit-appearance:none;
-  appearance:none;
-  outline:none;
-  cursor:pointer;
-}
-.count{
-  font-size:14px;
-  color:var(--sub);
-  white-space:nowrap;
-}
-.table-box{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:14px;
-  overflow:hidden;
-}
-.table-scroll{
-  overflow:auto;
-}
-.table{
-  min-width:1120px;
-}
-.thead,.row{
-  display:grid;
-  grid-template-columns:110px 90px 120px 150px 110px 150px 130px 1fr;
-  align-items:center;
-}
-.thead{
-  min-height:44px;
-  background:#FAFAF9;
-  border-bottom:1px solid var(--border);
-}
-.th{
-  font-size:10px;
-  font-weight:700;
-  color:var(--sub);
-  letter-spacing:.06em;
-  text-transform:uppercase;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:4px;
-  user-select:none;
-  padding:0 12px;
-}
-.th:hover{
-  color:var(--text);
-}
-#rows{
-  max-height:calc(100vh - 380px);
-  overflow-y:auto;
-}
-.row{
-  min-height:54px;
-  border-bottom:1px solid #F5F5F3;
-  cursor:pointer;
-  transition:background .12s;
-}
-.row:hover{
-  background:#FAFAF9;
-}
-.td{
-  font-size:13px;
-  color:var(--text);
-  padding:8px 12px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.td.sub{
-  color:var(--sub);
-  font-size:12px;
-}
-.td.mono{
-  font-family:"DM Mono",monospace;
-  font-size:11px;
-}
-.empty,.loading{
-  padding:60px 20px;
-  text-align:center;
-  color:var(--sub);
-  font-size:13px;
-}
-.spinner{
-  display:inline-block;
-  width:18px;
-  height:18px;
-  border:2px solid var(--border);
-  border-top-color:var(--text);
-  border-radius:50%;
-  animation:spin .7s linear infinite;
-  margin-right:8px;
-  vertical-align:middle;
-}
-@keyframes spin{
-  to{transform:rotate(360deg)}
-}
-.overlay{
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.4);
-  z-index:200;
-  display:none;
-}
-.overlay.show{
-  display:block;
-}
-.panel{
-  position:fixed;
-  top:0;
-  right:0;
-  bottom:0;
-  width:min(760px,100vw);
-  background:#fff;
-  z-index:201;
-  transform:translateX(100%);
-  transition:transform .25s;
-  display:flex;
-  flex-direction:column;
-  border-left:1px solid var(--border);
-}
-.panel.show{
-  transform:translateX(0);
-}
-.panel-head{
-  padding:16px 20px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  gap:10px;
-  background:#fff;
-}
-.close{
-  width:34px;
-  height:34px;
-  border:1px solid var(--border);
-  border-radius:9px;
-  background:#fff;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:18px;
-  transition:.15s;
-}
-.close:hover{
-  background:var(--soft);
-}
-.panel-title-wrap{
-  flex:1;
-  min-width:0;
-}
-.panel-title{
-  font-size:15px;
-  font-weight:800;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.panel-subtitle{
-  font-size:12px;
-  color:var(--sub);
-  margin-top:2px;
-}
-.panel-actions{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-.action-btn{
-  height:36px;
-  padding:0 12px;
-  border:1px solid var(--border);
-  border-radius:9px;
-  background:#fff;
-  color:var(--text);
-  font-size:12px;
-  font-weight:800;
-  cursor:pointer;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  transition:.15s;
-}
-.action-btn:hover{
-  background:var(--soft);
-}
-.save-btn{
-  height:36px;
-  padding:0 16px;
-  border:1px solid #1A1A1A;
-  border-radius:9px;
-  background:#1A1A1A;
-  color:#fff;
-  font-size:12px;
-  font-weight:900;
-  cursor:pointer;
-  transition:.15s;
-}
-.save-btn:hover{
-  opacity:.88;
-}
-.save-btn:disabled{
-  opacity:.45;
-  cursor:not-allowed;
-}
-.panel-body{
-  flex:1;
-  overflow-y:auto;
-  padding:20px;
-  background:#fff;
-}
-.summary-card{
-  background:#1A1A1A;
-  color:#fff;
-  border-radius:16px;
-  padding:18px;
-  margin-bottom:18px;
-}
-.summary-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:14px;
-}
-.summary-name{
-  font-size:24px;
-  font-weight:900;
-  letter-spacing:-.04em;
-  line-height:1.15;
-}
-.summary-phone{
-  font-family:"DM Mono",monospace;
-  font-size:13px;
-  color:rgba(255,255,255,.68);
-  margin-top:5px;
-}
-.summary-badge{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:28px;
-  padding:0 10px;
-  border-radius:999px;
-  background:rgba(255,255,255,.1);
-  color:#fff;
-  font-size:11px;
-  font-weight:800;
-  white-space:nowrap;
-}
-.summary-grid{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:10px;
-  margin-top:18px;
-}
-.summary-item{
-  background:rgba(255,255,255,.07);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:12px;
-  padding:11px;
-  min-width:0;
-}
-.summary-label{
-  font-size:10px;
-  font-weight:800;
-  letter-spacing:.08em;
-  text-transform:uppercase;
-  color:rgba(255,255,255,.45);
-  margin-bottom:5px;
-}
-.summary-value{
-  font-size:13px;
-  font-weight:700;
-  color:#fff;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.section{
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:18px;
-  margin-bottom:16px;
-}
-.section-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:14px;
-  padding-bottom:10px;
-  border-bottom:1px solid var(--border);
-}
-.section-title{
-  font-size:12px;
-  font-weight:900;
-  color:#333;
-  letter-spacing:-.01em;
-}
-.section-caption{
-  font-size:11px;
-  color:var(--sub);
-}
-.grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:12px;
-}
-.grid-3{
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:12px;
-}
-.field{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-}
-.full{
-  grid-column:1/-1;
-}
-.label{
-  font-size:11px;
-  font-weight:800;
-  color:#777;
-}
-.readonly{
-  min-height:42px;
-  padding:12px 13px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#FAFAF9;
-  font-size:13px;
-  color:#333;
-  line-height:1.45;
-  white-space:pre-wrap;
-}
-.input,.select,.textarea{
-  width:100%;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fff;
-  color:var(--text);
-  outline:none;
-  font-size:14px;
-  transition:.15s;
-}
-.input,.select{
-  height:42px;
-  padding:0 12px;
-}
-.select{
-  padding-right:34px;
-  background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 13px center;
-  -webkit-appearance:none;
-  appearance:none;
-}
-.textarea{
-  min-height:112px;
-  resize:vertical;
-  padding:12px;
-  line-height:1.6;
-}
-.input:focus,.select:focus,.textarea:focus{
-  border-color:#1A1A1A;
-  box-shadow:0 0 0 3px rgba(0,0,0,.04);
-}
-.mini-row{
-  display:flex;
-  flex-wrap:wrap;
-  gap:8px;
-  margin-top:12px;
-}
-.small-link{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  min-height:34px;
-  padding:0 12px;
-  border-radius:9px;
-  border:1px solid var(--border);
-  background:#fff;
-  color:#333;
-  text-decoration:none;
-  font-size:12px;
-  font-weight:800;
-  cursor:pointer;
-}
-.small-link:hover{
-  background:var(--soft);
-}
-.file-box{
-  border:1px dashed #D8D8D2;
-  background:#FAFAF9;
-  border-radius:12px;
-  padding:14px;
-}
-.file-input{
-  width:100%;
-  font-size:13px;
-}
-.file-hint{
-  font-size:11px;
-  color:var(--sub);
-  margin-top:8px;
-  line-height:1.5;
-}
-.record-list{
-  display:flex;
-  flex-direction:column;
-  gap:8px;
-  margin-top:12px;
-}
-.record-link{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  min-height:42px;
-  padding:10px 12px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#fff;
-  text-decoration:none;
-  color:#333;
-  font-size:13px;
-  font-weight:700;
-}
-.record-link:hover{
-  background:var(--soft);
-}
-.toast{
-  position:fixed;
-  bottom:24px;
-  left:50%;
-  transform:translateX(-50%);
-  background:var(--text);
-  color:#fff;
-  padding:11px 20px;
-  border-radius:24px;
-  font-size:13px;
-  font-weight:700;
-  z-index:500;
-  opacity:0;
-  transition:.3s;
-  pointer-events:none;
-  max-width:calc(100vw - 40px);
-  text-align:center;
-}
-.toast.show{
-  opacity:1;
-}
-@media(max-width:1100px){
-  .kpis{grid-template-columns:1fr 1fr}
-  .filters{flex-wrap:wrap}
-  .main{padding:20px 14px 50px}
-}
-@media(max-width:760px){
-  .panel{width:100%}
-  .panel-actions{display:none}
-  .summary-grid{grid-template-columns:1fr 1fr}
-  .grid,.grid-3{grid-template-columns:1fr}
-  .full{grid-column:auto}
-  .sub-header-right{position:static;transform:none}
-  .sub-header-inner{justify-content:space-between}
-  .page-label{font-size:11px;letter-spacing:.16em}
-}
+:root{--text:#1A1A1A;--sub:#999;--border:#E8E8E4;--soft:#F5F5F3;--soft2:#FAFAF9;--ok:#2D7A55;--err:#E05252;--warn:#D97706;--radius:12px}
+html,body{min-height:100vh;background:#F7F7F5;font-family:"Noto Sans KR",sans-serif;color:var(--text)}
+button,input,select,textarea{font-family:inherit}
+.nav{height:70px;background:#fff;border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;justify-content:center;position:sticky;top:0;z-index:100}
+.nav-logo{font-size:22px;font-weight:900;letter-spacing:-.035em;color:#333}
+.sub-header{height:46px;background:#fff;padding:0 20px;border-bottom:1px solid var(--border);position:sticky;top:70px;z-index:99;display:flex;align-items:center}
+.sub-header-inner{width:100%;position:relative;display:flex;align-items:center;justify-content:center;gap:12px}
+.page-label{font-family:"DM Mono",monospace;font-size:13px;letter-spacing:.28em;color:var(--sub);font-weight:400}
+.page-label b{color:var(--text);font-weight:700}
+.sub-header-right{position:absolute;right:0;top:50%;transform:translateY(-50%);display:flex;align-items:center;gap:10px}
+.status-dot{width:8px;height:8px;border-radius:50%;background:#2D7A55}
+.status-text,.auto-text{font-size:13px;color:var(--sub)}
+.refresh-btn{height:38px;padding:0 18px;background:#fff;border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;transition:.15s}
+.refresh-btn:hover{background:var(--soft)}
+.refresh-btn.loading{opacity:.6;pointer-events:none}
+.main{max-width:100%;margin:0;padding:36px 34px 60px}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-bottom:30px}
+.kpi{background:#fff;border-radius:14px;border:1px solid var(--border);padding:28px 30px;min-height:124px}
+.kpi-label{font-size:14px;font-weight:700;color:var(--sub);margin-bottom:12px}
+.kpi-value{font-size:36px;font-weight:900;letter-spacing:-.04em;line-height:1;color:#0b0b0b}
+.kpi-value.ok{color:var(--ok)}
+.kpi-value.warn{color:var(--warn)}
+.kpi-sub{font-size:14px;color:var(--sub);margin-top:8px}
+.filters{background:#fff;border-radius:14px;border:1px solid var(--border);padding:22px 26px;margin-bottom:24px;display:flex;gap:14px;align-items:center}
+.search{flex:1;min-width:320px;position:relative}
+.search input{width:100%;height:46px;padding:0 14px 0 46px;border:1px solid var(--border);border-radius:10px;font-size:16px;color:var(--text);outline:none;background:#fff}
+.search input:focus{border-color:#1A1A1A;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+.search span{position:absolute;left:20px;top:50%;transform:translateY(-50%);font-size:17px;color:var(--sub)}
+.filter-select{height:46px;min-width:136px;padding:0 42px 0 18px;border:1px solid var(--border);border-radius:10px;font-size:16px;color:var(--text);background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 16px center;-webkit-appearance:none;appearance:none;outline:none;cursor:pointer}
+.count{font-size:14px;color:var(--sub);white-space:nowrap}
+.table-box{background:#fff;border:1px solid var(--border);border-radius:14px;overflow:hidden}
+.table-scroll{overflow:auto}
+.table{min-width:1120px}
+.thead,.row{display:grid;grid-template-columns:110px 90px 120px 150px 110px 150px 130px 1fr;align-items:center}
+.thead{min-height:44px;background:#FAFAF9;border-bottom:1px solid var(--border)}
+.th{font-size:10px;font-weight:700;color:var(--sub);letter-spacing:.06em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;gap:4px;user-select:none;padding:0 12px}
+.th:hover{color:var(--text)}
+#rows{max-height:calc(100vh - 380px);overflow-y:auto}
+.row{min-height:54px;border-bottom:1px solid #F5F5F3;cursor:pointer;transition:background .12s}
+.row:hover{background:#FAFAF9}
+.td{font-size:13px;color:var(--text);padding:8px 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.td.sub{color:var(--sub);font-size:12px}
+.td.mono{font-family:"DM Mono",monospace;font-size:11px}
+.empty,.loading{padding:60px 20px;text-align:center;color:var(--sub);font-size:13px}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}
+@keyframes spin{to{transform:rotate(360deg)}}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none}
+.overlay.show{display:block}
+.panel{position:fixed;top:0;right:0;bottom:0;width:min(1080px,100vw);background:#fff;z-index:201;transform:translateX(100%);transition:transform .25s;display:flex;flex-direction:column;border-left:1px solid var(--border)}
+.panel.show{transform:translateX(0)}
+.panel-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;background:#fff}
+.close{width:34px;height:34px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:18px;transition:.15s}
+.close:hover{background:var(--soft)}
+.panel-title-wrap{flex:1;min-width:0}
+.panel-title{font-size:15px;font-weight:800;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.panel-subtitle{font-size:12px;color:var(--sub);margin-top:2px}
+.panel-actions{display:flex;align-items:center;gap:8px}
+.action-btn{height:36px;padding:0 12px;border:1px solid var(--border);border-radius:9px;background:#fff;color:var(--text);font-size:12px;font-weight:800;cursor:pointer;text-decoration:none;display:flex;align-items:center;justify-content:center;transition:.15s}
+.action-btn:hover{background:var(--soft)}
+.save-btn{height:36px;padding:0 16px;border:1px solid #1A1A1A;border-radius:9px;background:#1A1A1A;color:#fff;font-size:12px;font-weight:900;cursor:pointer;transition:.15s}
+.save-btn:hover{opacity:.88}
+.save-btn:disabled{opacity:.45;cursor:not-allowed}
+.panel-body{flex:1;overflow-y:auto;padding:20px;background:#fff}
+.panel-layout{display:grid;grid-template-columns:minmax(0,1fr) 320px;gap:16px;align-items:start}
+.summary-card{background:#1A1A1A;color:#fff;border-radius:16px;padding:18px;margin-bottom:18px}
+.summary-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.summary-name{font-size:24px;font-weight:900;letter-spacing:-.04em;line-height:1.15}
+.summary-phone{font-family:"DM Mono",monospace;font-size:13px;color:rgba(255,255,255,.68);margin-top:5px}
+.summary-badge{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:0 10px;border-radius:999px;background:rgba(255,255,255,.1);color:#fff;font-size:11px;font-weight:800;white-space:nowrap}
+.summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:18px}
+.summary-item{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:11px;min-width:0}
+.summary-label{font-size:10px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.45);margin-bottom:5px}
+.summary-value{font-size:13px;font-weight:700;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.section{background:#fff;border:1px solid var(--border);border-radius:14px;padding:18px;margin-bottom:16px}
+.section-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+.section-title{font-size:12px;font-weight:900;color:#333;letter-spacing:-.01em}
+.section-caption{font-size:11px;color:var(--sub)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.field{display:flex;flex-direction:column;gap:7px}
+.full{grid-column:1/-1}
+.label{font-size:11px;font-weight:800;color:#777}
+.input,.select,.textarea{width:100%;border:1px solid var(--border);border-radius:10px;background:#fff;color:var(--text);outline:none;font-size:14px;transition:.15s}
+.input,.select{height:42px;padding:0 12px}
+.select{padding-right:34px;background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 13px center;-webkit-appearance:none;appearance:none}
+.textarea{min-height:112px;resize:vertical;padding:12px;line-height:1.6}
+.input:focus,.select:focus,.textarea:focus{border-color:#1A1A1A;box-shadow:0 0 0 3px rgba(0,0,0,.04)}
+.mini-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.small-link{display:inline-flex;align-items:center;justify-content:center;min-height:34px;padding:0 12px;border-radius:9px;border:1px solid var(--border);background:#fff;color:#333;text-decoration:none;font-size:12px;font-weight:800;cursor:pointer}
+.small-link:hover{background:var(--soft)}
+.file-box{border:1px dashed #D8D8D2;background:#FAFAF9;border-radius:12px;padding:14px}
+.file-input{width:100%;font-size:13px}
+.file-hint{font-size:11px;color:var(--sub);margin-top:8px;line-height:1.5}
+.record-list{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.record-link{display:flex;align-items:center;gap:10px;min-height:42px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;text-decoration:none;color:#333;font-size:13px;font-weight:700}
+.record-link:hover{background:var(--soft)}
+.history-card{position:sticky;top:0;background:#FAFAF9;border:1px solid var(--border);border-radius:14px;padding:16px;max-height:calc(100vh - 120px);overflow:auto}
+.history-title{font-size:13px;font-weight:900;margin-bottom:4px}
+.history-sub{font-size:11px;color:var(--sub);line-height:1.5;margin-bottom:14px}
+.history-empty{padding:22px 12px;text-align:center;color:var(--sub);font-size:12px;background:#fff;border:1px solid var(--border);border-radius:12px}
+.history-list{display:flex;flex-direction:column;gap:10px}
+.history-item{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px}
+.history-time{font-family:"DM Mono",monospace;font-size:10px;color:#aaa;margin-bottom:6px}
+.history-field{font-size:12px;font-weight:900;color:#222;margin-bottom:8px}
+.history-values{display:grid;gap:6px}
+.history-before,.history-after{font-size:11px;line-height:1.55;border-radius:9px;padding:8px;word-break:break-word;white-space:pre-wrap}
+.history-before{background:#FFF4F4;color:#8A3636}
+.history-after{background:#EEF8F2;color:#245C40}
+.history-label{font-size:10px;font-weight:900;opacity:.65;margin-bottom:2px}
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--text);color:#fff;padding:11px 20px;border-radius:24px;font-size:13px;font-weight:700;z-index:500;opacity:0;transition:.3s;pointer-events:none;max-width:calc(100vw - 40px);text-align:center}
+.toast.show{opacity:1}
+@media(max-width:1100px){.kpis{grid-template-columns:1fr 1fr}.filters{flex-wrap:wrap}.main{padding:20px 14px 50px}.panel-layout{grid-template-columns:1fr}.history-card{position:static;max-height:none}}
+@media(max-width:760px){.panel{width:100%}.panel-actions{display:none}.summary-grid{grid-template-columns:1fr 1fr}.grid{grid-template-columns:1fr}.full{grid-column:auto}.sub-header-right{position:static;transform:none}.sub-header-inner{justify-content:space-between}.page-label{font-size:11px;letter-spacing:.16em}.auto-text{display:none}}
 </style>
 </head>
 <body>
-<div class="nav">
-  <div class="nav-logo">BOOSTIX</div>
-</div>
+<div class="nav"><div class="nav-logo">BOOSTIX</div></div>
 
 <div class="sub-header">
   <div class="sub-header-inner">
     <div class="page-label"><b>가맹상담 관리</b> · 실시간 대시보드</div>
     <div class="sub-header-right">
-      <div style="display:flex;align-items:center;gap:6px">
-        <span class="status-dot" id="statusDot"></span>
-        <span class="status-text" id="statusText">연결 중</span>
-      </div>
-      <button class="refresh-btn" id="refreshBtn" onclick="loadData()">↻ 새로고침</button>
+      <div style="display:flex;align-items:center;gap:6px"><span class="status-dot" id="statusDot"></span><span class="status-text" id="statusText">연결 중</span></div>
+      <span class="auto-text" id="autoText">자동갱신 대기</span>
+      <button class="refresh-btn" id="refreshBtn" onclick="loadData({silent:false,preservePanel:true})">↻ 새로고침</button>
     </div>
   </div>
 </div>
 
 <main class="main">
   <div class="kpis">
-    <div class="kpi">
-      <div class="kpi-label">전체 상담</div>
-      <div class="kpi-value" id="k-total">0</div>
-      <div class="kpi-sub">누적 건수</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">오늘 상담</div>
-      <div class="kpi-value ok" id="k-today">0</div>
-      <div class="kpi-sub" id="k-date">-</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">점포 있음</div>
-      <div class="kpi-value warn" id="k-hasStore">0</div>
-      <div class="kpi-sub">기존 점포 보유</div>
-    </div>
-    <div class="kpi">
-      <div class="kpi-label">1차 상담 완료</div>
-      <div class="kpi-value" id="k-consultDone">0</div>
-      <div class="kpi-sub">상담 기록 작성</div>
-    </div>
+    <div class="kpi"><div class="kpi-label">전체 상담</div><div class="kpi-value" id="k-total">0</div><div class="kpi-sub">누적 건수</div></div>
+    <div class="kpi"><div class="kpi-label">오늘 상담</div><div class="kpi-value ok" id="k-today">0</div><div class="kpi-sub" id="k-date">-</div></div>
+    <div class="kpi"><div class="kpi-label">점포 있음</div><div class="kpi-value warn" id="k-hasStore">0</div><div class="kpi-sub">기존 점포 보유</div></div>
+    <div class="kpi"><div class="kpi-label">1차 상담 완료</div><div class="kpi-value" id="k-consultDone">0</div><div class="kpi-sub">상담 기록 작성</div></div>
   </div>
 
   <div class="filters">
-    <div class="search">
-      <span>🔍</span>
-      <input id="q" placeholder="이름, 연락처, 지역 검색..." oninput="applyFilter()">
-    </div>
-    <select id="filter-hasStore" class="filter-select" onchange="applyFilter()">
-      <option value="">점포 전체</option>
-      <option>점포 있음</option>
-      <option>점포 없음</option>
-      <option>확인 필요</option>
-    </select>
-    <select id="filter-region" class="filter-select" onchange="applyFilter()">
-      <option value="">지역 전체</option>
-    </select>
-    <select id="filter-source" class="filter-select" onchange="applyFilter()">
-      <option value="">유입경로 전체</option>
-    </select>
+    <div class="search"><span>🔍</span><input id="q" placeholder="이름, 연락처, 지역 검색..." oninput="applyFilter()"></div>
+    <select id="filter-hasStore" class="filter-select" onchange="applyFilter()"><option value="">점포 전체</option><option>점포 있음</option><option>점포 없음</option><option>확인 필요</option></select>
+    <select id="filter-region" class="filter-select" onchange="applyFilter()"><option value="">지역 전체</option></select>
+    <select id="filter-source" class="filter-select" onchange="applyFilter()"><option value="">유입경로 전체</option></select>
     <div class="count" id="count">0 건</div>
   </div>
 
@@ -754,9 +164,7 @@ button,input,select,textarea{
           <div class="th">유입경로</div>
           <div class="th">비고</div>
         </div>
-        <div id="rows">
-          <div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>
-        </div>
+        <div id="rows"><div class="loading"><span class="spinner"></span>데이터 불러오는 중</div></div>
       </div>
     </div>
   </div>
@@ -784,6 +192,7 @@ button,input,select,textarea{
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz6xm8AvczOUgBhQua693p0k_xgF3qIDF2YbJlU233X5BT4dOF6zPhOVGzt4E1B1TCsZA/exec";
+const AUTO_REFRESH_MS = 60000;
 
 let all = [];
 let filtered = [];
@@ -791,8 +200,11 @@ let current = null;
 let sortKey = 'inquiryDate';
 let sortAsc = false;
 let toastTimer = null;
+let autoTimer = null;
+let formSnapshot = '';
 
 const OPTIONS = {
+  hasStore: ['', '점포 있음', '점포 없음', '확인 필요'],
   firstConsultStatus: ['미작성', '1차 상담 완료'],
   callStatus: ['', '통화완료', '부재', '재통화필요', '상담거절', '번호오류'],
   workType: ['', '신규 창업', '업종 변경', '기존 매장 추가', '배달 전문', '샵인샵', '확인 필요'],
@@ -803,40 +215,75 @@ const OPTIONS = {
   finalStatus: ['', '신규 문의', '상담중', '재통화 예정', '미팅 예정', '계약 검토', '가계약 완료', '계약 완료', '보류', '부적합', '종료']
 };
 
-async function loadData(){
-  const btn = document.getElementById('refreshBtn');
-  btn.disabled = true;
-  btn.classList.add('loading');
-  btn.textContent = '↻ 로딩 중';
+async function loadData(opts){
+  opts = opts || {};
+  const silent = !!opts.silent;
+  const preservePanel = !!opts.preservePanel;
+  const currentId = current ? current.id : '';
 
-  document.getElementById('rows').innerHTML = '<div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>';
+  const btn = document.getElementById('refreshBtn');
+
+  if(!silent){
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.textContent = '↻ 로딩 중';
+    document.getElementById('rows').innerHTML = '<div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>';
+  }
 
   try{
     const res = await fetch(APPS_SCRIPT_URL + '?action=list&_=' + Date.now());
     const json = await res.json();
 
-    all = (json.data || json.records || [])
-      .map(normalize)
-      .filter(r => r.id || r.name || r.phone);
+    all = (json.data || json.records || []).map(normalize).filter(r => r.id || r.name || r.phone);
 
     setStatus(true);
     buildFilters();
     applyFilter();
+    updateAutoText('최근 갱신 ' + getNowTimeText());
+
+    if(preservePanel && currentId){
+      const updated = all.find(x => x.id === currentId);
+      if(updated && current && !isDirty()){
+        current = updated;
+        renderPanel();
+      }
+    }
 
   }catch(e){
     console.error(e);
     setStatus(false);
-    document.getElementById('rows').innerHTML = '<div class="empty">연결 실패. Apps Script 배포 상태를 확인해주세요.</div>';
+    if(!silent){
+      document.getElementById('rows').innerHTML = '<div class="empty">연결 실패. Apps Script 배포 상태를 확인해주세요.</div>';
+    }
     toast('연결 실패');
   }finally{
-    btn.disabled = false;
-    btn.classList.remove('loading');
-    btn.textContent = '↻ 새로고침';
+    if(!silent){
+      btn.disabled = false;
+      btn.classList.remove('loading');
+      btn.textContent = '↻ 새로고침';
+    }
   }
+}
+
+function startAutoRefresh(){
+  clearInterval(autoTimer);
+  autoTimer = setInterval(function(){
+    if(document.hidden) return;
+
+    if(current && isDirty()){
+      updateAutoText('수정 중이라 자동갱신 보류');
+      return;
+    }
+
+    loadData({silent:true,preservePanel:true});
+  }, AUTO_REFRESH_MS);
+
+  updateAutoText('1분마다 자동갱신');
 }
 
 function normalize(r){
   const recordLinksRaw = r.recordLinks || r.녹음링크 || '';
+  const changeHistoryRaw = r.changeHistory || r.변경내역 || '';
 
   return {
     id: r.id || r.상담번호 || r.consultId || '',
@@ -879,13 +326,19 @@ function normalize(r){
     folderUrl: r.folderUrl || r.폴더링크 || '',
     htmlFileId: r.htmlFileId || r.HTML파일ID || '',
     folderId: r.folderId || r.폴더ID || '',
-    editCount: r.editCount || r.수정횟수 || ''
+    editCount: r.editCount || r.수정횟수 || '',
+    changeHistoryRaw,
+    changeHistory: parseHistory(changeHistoryRaw)
   };
 }
 
 function setStatus(ok){
   document.getElementById('statusDot').style.background = ok ? '#2D7A55' : '#E05252';
   document.getElementById('statusText').textContent = ok ? '연결됨' : '오프라인';
+}
+
+function updateAutoText(msg){
+  document.getElementById('autoText').textContent = msg;
 }
 
 function buildFilters(){
@@ -897,19 +350,13 @@ function fillSelect(id, vals, first){
   const el = document.getElementById(id);
   const cur = el.value;
 
-  el.innerHTML = '<option value="">' + esc(first) + '</option>' +
-    vals.map(v => '<option>' + esc(v) + '</option>').join('');
-
+  el.innerHTML = '<option value="">' + esc(first) + '</option>' + vals.map(v => '<option>' + esc(v) + '</option>').join('');
   el.value = cur;
 }
 
 function sortBy(k){
-  if(sortKey === k){
-    sortAsc = !sortAsc;
-  }else{
-    sortKey = k;
-    sortAsc = false;
-  }
+  if(sortKey === k){sortAsc = !sortAsc}
+  else{sortKey = k;sortAsc = false}
 
   applyFilter();
 }
@@ -999,167 +446,187 @@ function renderPanel(){
   if(current.folderUrl) htmlLinks.push(`<a class="small-link" href="${escAttr(current.folderUrl)}" target="_blank">Drive 폴더 보기</a>`);
 
   document.getElementById('panelBody').innerHTML = `
-    <div class="summary-card">
-      <div class="summary-top">
-        <div>
-          <div class="summary-name">${esc(current.name || '-')}</div>
-          <div class="summary-phone">${esc(current.phone || '-')}</div>
+    <div class="panel-layout">
+      <div>
+        <div class="summary-card">
+          <div class="summary-top">
+            <div>
+              <div class="summary-name">${esc(current.name || '-')}</div>
+              <div class="summary-phone">${esc(current.phone || '-')}</div>
+            </div>
+            <div class="summary-badge">${esc(current.finalStatus || '신규 문의')}</div>
+          </div>
+
+          <div class="summary-grid">
+            <div class="summary-item"><div class="summary-label">STORE</div><div class="summary-value">${esc(current.hasStore || '-')}</div></div>
+            <div class="summary-item"><div class="summary-label">REGION</div><div class="summary-value">${esc(current.desiredRegion || '-')}</div></div>
+            <div class="summary-item"><div class="summary-label">SOURCE</div><div class="summary-value">${esc(current.source || '-')}</div></div>
+            <div class="summary-item"><div class="summary-label">STATUS</div><div class="summary-value">${esc(current.firstConsultStatus || '미작성')}</div></div>
+          </div>
+
+          <div class="mini-row">
+            <a class="small-link" href="${current.phone ? 'tel:' + escAttr(onlyPhoneNumber(current.phone)) : '#'}">전화하기</a>
+            <button class="small-link" onclick="copyCurrentPhone()">연락처 복사</button>
+            ${htmlLinks.join('')}
+          </div>
         </div>
-        <div class="summary-badge">${esc(current.finalStatus || '신규 문의')}</div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">1차 접수 정보 수정</div>
+              <div class="section-caption">처음 접수된 기본정보도 여기서 바로 수정할 수 있습니다.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            ${inputField('문의일자', 'edit-inquiryDate', 'date', current.inquiryDate)}
+            ${inputField('문의시간', 'edit-inquiryTime', 'time', current.inquiryTime)}
+            ${inputField('이름', 'edit-name', 'text', current.name)}
+            ${inputField('연락처', 'edit-phone', 'tel', current.phone)}
+            ${selectField('점포 유/무', 'edit-hasStore', OPTIONS.hasStore, current.hasStore)}
+            ${inputField('창업 희망지역', 'edit-desiredRegion', 'text', current.desiredRegion)}
+            ${inputField('유입경로', 'edit-source', 'text', current.source)}
+            ${inputField('기타 유입경로', 'edit-sourceEtc', 'text', current.sourceEtc)}
+            <div class="field full">
+              <label class="label">비고</label>
+              <textarea class="textarea" id="edit-note" placeholder="접수 당시 비고">${escTextarea(current.note)}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">1차 상담 기록</div>
+              <div class="section-caption">통화 결과와 고객 상황을 기록합니다.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            ${selectField('1차 상담 상태', 'edit-firstConsultStatus', OPTIONS.firstConsultStatus, current.firstConsultStatus || '미작성')}
+            ${selectField('상담 상태', 'edit-callStatus', OPTIONS.callStatus, current.callStatus)}
+            ${selectField('작업 형태', 'edit-workType', OPTIONS.workType, current.workType)}
+            ${selectField('현재 상황', 'edit-currentSituation', OPTIONS.currentSituation, current.currentSituation)}
+            ${selectField('문의 주제', 'edit-inquiryTopic', OPTIONS.inquiryTopic, current.inquiryTopic)}
+            ${selectField('최종 상태', 'edit-finalStatus', OPTIONS.finalStatus, current.finalStatus || '신규 문의')}
+            <div class="field full">
+              <label class="label">상세문의 메모</label>
+              <textarea class="textarea" id="edit-detailInquiryMemo" placeholder="고객이 실제로 물어본 내용, 상황, 걱정하는 부분을 적어주세요.">${escTextarea(current.detailInquiryMemo)}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">답변 / 안내 내용</div>
+              <div class="section-caption">상담자가 안내한 내용을 남깁니다.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            ${selectField('답변 유형', 'edit-answerType', OPTIONS.answerType, current.answerType)}
+            <div class="field full">
+              <label class="label">답변 메모</label>
+              <textarea class="textarea" id="edit-answerMemo" placeholder="안내한 내용, 전달한 자료, 고객 반응, 추가 확인 사항을 적어주세요.">${escTextarea(current.answerMemo)}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">다음 액션</div>
+              <div class="section-caption">상담 이후 해야 할 행동을 정리합니다.</div>
+            </div>
+          </div>
+
+          <div class="grid">
+            ${selectField('다음 단계', 'edit-nextStep', OPTIONS.nextStep, current.nextStep || '상담 대기')}
+            ${inputField('담당자', 'edit-nextActionOwner', 'text', current.nextActionOwner)}
+            ${inputField('다음액션 예정일', 'edit-nextActionDate', 'date', current.nextActionDate)}
+            ${inputField('다음액션 예정시간', 'edit-nextActionTime', 'time', current.nextActionTime)}
+            <div class="field full">
+              <label class="label">다음단계 상세</label>
+              <textarea class="textarea" id="edit-nextActionDetail" placeholder="예: 김해 장유 상권 가능 여부 확인 후 내일 오후 3시 재통화">${escTextarea(current.nextActionDetail)}</textarea>
+            </div>
+            <div class="field full">
+              <label class="label">내부 메모</label>
+              <textarea class="textarea" id="edit-nextActionMemo" placeholder="내부 판단, 고객 온도감, 주의사항 등을 적어주세요.">${escTextarea(current.nextActionMemo)}</textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-head">
+            <div>
+              <div class="section-title">녹음 파일</div>
+              <div class="section-caption">통화녹음 파일을 추가로 업로드할 수 있습니다.</div>
+            </div>
+          </div>
+
+          <div class="file-box">
+            <input class="file-input" type="file" id="recordFiles" accept="audio/*" multiple>
+            <div class="file-hint">저장 버튼을 누르면 선택한 녹음 파일이 고객 Drive 폴더에 업로드됩니다.</div>
+          </div>
+
+          ${renderRecordLinks(current.recordLinks)}
+        </div>
+
+        <div class="mini-row" style="justify-content:flex-end;padding-bottom:20px">
+          <button class="action-btn" onclick="closePanel()">닫기</button>
+          <button class="save-btn" id="saveBtnBottom" onclick="saveConsult()">전체 수정 저장</button>
+        </div>
       </div>
 
-      <div class="summary-grid">
-        <div class="summary-item">
-          <div class="summary-label">STORE</div>
-          <div class="summary-value">${esc(current.hasStore || '-')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">REGION</div>
-          <div class="summary-value">${esc(current.desiredRegion || '-')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">SOURCE</div>
-          <div class="summary-value">${esc(current.source || '-')}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">STATUS</div>
-          <div class="summary-value">${esc(current.firstConsultStatus || '미작성')}</div>
-        </div>
-      </div>
-
-      <div class="mini-row">
-        <a class="small-link" href="${current.phone ? 'tel:' + escAttr(onlyPhoneNumber(current.phone)) : '#'}">전화하기</a>
-        <button class="small-link" onclick="copyCurrentPhone()">연락처 복사</button>
-        ${htmlLinks.join('')}
-      </div>
+      ${renderHistoryBox(current.changeHistory)}
     </div>
+  `;
 
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-title">1차 접수 정보</div>
-          <div class="section-caption">마케터가 최초 등록한 기본정보입니다.</div>
-        </div>
+  setTimeout(function(){
+    formSnapshot = JSON.stringify(getFormState());
+  }, 0);
+}
+
+function renderHistoryBox(history){
+  const items = Array.isArray(history) ? history.slice().reverse() : [];
+
+  if(!items.length){
+    return `
+      <aside class="history-card">
+        <div class="history-title">수정 내역</div>
+        <div class="history-sub">저장된 수정 기록이 오른쪽에 계속 쌓입니다.</div>
+        <div class="history-empty">아직 수정 내역이 없습니다.</div>
+      </aside>
+    `;
+  }
+
+  return `
+    <aside class="history-card">
+      <div class="history-title">수정 내역</div>
+      <div class="history-sub">접수정보, 상담기록, 다음액션 변경 내용이 모두 표시됩니다.</div>
+      <div class="history-list">
+        ${items.map(h => `
+          <div class="history-item">
+            <div class="history-time">${esc(h.at || '-')}</div>
+            <div class="history-field">${esc(h.field || h.key || '수정')}</div>
+            <div class="history-values">
+              <div class="history-before"><div class="history-label">이전</div>${esc(h.before || '-')}</div>
+              <div class="history-after"><div class="history-label">변경</div>${esc(h.after || '-')}</div>
+            </div>
+          </div>
+        `).join('')}
       </div>
-
-      <div class="grid">
-        ${readonlyField('문의일자', current.inquiryDate)}
-        ${readonlyField('문의시간', current.inquiryTime)}
-        ${readonlyField('이름', current.name)}
-        ${readonlyField('연락처', current.phone)}
-        ${readonlyField('점포 유/무', current.hasStore)}
-        ${readonlyField('창업 희망지역', current.desiredRegion)}
-        ${readonlyField('유입경로', current.source)}
-        ${readonlyField('기타 유입경로', current.sourceEtc)}
-        ${readonlyField('비고', current.note, true)}
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-title">1차 상담 기록</div>
-          <div class="section-caption">통화 결과와 고객 상황을 기록합니다.</div>
-        </div>
-      </div>
-
-      <div class="grid">
-        ${selectField('1차 상담 상태', 'edit-firstConsultStatus', OPTIONS.firstConsultStatus, current.firstConsultStatus || '미작성')}
-        ${selectField('상담 상태', 'edit-callStatus', OPTIONS.callStatus, current.callStatus)}
-        ${selectField('작업 형태', 'edit-workType', OPTIONS.workType, current.workType)}
-        ${selectField('현재 상황', 'edit-currentSituation', OPTIONS.currentSituation, current.currentSituation)}
-        ${selectField('문의 주제', 'edit-inquiryTopic', OPTIONS.inquiryTopic, current.inquiryTopic)}
-        <div class="field">
-          <label class="label">최종 상태</label>
-          <select class="select" id="edit-finalStatus">
-            ${makeOptions(OPTIONS.finalStatus, current.finalStatus || '신규 문의')}
-          </select>
-        </div>
-        <div class="field full">
-          <label class="label">상세문의 메모</label>
-          <textarea class="textarea" id="edit-detailInquiryMemo" placeholder="고객이 실제로 물어본 내용, 상황, 걱정하는 부분을 적어주세요.">${escTextarea(current.detailInquiryMemo)}</textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-title">답변 / 안내 내용</div>
-          <div class="section-caption">상담자가 안내한 내용을 남깁니다.</div>
-        </div>
-      </div>
-
-      <div class="grid">
-        ${selectField('답변 유형', 'edit-answerType', OPTIONS.answerType, current.answerType)}
-        <div class="field full">
-          <label class="label">답변 메모</label>
-          <textarea class="textarea" id="edit-answerMemo" placeholder="안내한 내용, 전달한 자료, 고객 반응, 추가 확인 사항을 적어주세요.">${escTextarea(current.answerMemo)}</textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-title">다음 액션</div>
-          <div class="section-caption">상담 이후 해야 할 행동을 정리합니다.</div>
-        </div>
-      </div>
-
-      <div class="grid">
-        ${selectField('다음 단계', 'edit-nextStep', OPTIONS.nextStep, current.nextStep || '상담 대기')}
-        <div class="field">
-          <label class="label">담당자</label>
-          <input class="input" id="edit-nextActionOwner" value="${escAttr(current.nextActionOwner)}" placeholder="예: 라면 / 김팀장 / 영업팀">
-        </div>
-        <div class="field">
-          <label class="label">다음액션 예정일</label>
-          <input class="input" type="date" id="edit-nextActionDate" value="${escAttr(current.nextActionDate)}">
-        </div>
-        <div class="field">
-          <label class="label">다음액션 예정시간</label>
-          <input class="input" type="time" id="edit-nextActionTime" value="${escAttr(current.nextActionTime)}">
-        </div>
-        <div class="field full">
-          <label class="label">다음단계 상세</label>
-          <textarea class="textarea" id="edit-nextActionDetail" placeholder="예: 김해 장유 상권 가능 여부 확인 후 내일 오후 3시 재통화">${escTextarea(current.nextActionDetail)}</textarea>
-        </div>
-        <div class="field full">
-          <label class="label">내부 메모</label>
-          <textarea class="textarea" id="edit-nextActionMemo" placeholder="외부 공유하면 안 되는 내부 판단, 고객 온도감, 주의사항 등을 적어주세요.">${escTextarea(current.nextActionMemo)}</textarea>
-        </div>
-      </div>
-    </div>
-
-    <div class="section">
-      <div class="section-head">
-        <div>
-          <div class="section-title">녹음 파일</div>
-          <div class="section-caption">통화녹음 파일을 추가로 업로드할 수 있습니다.</div>
-        </div>
-      </div>
-
-      <div class="file-box">
-        <input class="file-input" type="file" id="recordFiles" accept="audio/*" multiple>
-        <div class="file-hint">저장 버튼을 누르면 선택한 녹음 파일이 고객 Drive 폴더에 업로드됩니다. 너무 큰 파일은 업로드 시간이 길어질 수 있습니다.</div>
-      </div>
-
-      ${renderRecordLinks(current.recordLinks)}
-    </div>
-
-    <div class="mini-row" style="justify-content:flex-end;padding-bottom:20px">
-      <button class="action-btn" onclick="closePanel()">닫기</button>
-      <button class="save-btn" id="saveBtnBottom" onclick="saveConsult()">1차 상담 기록 저장</button>
-    </div>
+    </aside>
   `;
 }
 
-function readonlyField(label, value, full){
+function inputField(label, id, type, value){
   return `
-    <div class="field ${full ? 'full' : ''}">
-      <div class="label">${esc(label)}</div>
-      <div class="readonly">${esc(value || '-')}</div>
+    <div class="field">
+      <label class="label">${esc(label)}</label>
+      <input class="input" type="${escAttr(type)}" id="${escAttr(id)}" value="${escAttr(value || '')}">
     </div>
   `;
 }
@@ -1185,7 +652,7 @@ function makeOptions(options, value){
 
 function renderRecordLinks(links){
   if(!links || !links.length){
-    return '<div class="record-list"><div class="readonly">등록된 녹음 파일이 없습니다.</div></div>';
+    return '<div class="record-list"><div class="history-empty">등록된 녹음 파일이 없습니다.</div></div>';
   }
 
   return `
@@ -1237,31 +704,24 @@ async function saveConsult(){
     try{
       result = JSON.parse(text);
     }catch(err){
-      result = {
-        result: res.ok ? 'success' : 'error',
-        raw:text
-      };
+      result = {result:res.ok ? 'success' : 'error',raw:text};
     }
 
     if(!res.ok || result.result !== 'success'){
       throw new Error(result.message || result.error || '저장 실패');
     }
 
-    Object.assign(current, updates);
+    toast('전체 수정 저장 완료');
 
-    if(result.recordLinks && Array.isArray(result.recordLinks)){
-      current.recordLinks = result.recordLinks;
-      current.recordLinksRaw = result.recordLinks.join('\n');
-    }
+    formSnapshot = '';
 
-    toast('1차 상담 기록 저장 완료');
-
-    await loadData();
+    await loadData({silent:true,preservePanel:false});
 
     const updated = all.find(x => x.id === current.id);
     if(updated){
       current = updated;
       renderPanel();
+      document.getElementById('panelSubtitle').textContent = (current.id || '-') + ' · ' + (current.name || '-') + ' · ' + (current.phone || '-');
     }
 
   }catch(err){
@@ -1274,6 +734,16 @@ async function saveConsult(){
 
 function collectUpdates(){
   return {
+    inquiryDate: valueOf('edit-inquiryDate'),
+    inquiryTime: valueOf('edit-inquiryTime'),
+    name: valueOf('edit-name'),
+    phone: valueOf('edit-phone'),
+    hasStore: valueOf('edit-hasStore'),
+    desiredRegion: valueOf('edit-desiredRegion'),
+    source: valueOf('edit-source'),
+    sourceEtc: valueOf('edit-sourceEtc'),
+    note: valueOf('edit-note'),
+
     firstConsultStatus: valueOf('edit-firstConsultStatus'),
     callStatus: valueOf('edit-callStatus'),
     workType: valueOf('edit-workType'),
@@ -1295,6 +765,22 @@ function collectUpdates(){
   };
 }
 
+function getFormState(){
+  if(!current) return {};
+
+  return collectUpdates();
+}
+
+function isDirty(){
+  if(!current || !formSnapshot) return false;
+
+  try{
+    return JSON.stringify(getFormState()) !== formSnapshot;
+  }catch(err){
+    return false;
+  }
+}
+
 async function collectRecordFiles(){
   const input = document.getElementById('recordFiles');
   if(!input || !input.files || !input.files.length) return [];
@@ -1304,7 +790,6 @@ async function collectRecordFiles(){
 
   for(const file of files){
     const src = await fileToDataUrl(file);
-
     result.push({
       name:file.name,
       type:file.type || 'audio/mp4',
@@ -1319,10 +804,8 @@ async function collectRecordFiles(){
 function fileToDataUrl(file){
   return new Promise((resolve,reject) => {
     const reader = new FileReader();
-
     reader.onload = () => resolve(reader.result);
     reader.onerror = () => reject(new Error('파일 읽기 실패: ' + file.name));
-
     reader.readAsDataURL(file);
   });
 }
@@ -1330,9 +813,8 @@ function fileToDataUrl(file){
 function setSaving(isSaving, topBtn, bottomBtn){
   [topBtn, bottomBtn].forEach(btn => {
     if(!btn) return;
-
     btn.disabled = isSaving;
-    btn.textContent = isSaving ? '저장 중...' : (btn.id === 'saveBtnBottom' ? '1차 상담 기록 저장' : '저장');
+    btn.textContent = isSaving ? '저장 중...' : (btn.id === 'saveBtnBottom' ? '전체 수정 저장' : '저장');
   });
 }
 
@@ -1345,6 +827,7 @@ function closePanel(){
   document.getElementById('overlay').classList.remove('show');
   document.getElementById('panel').classList.remove('show');
   current = null;
+  formSnapshot = '';
 }
 
 function copyCurrentPhone(){
@@ -1356,9 +839,7 @@ function copyCurrentPhone(){
   const phone = current.phone;
 
   if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(phone)
-      .then(() => toast('연락처 복사 완료'))
-      .catch(() => fallbackCopy(phone));
+    navigator.clipboard.writeText(phone).then(() => toast('연락처 복사 완료')).catch(() => fallbackCopy(phone));
   }else{
     fallbackCopy(phone);
   }
@@ -1383,61 +864,52 @@ function fallbackCopy(text){
 function parseRecordLinks(raw){
   if(Array.isArray(raw)) return raw.filter(Boolean);
 
-  return String(raw || '')
-    .split('\n')
-    .map(x => x.trim())
-    .filter(Boolean);
+  return String(raw || '').split('\n').map(x => x.trim()).filter(Boolean);
+}
+
+function parseHistory(raw){
+  if(Array.isArray(raw)) return raw;
+
+  try{
+    const parsed = JSON.parse(String(raw || '[]'));
+    return Array.isArray(parsed) ? parsed : [];
+  }catch(err){
+    return [];
+  }
 }
 
 function normalizeDate(v){
   const s = String(v || '').trim();
-
   if(!s) return '';
-
-  if(/^\d{4}-\d{2}-\d{2}/.test(s)){
-    return s.slice(0,10);
-  }
-
+  if(/^\d{4}-\d{2}-\d{2}/.test(s)) return s.slice(0,10);
   return s;
 }
 
 function normalizeDateTime(v){
   const s = String(v || '').trim();
-
   if(!s) return '';
-
-  if(/^\d{4}-\d{2}-\d{2}T/.test(s)){
-    return s.replace('T', ' ').slice(0,19);
-  }
-
+  if(/^\d{4}-\d{2}-\d{2}T/.test(s)) return s.replace('T',' ').slice(0,19);
   return s;
 }
 
 function normalizeTime(v){
   const s = String(v || '').trim();
-
   if(!s) return '';
-
-  if(/^\d{2}:\d{2}/.test(s)){
-    return s.slice(0,5);
-  }
-
+  if(/^\d{2}:\d{2}/.test(s)) return s.slice(0,5);
   if(s === '1899-12-31') return '';
-
   return s;
 }
 
 function getKstToday(){
-  const parts = new Intl.DateTimeFormat('en-CA', {
-    timeZone:'Asia/Seoul',
-    year:'numeric',
-    month:'2-digit',
-    day:'2-digit'
-  }).formatToParts(new Date());
-
+  const parts = new Intl.DateTimeFormat('en-CA', {timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
   const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
-
   return `${m.year}-${m.month}-${m.day}`;
+}
+
+function getNowTimeText(){
+  const parts = new Intl.DateTimeFormat('ko-KR', {timeZone:'Asia/Seoul',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(new Date());
+  const m = Object.fromEntries(parts.map(p => [p.type, p.value]));
+  return `${m.hour}:${m.minute}:${m.second}`;
 }
 
 function onlyPhoneNumber(v){
@@ -1449,11 +921,7 @@ function unique(arr){
 }
 
 function esc(s){
-  return String(s ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;')
-    .replace(/"/g,'&quot;');
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 
 function escAttr(s){
@@ -1461,23 +929,19 @@ function escAttr(s){
 }
 
 function escTextarea(s){
-  return String(s ?? '')
-    .replace(/&/g,'&amp;')
-    .replace(/</g,'&lt;')
-    .replace(/>/g,'&gt;');
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function toast(msg){
   const t = document.getElementById('toast');
-
   t.textContent = msg;
   t.classList.add('show');
-
   clearTimeout(toastTimer);
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-loadData();
+loadData({silent:false,preservePanel:false});
+startAutoRefresh();
 </script>
 </body>
 </html>
