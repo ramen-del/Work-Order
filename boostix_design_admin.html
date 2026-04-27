@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>BOOXTIX 디자인 작업요청 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F6F6F3;--panel:#FFFFFF;--text:#151515;--sub:#8B8B84;--line:#E5E3DD;
+  --soft:#F0EFEA;--dark:#151515;--good:#297A4A;--good-bg:#EAF5EE;
+  --warn:#9A6A18;--warn-bg:#FFF4D8;--danger:#B04747;--danger-bg:#FBEAEA;
+  --blue:#315E9E;--blue-bg:#EAF1FB;--radius:18px;
+}
+html{font-size:16px}
+body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select,textarea{font-family:inherit}
+a{color:inherit}
+.topbar{position:sticky;top:0;z-index:50;background:rgba(246,246,243,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+.topbar-inner{max-width:1440px;margin:0 auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand-kicker{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--sub)}
+.brand-title{font-size:22px;font-weight:800;letter-spacing:-.04em}
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}
+.btn.dark{background:var(--dark);color:#fff;border-color:var(--dark)}
+.btn.ghost{background:transparent}
+.wrap{max-width:1440px;margin:0 auto;padding:20px 22px 34px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat-label{font-size:11px;color:var(--sub);font-weight:800;letter-spacing:.08em}
+.stat-value{font-family:"DM Mono",monospace;font-size:27px;font-weight:500;margin-top:6px}
+.toolbar{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:grid;grid-template-columns:1.3fr 180px 140px;gap:10px;margin-bottom:14px}
+.search,.select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 13px;font-size:14px;outline:none}
+.search:focus,.select:focus,input:focus,textarea:focus{border-color:#151515}
+.main{display:grid;grid-template-columns:430px minmax(0,1fr);gap:14px;align-items:start}
+.list-panel,.detail-panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.list-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
+.panel-title{font-size:14px;font-weight:800;letter-spacing:-.02em}
+.mono{font-family:"DM Mono",monospace}
+.list{max-height:calc(100vh - 295px);overflow:auto;padding:10px}
+.item{border:1px solid transparent;border-radius:18px;padding:14px;cursor:pointer;transition:.14s;background:#fff;margin-bottom:8px}
+.item:hover{background:#FAFAF8;border-color:var(--line)}
+.item.active{background:#151515;color:#fff;border-color:#151515;box-shadow:0 12px 24px rgba(0,0,0,.12)}
+.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.item-id{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub)}
+.item.active .item-id,.item.active .item-sub,.item.active .meta{color:rgba(255,255,255,.65)}
+.item-title{font-size:15px;font-weight:800;letter-spacing:-.03em;line-height:1.35}
+.item-sub{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.45}
+.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.meta{font-size:11px;color:var(--sub);background:#F2F1EC;border-radius:20px;padding:4px 8px}
+.item.active .meta{background:rgba(255,255,255,.12)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;white-space:nowrap}
+.b-접수{background:#F2F1EC;color:#555}
+.b-검토중,.b-작업중,.b-수정중{background:var(--blue-bg);color:var(--blue)}
+.b-1차전달,.b-승인대기{background:var(--warn-bg);color:var(--warn)}
+.b-완료{background:var(--good-bg);color:var(--good)}
+.b-보류,.b-취소{background:var(--danger-bg);color:var(--danger)}
+.item.active .badge{background:rgba(255,255,255,.15);color:#fff}
+.detail-empty{padding:80px 20px;text-align:center;color:var(--sub)}
+.detail{display:grid;grid-template-columns:minmax(0,1fr) 330px;min-height:calc(100vh - 245px)}
+.detail-main{padding:24px;min-width:0}
+.detail-side{border-left:1px solid var(--line);background:#FAFAF8;padding:18px}
+.detail-kicker{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub);margin-bottom:6px}
+.detail-title{font-size:30px;font-weight:800;letter-spacing:-.05em;line-height:1.2;margin-bottom:8px}
+.detail-desc{color:var(--sub);font-size:13px;line-height:1.6}
+.detail-status-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.info{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff}
+.info-label{font-size:10px;font-weight:800;color:var(--sub);letter-spacing:.08em;margin-bottom:5px}
+.info-value{font-size:13px;font-weight:700;line-height:1.45;word-break:break-word}
+.section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
+.section h3{font-size:14px;margin-bottom:10px}
+.textbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
+.link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
+.link-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;font-size:13px;font-weight:800;transition:.14s;min-width:0}
+.link-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}
+.link-card span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.control{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
+.control label{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.08em}
+.control input,.control select,.control textarea{border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;font-size:14px;outline:none;width:100%}
+.control textarea{resize:vertical;line-height:1.6;min-height:120px}
+.done-box{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 14px;margin:8px 0 14px}
+.done-box strong{font-size:14px}
+.done-box small{display:block;font-size:11px;color:var(--sub);margin-top:2px}
+.switch{appearance:none;width:46px;height:28px;border-radius:999px;background:#D7D5CE;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
+.switch::after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:.2s}
+.switch:checked{background:#151515}
+.switch:checked::after{left:21px}
+.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#151515;color:#fff;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:100}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.loading{padding:44px 20px;text-align:center;color:var(--sub);font-size:13px}
+@media(max-width:980px){
+  .stats{grid-template-columns:repeat(2,1fr)}
+  .toolbar{grid-template-columns:1fr}
+  .main{grid-template-columns:1fr}
+  .list{max-height:none}
+  .detail{grid-template-columns:1fr}
+  .detail-side{border-left:none;border-top:1px solid var(--line)}
+  .grid{grid-template-columns:repeat(2,1fr)}
+}
+@media(max-width:560px){
+  .topbar-inner{align-items:flex-start;flex-direction:column}
+  .top-actions{width:100%}.top-actions .btn{flex:1}
+  .wrap{padding:14px 12px 24px}
+  .stats{grid-template-columns:1fr 1fr;gap:8px}
+  .stat{padding:13px}
+  .detail-main,.detail-side{padding:16px}
+  .detail-title{font-size:24px}
+  .grid,.link-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="brand-kicker">BOOXTIX DESIGN REQUEST ADMIN</div>
+      <div class="brand-title">디자인 작업요청 관리자</div>
+    </div>
+    <div class="top-actions">
+      <button class="btn ghost" onclick="loadRequests()">새로고침</button>
+      <a class="btn dark" href="https://script.google.com/macros/s/AKfycby7hoEPP1t-0stx80MwMa4HfJi5ipGUMDPcuBIbu406KECACY2afFgoky4rPhK_V70J/exec?action=list" target="_blank" style="text-decoration:none">API 확인</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="stats">
+    <div class="stat"><div class="stat-label">TOTAL</div><div class="stat-value" id="stTotal">0</div></div>
+    <div class="stat"><div class="stat-label">ACTIVE</div><div class="stat-value" id="stActive">0</div></div>
+    <div class="stat"><div class="stat-label">DONE</div><div class="stat-value" id="stDone">0</div></div>
+    <div class="stat"><div class="stat-label">URGENT</div><div class="stat-value" id="stUrgent">0</div></div>
+  </section>
+
+  <section class="toolbar">
+    <input class="search" id="searchInput" placeholder="프로젝트명, 발주자, 요청번호 검색" oninput="renderList()">
+    <select class="select" id="statusFilter" onchange="renderList()">
+      <option value="">전체 상태</option>
+      <option value="접수">접수</option>
+      <option value="검토중">검토중</option>
+      <option value="작업중">작업중</option>
+      <option value="1차전달">1차전달</option>
+      <option value="수정중">수정중</option>
+      <option value="승인대기">승인대기</option>
+      <option value="완료">완료</option>
+      <option value="보류">보류</option>
+      <option value="취소">취소</option>
+    </select>
+    <select class="select" id="sortMode" onchange="renderList()">
+      <option value="new">최신순</option>
+      <option value="due">마감일순</option>
+      <option value="urgent">긴급우선</option>
+    </select>
+  </section>
+
+  <section class="main">
+    <aside class="list-panel">
+      <div class="list-head">
+        <div class="panel-title">요청 리스트</div>
+        <div class="mono" id="listCount" style="font-size:12px;color:var(--sub)">0건</div>
+      </div>
+      <div class="list" id="requestList"><div class="loading">불러오는 중...</div></div>
+    </aside>
+
+    <section class="detail-panel" id="detailPanel">
+      <div class="detail-empty">왼쪽 요청을 클릭하면 상세 내용이 열린다. 🧾</div>
+    </section>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2iUEsTbESb_3Gf0P_YDAa02E6_dHnNu93TP8-_x4whuePYz-N8hp-SV71zbqiIDV6/exec";
+const STATUS_OPTIONS = ["접수","검토중","작업중","1차전달","수정중","승인대기","완료","보류","취소"];
+let allRequests = [];
+let filteredRequests = [];
+let selectedId = "";
+
+function jsonp(params){
+  return new Promise((resolve,reject)=>{
+    const cb = "gas_cb_" + Date.now() + "_" + Math.random().toString(36).slice(2);
+    const script = document.createElement("script");
+    const query = new URLSearchParams({...params, callback: cb, _: Date.now()});
+    const timer = setTimeout(()=>{
+      cleanup();
+      reject(new Error("요청 시간이 초과됐습니다."));
+    }, 15000);
+
+    function cleanup(){
+      clearTimeout(timer);
+      delete window[cb];
+      script.remove();
+    }
+
+    window[cb] = data => {
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      cleanup();
+      reject(new Error("Apps Script 연결에 실패했습니다."));
+    };
+
+    script.src = APPS_SCRIPT_URL + "?" + query.toString();
+    document.body.appendChild(script);
+  });
+}
+
+async function loadRequests(){
+  document.getElementById("requestList").innerHTML = '<div class="loading">불러오는 중...</div>';
+  try{
+    const res = await jsonp({action:"list"});
+    if(res.result !== "success") throw new Error(res.message || "목록을 불러오지 못했습니다.");
+    allRequests = res.data || [];
+    setStats(res.counts || {});
+    if(!selectedId && allRequests[0]) selectedId = allRequests[0]["요청번호"];
+    renderList();
+    renderDetail(getSelected());
+  }catch(err){
+    document.getElementById("requestList").innerHTML = '<div class="loading">⚠ '+escapeHtml(err.message)+'</div>';
+    toast(err.message);
+  }
+}
+
+function setStats(c){
+  document.getElementById("stTotal").textContent = c.total || 0;
+  document.getElementById("stActive").textContent = c.active || 0;
+  document.getElementById("stDone").textContent = c.done || 0;
+  document.getElementById("stUrgent").textContent = c.urgent || 0;
+}
+
+function getSelected(){
+  return allRequests.find(r => r["요청번호"] === selectedId) || null;
+}
+
+function getFiltered(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const status = document.getElementById("statusFilter").value;
+  const sort = document.getElementById("sortMode").value;
+
+  let arr = allRequests.filter(r => {
+    const blob = [
+      r["요청번호"], r["프로젝트명"], r["발주자"], r["발주부서"], r["들어갈내용"], r["작업유형"]
+    ].join(" ").toLowerCase();
+    return (!q || blob.includes(q)) && (!status || r["상태"] === status);
+  });
+
+  if(sort === "due"){
+    arr.sort((a,b)=>String(a["완성희망일"]||"9999").localeCompare(String(b["완성희망일"]||"9999")));
+  }else if(sort === "urgent"){
+    arr.sort((a,b)=>urgentScore(b)-urgentScore(a));
+  }
+  return arr;
+}
+
+function urgentScore(r){
+  const p = String(r["우선순위"]||"");
+  if(p.includes("긴급")) return 3;
+  if(p.includes("높음")) return 2;
+  if(p.includes("보통")) return 1;
+  return 0;
+}
+
+function renderList(){
+  filteredRequests = getFiltered();
+  document.getElementById("listCount").textContent = filteredRequests.length + "건";
+
+  if(!filteredRequests.length){
+    document.getElementById("requestList").innerHTML = '<div class="loading">조건에 맞는 요청이 없습니다.</div>';
+    return;
+  }
+
+  document.getElementById("requestList").innerHTML = filteredRequests.map(r => {
+    const id = r["요청번호"];
+    const active = id === selectedId ? " active" : "";
+    const status = r["상태"] || "접수";
+    const doneMark = r.isDone ? "✓ " : "";
+    return `
+      <div class="item${active}" onclick="selectRequest('${escapeAttr(id)}')">
+        <div class="item-top">
+          <div style="min-width:0">
+            <div class="item-id">${escapeHtml(id)}</div>
+            <div class="item-title">${doneMark}${escapeHtml(r["프로젝트명"] || "제목 없음")}</div>
+            <div class="item-sub">${escapeHtml(r["발주자"] || "-")} · ${escapeHtml(r["발주부서"] || "-")}</div>
+          </div>
+          <span class="badge b-${escapeClass(status)}">${escapeHtml(status)}</span>
+        </div>
+        <div class="meta-row">
+          <span class="meta">마감 ${escapeHtml(shortDate(r["완성희망일"]) || "-")}</span>
+          <span class="meta">첨부 ${(r.imageLinks||[]).length}개</span>
+          <span class="meta">${escapeHtml(r["우선순위"] || "우선순위 없음")}</span>
+        </div>
+      </div>`;
+  }).join("");
+}
+
+function selectRequest(id){
+  selectedId = id;
+  renderList();
+  renderDetail(getSelected());
+  if(window.innerWidth < 980) document.getElementById("detailPanel").scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function renderDetail(r){
+  const panel = document.getElementById("detailPanel");
+  if(!r){
+    panel.innerHTML = '<div class="detail-empty">선택된 요청이 없습니다.</div>';
+    return;
+  }
+
+  const status = r["상태"] || "접수";
+  const images = r.imageLinks || [];
+  const links = [
+    r["HTML보기"] ? ["요청서 HTML", r["HTML보기"]] : null,
+    r["폴더링크"] ? ["업로드 폴더", r["폴더링크"]] : null,
+    r["최종파일링크"] ? ["최종 파일", r["최종파일링크"]] : null
+  ].filter(Boolean);
+
+  panel.innerHTML = `
+    <div class="detail">
+      <div class="detail-main">
+        <div class="detail-kicker">${escapeHtml(r["요청번호"])}</div>
+        <h1 class="detail-title">${escapeHtml(r["프로젝트명"] || "제목 없음")}</h1>
+        <div class="detail-desc">
+          제출 ${escapeHtml(r["제출일시"] || "-")} · 발주자 ${escapeHtml(r["발주자"] || "-")}
+        </div>
+        <div class="detail-status-row">
+          <span class="badge b-${escapeClass(status)}">${escapeHtml(status)}</span>
+          <span class="badge b-접수">${r.isDone ? "작업완료" : "진행중"}</span>
+          <span class="badge b-접수">수정 ${escapeHtml(r["수정횟수"] || 0)}회</span>
+          ${r["우선순위"] ? `<span class="badge b-1차전달">${escapeHtml(r["우선순위"])}</span>` : ""}
+        </div>
+
+        <div class="grid">
+          ${info("발주부서", r["발주부서"])}
+          ${info("발주자", r["발주자"])}
+          ${info("발주일자", shortDate(r["발주일자"]))}
+          ${info("완성희망일", shortDate(r["완성희망일"]))}
+          ${info("1차시안일", shortDate(r["1차시안일"]))}
+          ${info("담당자", r["담당자"] || "-")}
+          ${info("수량", r["수량"])}
+          ${info("소재", r["소재"])}
+          ${info("사이즈", r["사이즈"])}
+          ${info("사용용도", r["사용용도"])}
+          ${info("사용장소", r["사용장소"])}
+          ${info("작업유형", r["작업유형"])}
+        </div>
+
+        ${sectionText("들어갈 내용", r["들어갈내용"])}
+        ${sectionText("희망 이미지 / 레퍼런스", r["희망이미지설명"])}
+        ${sectionText("선택 색상", r["선택색상"])}
+        ${sectionText("스타일값", r["스타일값"])}
+        ${sectionText("주의사항", r["일반주의사항"])}
+        ${sectionText("배송지", [r["배송지"], r["배송메모"]].filter(Boolean).join("\n"))}
+
+        <div class="section">
+          <h3>올린 파일 / 보기 링크</h3>
+          <div class="link-grid">
+            ${links.map(([label,url])=>linkCard(label,url)).join("") || '<div class="textbox">아직 링크가 없습니다.</div>'}
+            ${images.map((url,i)=>linkCard("첨부사진 " + (i+1), url)).join("")}
+          </div>
+        </div>
+      </div>
+
+      <aside class="detail-side">
+        <div class="panel-title" style="margin-bottom:14px">작업 진행 관리</div>
+
+        <div class="control">
+          <label>상태</label>
+          <select id="editStatus" onchange="syncDoneFromStatus()">
+            ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===status?"selected":""}>${s}</option>`).join("")}
+          </select>
+        </div>
+
+        <div class="done-box">
+          <div>
+            <strong>작업진행 완료 체크</strong>
+            <small>체크하면 상태가 완료로 저장되고 완료일이 찍힙니다.</small>
+          </div>
+          <input class="switch" type="checkbox" id="editDone" ${r.isDone ? "checked" : ""} onchange="syncStatusFromDone()">
+        </div>
+
+        <div class="control">
+          <label>담당자</label>
+          <input id="editAssignee" value="${escapeAttr(r["담당자"] || "")}" placeholder="예: 라면">
+        </div>
+
+        <div class="control">
+          <label>1차시안일</label>
+          <input id="editFirstDraft" type="date" value="${escapeAttr(dateInputValue(r["1차시안일"]))}">
+        </div>
+
+        <div class="control">
+          <label>최종파일링크</label>
+          <input id="editFinalFile" value="${escapeAttr(r["최종파일링크"] || "")}" placeholder="구글드라이브 / 최종 산출물 링크">
+        </div>
+
+        <div class="control">
+          <label>내부메모</label>
+          <textarea id="editMemo" placeholder="작업자용 메모, 수정 방향, 고객 특이사항 등">${escapeHtml(r["내부메모"] || "")}</textarea>
+        </div>
+
+        <button class="btn dark" style="width:100%;padding:14px" onclick="saveCurrent(event)">진행상태 저장</button>
+
+        <div class="section">
+          <h3>바로가기</h3>
+          <div style="display:flex;flex-direction:column;gap:8px">
+            ${links.map(([label,url])=>linkCard(label,url)).join("") || '<div class="textbox">연결 링크 없음</div>'}
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>완료 정보</h3>
+          <div class="textbox">
+            완료일: ${escapeHtml(r["완료일"] || "-")}<br>
+            최종파일: ${r["최종파일링크"] ? "등록됨" : "미등록"}
+          </div>
+        </div>
+      </aside>
+    </div>`;
+}
+
+function info(label,value){
+  return `<div class="info"><div class="info-label">${escapeHtml(label)}</div><div class="info-value">${escapeHtml(value || "-")}</div></div>`;
+}
+
+function sectionText(title,value){
+  if(!value) return "";
+  return `<div class="section"><h3>${escapeHtml(title)}</h3><div class="textbox">${escapeHtml(value)}</div></div>`;
+}
+
+function linkCard(label,url){
+  return `<a class="link-card" href="${escapeAttr(url)}" target="_blank" rel="noopener">
+    <span>${escapeHtml(label)}</span><span>↗</span>
+  </a>`;
+}
+
+function syncStatusFromDone(){
+  const done = document.getElementById("editDone");
+  const status = document.getElementById("editStatus");
+  if(done.checked) status.value = "완료";
+  else if(status.value === "완료") status.value = "작업중";
+}
+
+function syncDoneFromStatus(){
+  const done = document.getElementById("editDone");
+  const status = document.getElementById("editStatus");
+  done.checked = status.value === "완료";
+}
+
+async function saveCurrent(ev){
+  const r = getSelected();
+  if(!r) return;
+
+  const btn = ev?.currentTarget || document.querySelector(".detail-side .btn.dark");
+  const oldText = btn.textContent;
+  btn.disabled = true;
+  btn.textContent = "저장 중...";
+
+  const params = {
+    action: "update",
+    requestId: r["요청번호"],
+    status: document.getElementById("editStatus").value,
+    completed: document.getElementById("editDone").checked ? "true" : "false",
+    assignee: document.getElementById("editAssignee").value.trim(),
+    firstDraftDate: document.getElementById("editFirstDraft").value,
+    finalFileUrl: document.getElementById("editFinalFile").value.trim(),
+    internalMemo: document.getElementById("editMemo").value.trim()
+  };
+
+  try{
+    const res = await jsonp(params);
+    if(res.result !== "success") throw new Error(res.message || "저장 실패");
+    const updated = res.item;
+    allRequests = allRequests.map(item => item["요청번호"] === updated["요청번호"] ? updated : item);
+    selectedId = updated["요청번호"];
+    renderList();
+    renderDetail(updated);
+    toast("저장 완료");
+  }catch(err){
+    toast("⚠ " + err.message);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = oldText;
+  }
+}
+
+function shortDate(v){
+  if(!v) return "";
+  return String(v).slice(0,10);
+}
+
+function dateInputValue(v){
+  const s = shortDate(v);
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : "";
+}
+
+function escapeHtml(v){
+  return String(v ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+}
+
+function escapeAttr(v){
+  return escapeHtml(v).replace(/`/g,"&#096;");
+}
+
+function escapeClass(v){
+  return String(v || "").replace(/[^가-힣A-Za-z0-9_-]/g,"");
+}
+
+function toast(msg){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"),2600);
+}
+
+document.addEventListener("DOMContentLoaded", loadRequests);
+</script>
+</body>
+</html>
