@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BOOXTIX · 상담 관리자 v11</title>
+<title>BOOXTIX · 상담 관리자 v12</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -31,14 +31,14 @@ html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyohjTBIHGSj5KvMTGn6lATDalpXuztgs7w2a65jzx_XejH33il-_SRaHdJCp7wXgCIqg/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw8AkKjfDUzGZzKEHv7XY2vUJyDdcar6sLR5bjpJB5rKd-hqZ4JxISttYdn8OB6xscr8g/exec";
 const BASIC_FIELDS = ['inquiryDate','inquiryTime','name','phone','hasStore','desiredRegion','source','sourceEtc','note'];
 const FIRST_FIELDS = ['callStatus','workType','recordFiles','currentSituation','inquiryTopic','detailInquiryMemo','answerType','answerMemo'];
 const NEXT_FIELDS = ['nextStep','nextActionDetail','nextActionDate','nextActionTime','nextActionOwner','nextActionMemo','finalStatus'];
 const LABELS = {inquiryDate:'문의 일자',inquiryTime:'문의 시간',name:'이름',phone:'연락처',hasStore:'점포 유/무',desiredRegion:'창업 희망지역',source:'유입경로',sourceEtc:'기타 유입경로',note:'비고',callStatus:'상담상태',workType:'작업형태',recordFiles:'통화녹음 업로드',currentSituation:'현재상황',inquiryTopic:'문의주제',detailInquiryMemo:'상세문의 메모',answerType:'답변유형',answerMemo:'답변메모',firstConsultStatus:'1차 상담 상태',firstConsultCompletedAt:'1차 상담 완료일시',nextStep:'다음단계',nextActionDetail:'다음단계 상세내용',nextActionDate:'다음액션 예정일',nextActionTime:'다음액션 예정시간',nextActionOwner:'담당자',nextActionMemo:'다음액션 내부메모',finalStatus:'최종상태'};
 let allData = [], filtered = [], currentIdx = null, currentRecordFiles = [];
 let sortKey = 'inquiryDateTime', sortAsc = false;
-let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_v11') || '{}');
+let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_original_engine') || '{}');
 
 function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function pick(o, keys, fallback=''){for(const k of keys){if(o && o[k] !== undefined && o[k] !== null && String(o[k]).trim() !== '') return String(o[k]).trim();}return fallback;}
@@ -46,10 +46,16 @@ function todayKST(){const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asi
 function nowKST(){return new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});}
 function rowId(d){return d.id || d.consultId || [d.inquiryDate,d.inquiryTime,d.name,d.phone].join('|');}
 function parseRecordFiles(raw){
-  const direct = raw.recordFiles ?? raw.records ?? raw['통화녹음 업로드'] ?? raw['녹음파일'] ?? '';
-  if(Array.isArray(direct)) return direct;
-  if(typeof direct === 'string' && direct.trim().startsWith('[')){try{return JSON.parse(direct);}catch(err){return [];}}
-  if(typeof direct === 'string' && direct.trim()) return [{name:direct,type:'',size:0,src:''}];
+  const direct = raw.recordFiles ?? raw.records ?? raw.recordLinks ?? raw['녹음링크'] ?? raw['통화녹음 업로드'] ?? raw['녹음파일'] ?? '';
+  if(Array.isArray(direct)){
+    return direct.map((item,i)=> typeof item === 'string' ? {name:`녹음 파일 ${i+1}`,url:item,type:'',size:0,src:''} : item);
+  }
+  if(typeof direct === 'string' && direct.trim().startsWith('[')){
+    try{return JSON.parse(direct).map((item,i)=> typeof item === 'string' ? {name:`녹음 파일 ${i+1}`,url:item,type:'',size:0,src:''} : item);}catch(err){return [];}
+  }
+  if(typeof direct === 'string' && direct.trim()){
+    return direct.split(/\n+/).map(s=>s.trim()).filter(Boolean).map((url,i)=>({name:`녹음 파일 ${i+1}`,url,type:'',size:0,src:''}));
+  }
   return [];
 }
 function normalize(raw){
@@ -124,7 +130,7 @@ async function loadData(){
     allData = rows.map(normalize).filter(hasRealLead);
     updateSourceFilter();applyFilter();updateKpi();setStatus(true);
     if(!allData.length){
-      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. Apps Script v9 Code.gs를 적용하면 기존 시트/다른 시트까지 자동 탐색합니다.' : '서버 응답에 목록 배열이 없습니다.');
+      const msg = json.message || json.error || (json.result === 'success' ? '서버 응답은 성공이지만 관리자에서 읽을 행이 0건입니다. 원본 Apps Script의 가맹상담 시트에 표시 가능한 행이 없습니다.' : '서버 응답에 목록 배열이 없습니다.');
       document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🗂️</span><b>관리자 표시 데이터 0건</b><br>'+esc(msg)+'</div>';
     }
   }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.<br>'+esc(err.message)+'</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
@@ -177,17 +183,24 @@ function readNext(){return {nextStep:val('n-nextStep'),nextActionDetail:val('n-n
 function val(id){const el=document.getElementById(id);return el ? el.value.trim() : '';}
 function diffAndApply(d, updates){const changes=[];Object.keys(updates).forEach(k=>{const oldVal = k==='recordFiles' ? JSON.stringify(d[k]||[]) : String(d[k]||'');const newVal = k==='recordFiles' ? JSON.stringify(updates[k]||[]) : String(updates[k]||'');if(oldVal!==newVal){changes.push({field:LABELS[k]||k,old:displayVal(d[k]),new:displayVal(updates[k])});d[k]=updates[k];}});if(updates.inquiryDate||updates.inquiryTime)d.inquiryDateTime=`${d.inquiryDate||'0000-00-00'} ${d.inquiryTime||'00:00'}`;return changes;}
 function displayVal(v){if(Array.isArray(v))return v.map(x=>x.name||'파일').join(', ') || '없음';return String(v||'없음');}
-function addHistory(id,section,changes){if(!editHistory[id]) editHistory[id]=[];editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});localStorage.setItem('booxtix_admin_history_v11',JSON.stringify(editHistory));}
+function addHistory(id,section,changes){if(!editHistory[id]) editHistory[id]=[];editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});localStorage.setItem('booxtix_admin_history_original_engine',JSON.stringify(editHistory));}
+function getNewRecordFiles(){return (currentRecordFiles||[]).filter(f=>f && f.src && String(f.src).startsWith('data:'));}
+function linksToRecordFiles(links){return (links||[]).map((url,i)=>({name:`녹음 파일 ${i+1}`,url,type:'',size:0,src:''}));}
 async function persistUpdates(d, updates, section, changes){
   const fd=new FormData();
+  const cleanUpdates={...updates};
+  delete cleanUpdates.recordFiles;
+  delete cleanUpdates.firstConsultCompletedAt;
+  delete cleanUpdates.workflowStatus;
+  const newRecords=getNewRecordFiles();
   fd.append('action','update');
-  fd.append('data',JSON.stringify({id:rowId(d),consultId:d.consultId,updates,historyEntry:{time:nowKST(),editor:'관리자',section,changes}}));
+  fd.append('data',JSON.stringify({id:rowId(d),consultId:d.consultId,updates:cleanUpdates,newRecords}));
   const res=await fetch(APPS_SCRIPT_URL + '?action=update',{method:'POST',body:fd});
   const text=await res.text();
   let result={};
   try{result=JSON.parse(text);}catch(err){result={result:res.ok?'success':'error',raw:text};}
   if(!res.ok || (result.result && result.result!=='success') || (result.status && !['success','ok'].includes(result.status))){throw new Error(result.error||result.message||'서버 저장 실패');}
-  if(result.recordFiles || result.savedFiles){updates.recordFiles = result.recordFiles || result.savedFiles;}
+  if(result.recordLinks){updates.recordFiles = linksToRecordFiles(result.recordLinks);}
   return result;
 }
 async function saveSection(section, updates){
@@ -198,7 +211,7 @@ async function saveSection(section, updates){
   if(!changes.length){showToast('변경된 내용이 없습니다.');return;}
   try{
     const result=await persistUpdates(copy,updates,section,changes);
-    if((result.recordFiles||result.savedFiles) && updates.recordFiles){d.recordFiles=updates.recordFiles;currentRecordFiles=[...updates.recordFiles];}
+    if(result.recordLinks && updates.recordFiles){d.recordFiles=updates.recordFiles;currentRecordFiles=[...updates.recordFiles];}
     addHistory(rowId(d),section,changes);
     afterSave(d);
     showToast('✓ 저장되었습니다. 수정내역에 기록했어요.');
