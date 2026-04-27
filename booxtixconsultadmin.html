@@ -8,256 +8,87 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--text:#1A1A1A;--sub:#8E8E88;--border:#E8E8E4;--soft:#F5F5F3;--bg:#F7F7F5;--ok:#2D7A55;--err:#E05252;--warn:#D97706;--info:#1565C0;--radius:14px}
-html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text)}
-button,input,textarea,select{font-family:inherit}
-.nav{background:#fff;border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:80}
-.nav-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
-.brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--sub);text-transform:uppercase}
-.brand b{color:var(--text)}
-.nav-right{display:flex;align-items:center;gap:10px}
-.status{display:flex;align-items:center;gap:7px}
-.dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}
-.status-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--sub)}
-.refresh-btn{padding:8px 13px;background:#fff;border:1px solid var(--border);border-radius:9px;font-size:12px;font-weight:800;cursor:pointer}
-.refresh-btn:hover{background:var(--soft)}
-.main{max-width:1280px;margin:0 auto;padding:24px 20px}
-.title-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px}
-.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;margin-bottom:5px}
-.title{font-size:25px;font-weight:900;letter-spacing:-.04em}
-.desc{font-size:13px;color:var(--sub);margin-top:5px;line-height:1.5}
-.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}
-.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:17px 18px}
-.kpi-label{font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}
-.kpi-value{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.04em}
-.kpi-sub{font-size:12px;color:var(--sub);margin-top:5px}
-.filter-bar{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:13px;display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
-.search{flex:1;min-width:220px;position:relative}
-.search input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--border);border-radius:10px;font-size:13px}
-.search .ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:14px}
-select{appearance:none;background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 10px center;padding:10px 32px 10px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;color:var(--text)}
-input,textarea,select{outline:none}
-input:focus,textarea:focus,select:focus{border-color:#1A1A1A}
-.count{font-family:'DM Mono',monospace;font-size:12px;color:var(--sub);margin-left:auto}
-.table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
-.table-head,.table-row{display:grid;grid-template-columns:102px 70px 86px 118px 90px 1fr 112px 110px 110px 100px;gap:8px;align-items:center}
-.table-head{padding:11px 16px;border-bottom:1px solid var(--border);background:#FCFCFB}
-.table-row{padding:13px 16px;border-bottom:1px solid #F2F2EF;cursor:pointer;transition:.12s}
-.table-row:hover{background:#FAFAF9}
-.table-row:last-child{border-bottom:0}
-.th{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none}
-.th:hover{color:var(--text)}
-.td{font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.td.sub{color:var(--sub);font-size:12px}
-.td.mono{font-family:'DM Mono',monospace;font-size:11px}
-.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800;white-space:nowrap}
-.badge.ok{background:#E8F5EE;color:var(--ok)}
-.badge.warn{background:#FEF3C7;color:var(--warn)}
-.badge.err{background:#FEE2E2;color:var(--err)}
-.badge.info{background:#DBEAFE;color:var(--info)}
-.badge.grey{background:#F0F0EE;color:#666}
-.empty,.loading{padding:55px 20px;text-align:center;color:var(--sub);font-size:13px}
-.empty-icon{font-size:36px;display:block;margin-bottom:10px}
-.spinner{display:inline-block;width:17px;height:17px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .75s linear infinite;margin-right:7px;vertical-align:middle}
-@keyframes spin{to{transform:rotate(360deg)}}
-.panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100}
-.panel-overlay.show{display:block}
-.panel{position:fixed;top:0;right:0;bottom:0;width:640px;background:#fff;border-left:1px solid var(--border);z-index:101;transform:translateX(100%);transition:transform .24s ease;display:flex;flex-direction:column}
-.panel.show{transform:translateX(0)}
-.panel-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
-.panel-close{width:33px;height:33px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer}
-.panel-title{font-size:15px;font-weight:900;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.tabs{display:flex;border-bottom:1px solid var(--border)}
-.tab{flex:1;padding:12px;font-size:13px;font-weight:900;text-align:center;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}
-.tab.active{color:var(--text);border-bottom-color:var(--text)}
-.panel-content{flex:1;overflow:auto}
-.tab-body{display:none;padding:20px}
-.tab-body.active{display:block}
-.section{margin-bottom:22px}
-.section-title{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
-.mini-help{font-size:12px;color:var(--sub);line-height:1.55;margin:-3px 0 12px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}
-.field{display:flex;flex-direction:column;gap:4px}
-.label{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.06em;text-transform:uppercase}
-.value{font-size:13px;font-weight:600;line-height:1.5;word-break:break-word}
-.memo{background:var(--soft);border-radius:10px;padding:12px;font-size:13px;line-height:1.65;color:#333;white-space:pre-wrap}
-.edit-group{margin-bottom:15px}
-.edit-label{display:block;font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}
-.edit-input,.edit-select,.edit-textarea{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:#fff}
-.edit-textarea{resize:vertical;min-height:78px;line-height:1.6}
-.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.save-row{display:flex;gap:8px;background:#fff;border-top:1px solid var(--border);padding:14px 0 0;margin-top:20px}
-.save,.cancel,.ghost{border-radius:11px;padding:13px;font-size:14px;font-weight:900;cursor:pointer}
-.save{flex:2;background:#1A1A1A;color:#fff;border:0}
-.cancel{flex:1;background:#fff;color:#1A1A1A;border:1px solid var(--border)}
-.save:disabled{opacity:.5;cursor:not-allowed}
-.phase-card{border:1px solid var(--border);border-radius:14px;padding:14px 15px;background:#FAFAF9;margin-bottom:15px}
-.phase-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.phase-title{font-size:15px;font-weight:900;letter-spacing:-.02em}
-.phase-desc{font-size:12px;color:var(--sub);line-height:1.55;margin-top:4px}
-.next-box{background:#1A1A1A;color:#fff;border-radius:13px;padding:14px 15px;margin-bottom:12px}
-.next-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
-.next-value{font-size:15px;font-weight:900}
-.next-date{font-size:12px;color:rgba(255,255,255,.62);margin-top:4px}
-.file-upload{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:#FAFAF9}
-.file-upload:hover{border-color:#999;background:#F5F5F3}
-.file-upload input{display:none}
-.file-upload-icon{font-size:22px;margin-bottom:5px}
-.file-upload-text{font-size:13px;color:#555;font-weight:800}
-.file-upload-sub{font-size:11px;color:#AAA;margin-top:2px}
-.file-list{margin-top:9px}
-.file-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:10px;margin-top:6px;font-size:13px}
-.file-item.uploaded{background:#F0FAF4;border-color:#C5E5D2}
-.file-item .name{flex:1;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-item .name a{color:#1A1A1A;text-decoration:none}
-.file-item .name a:hover{text-decoration:underline}
-.file-item .badge-mini{font-size:10px;font-weight:700;padding:2px 6px;border-radius:4px;background:#F0F0EE;color:#666}
-.file-item.uploaded .badge-mini{background:#E8F5EE;color:var(--ok)}
-.file-item .del{border:0;background:none;color:#999;cursor:pointer;font-size:18px;padding:0 4px}
-.history-empty{text-align:center;color:var(--sub);padding:40px 10px;font-size:13px}
-.history-item{padding:14px 0;border-bottom:1px solid var(--border)}
-.history-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}
-.history-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--sub)}
-.history-editor{font-size:12px;font-weight:900;background:var(--soft);padding:2px 8px;border-radius:5px}
-.history-section{font-size:11px;font-weight:900;color:var(--info);background:#DBEAFE;padding:2px 8px;border-radius:5px}
-.history-change{font-size:12px;background:#F8F8F6;border-left:2px solid var(--border);border-radius:7px;padding:8px 10px;margin-top:4px;line-height:1.45}
-.old{color:var(--err);text-decoration:line-through}
-.new{color:var(--ok);font-weight:900}
-.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:150;opacity:0;transition:.25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}
-.toast.show{opacity:1}
-.hidden{display:none!important}
-@media(max-width:1000px){.kpi-row{grid-template-columns:1fr 1fr}.table-head,.table-row{grid-template-columns:98px 76px 92px 1fr 102px 96px}.table-head .th:nth-child(4),.table-row .td:nth-child(4),.table-head .th:nth-child(5),.table-row .td:nth-child(5),.table-head .th:nth-child(7),.table-row .td:nth-child(7),.table-head .th:nth-child(10),.table-row .td:nth-child(10){display:none}.panel{width:100%;border-left:0}.grid,.edit-grid{grid-template-columns:1fr}}
-@media(max-width:520px){.main{padding:18px 14px}.title-row{display:block}.kpi-row{grid-template-columns:1fr 1fr}.panel-head{padding:13px}.tab-body{padding:16px}.save-row{flex-direction:column}.table-head,.table-row{grid-template-columns:86px 72px 1fr 92px}.table-head .th:nth-child(n+5),.table-row .td:nth-child(n+5){display:none}}
+html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans KR',sans-serif;color:var(--text)}button,input,textarea,select{font-family:inherit}.nav{background:#fff;border-bottom:1px solid var(--border);padding:16px 20px;position:sticky;top:0;z-index:80}.nav-inner{max-width:1280px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}.brand{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--sub);text-transform:uppercase}.brand b{color:var(--text)}.nav-right{display:flex;align-items:center;gap:10px}.status{display:flex;align-items:center;gap:7px}.dot{width:7px;height:7px;border-radius:50%;background:var(--ok)}.status-text{font-family:'DM Mono',monospace;font-size:11px;color:var(--sub)}.refresh-btn{padding:8px 13px;background:#fff;border:1px solid var(--border);border-radius:9px;font-size:12px;font-weight:800;cursor:pointer}.refresh-btn:hover{background:var(--soft)}.main{max-width:1280px;margin:0 auto;padding:24px 20px}.title-row{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:16px}.eyebrow{font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--sub);text-transform:uppercase;margin-bottom:5px}.title{font-size:25px;font-weight:900;letter-spacing:-.04em}.desc{font-size:13px;color:var(--sub);margin-top:5px;line-height:1.5}.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px}.kpi{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:17px 18px}.kpi-label{font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.06em;text-transform:uppercase;margin-bottom:7px}.kpi-value{font-size:28px;font-weight:900;line-height:1;letter-spacing:-.04em}.kpi-sub{font-size:12px;color:var(--sub);margin-top:5px}.filter-bar{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:13px;display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-bottom:14px}.search{flex:1;min-width:220px;position:relative}.search input{width:100%;padding:10px 12px 10px 34px;border:1px solid var(--border);border-radius:10px;font-size:13px}.search .ico{position:absolute;left:11px;top:50%;transform:translateY(-50%);color:var(--sub);font-size:14px}select{appearance:none;background:#fff url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3e%3cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3e%3c/svg%3e") no-repeat right 10px center;padding:10px 32px 10px 12px;border:1px solid var(--border);border-radius:10px;font-size:13px;cursor:pointer;color:var(--text)}input,textarea,select{outline:none}input:focus,textarea:focus,select:focus{border-color:#1A1A1A}.count{font-family:'DM Mono',monospace;font-size:12px;color:var(--sub);margin-left:auto}.table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}.table-head,.table-row{display:grid;grid-template-columns:102px 70px 86px 118px 90px 1fr 112px 110px 110px 100px;gap:8px;align-items:center}.table-head{padding:11px 16px;border-bottom:1px solid var(--border);background:#FCFCFB}.table-row{padding:13px 16px;border-bottom:1px solid #F2F2EF;cursor:pointer;transition:.12s}.table-row:hover{background:#FAFAF9}.table-row:last-child{border-bottom:0}.th{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;cursor:pointer;user-select:none}.th:hover{color:var(--text)}.td{font-size:13px;line-height:1.35;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.td.sub{color:var(--sub);font-size:12px}.td.mono{font-family:'DM Mono',monospace;font-size:11px}.badge{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:4px 9px;font-size:11px;font-weight:800;white-space:nowrap}.badge.ok{background:#E8F5EE;color:var(--ok)}.badge.warn{background:#FEF3C7;color:var(--warn)}.badge.err{background:#FEE2E2;color:var(--err)}.badge.info{background:#DBEAFE;color:var(--info)}.badge.grey{background:#F0F0EE;color:#666}.empty,.loading{padding:55px 20px;text-align:center;color:var(--sub);font-size:13px}.empty-icon{font-size:36px;display:block;margin-bottom:10px}.spinner{display:inline-block;width:17px;height:17px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .75s linear infinite;margin-right:7px;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}
+.panel-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.38);z-index:100}.panel-overlay.show{display:block}.panel{position:fixed;top:0;right:0;bottom:0;width:640px;background:#fff;border-left:1px solid var(--border);z-index:101;transform:translateX(100%);transition:transform .24s ease;display:flex;flex-direction:column}.panel.show{transform:translateX(0)}.panel-head{padding:15px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}.panel-close{width:33px;height:33px;border:1px solid var(--border);border-radius:9px;background:#fff;cursor:pointer}.panel-title{font-size:15px;font-weight:900;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tabs{display:flex;border-bottom:1px solid var(--border)}.tab{flex:1;padding:12px;font-size:13px;font-weight:900;text-align:center;color:var(--sub);cursor:pointer;border-bottom:2px solid transparent}.tab.active{color:var(--text);border-bottom-color:var(--text)}.panel-content{flex:1;overflow:auto}.tab-body{display:none;padding:20px}.tab-body.active{display:block}.section{margin-bottom:22px}.section-title{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.09em;text-transform:uppercase;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}.mini-help{font-size:12px;color:var(--sub);line-height:1.55;margin:-3px 0 12px}.grid{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{display:flex;flex-direction:column;gap:4px}.label{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.06em;text-transform:uppercase}.value{font-size:13px;font-weight:600;line-height:1.5;word-break:break-word}.memo{background:var(--soft);border-radius:10px;padding:12px;font-size:13px;line-height:1.65;color:#333;white-space:pre-wrap}.edit-group{margin-bottom:15px}.edit-label{display:block;font-size:11px;font-weight:900;color:var(--sub);letter-spacing:.04em;text-transform:uppercase;margin-bottom:6px}.edit-input,.edit-select,.edit-textarea{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;background:#fff}.edit-textarea{resize:vertical;min-height:78px;line-height:1.6}.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.save-row{display:flex;gap:8px;position:static;background:#fff;border-top:1px solid var(--border);padding:14px 0 0;margin-top:20px}.save,.cancel,.ghost{border-radius:11px;padding:13px;font-size:14px;font-weight:900;cursor:pointer}.save{flex:2;background:#1A1A1A;color:#fff;border:0}.cancel{flex:1;background:#fff;color:#1A1A1A;border:1px solid var(--border)}.ghost{background:#fff;color:#1A1A1A;border:1px solid var(--border)}.save:disabled{opacity:.5;cursor:not-allowed}.phase-card{border:1px solid var(--border);border-radius:14px;padding:14px 15px;background:#FAFAF9;margin-bottom:15px}.phase-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}.phase-title{font-size:15px;font-weight:900;letter-spacing:-.02em}.phase-desc{font-size:12px;color:var(--sub);line-height:1.55;margin-top:4px}.next-box{background:#1A1A1A;color:#fff;border-radius:13px;padding:14px 15px;margin-bottom:12px}.next-label{font-family:'DM Mono',monospace;font-size:10px;color:rgba(255,255,255,.5);letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}.next-value{font-size:15px;font-weight:900}.next-date{font-size:12px;color:rgba(255,255,255,.62);margin-top:4px}.file-upload{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px dashed var(--border);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:.15s;background:#FAFAF9}.file-upload:hover{border-color:#999;background:#F5F5F3}.file-upload input{display:none}.file-upload-icon{font-size:22px;margin-bottom:5px}.file-upload-text{font-size:13px;color:#555;font-weight:800}.file-upload-sub{font-size:11px;color:#AAA;margin-top:2px}.file-list{margin-top:9px}.file-item{display:flex;align-items:center;gap:9px;padding:10px 12px;background:#fff;border:1px solid var(--border);border-radius:10px;margin-top:6px;font-size:13px}.file-item .name{flex:1;color:#333;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.file-item .del{border:0;background:none;color:#999;cursor:pointer;font-size:18px;padding:0 4px}.history-empty{text-align:center;color:var(--sub);padding:40px 10px;font-size:13px}.history-item{padding:14px 0;border-bottom:1px solid var(--border)}.history-meta{display:flex;gap:8px;align-items:center;margin-bottom:6px}.history-time{font-family:'DM Mono',monospace;font-size:11px;color:var(--sub)}.history-editor{font-size:12px;font-weight:900;background:var(--soft);padding:2px 8px;border-radius:5px}.history-section{font-size:11px;font-weight:900;color:var(--info);background:#DBEAFE;padding:2px 8px;border-radius:5px}.history-change{font-size:12px;background:#F8F8F6;border-left:2px solid var(--border);border-radius:7px;padding:8px 10px;margin-top:4px;line-height:1.45}.old{color:var(--err);text-decoration:line-through}.new{color:var(--ok);font-weight:900}.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#1A1A1A;color:#fff;padding:11px 18px;border-radius:999px;font-size:13px;font-weight:700;z-index:150;opacity:0;transition:.25s;pointer-events:none;max-width:calc(100vw - 32px);text-align:center}.toast.show{opacity:1}.hidden{display:none!important}
+@media(max-width:1000px){.kpi-row{grid-template-columns:1fr 1fr}.table-head,.table-row{grid-template-columns:98px 76px 92px 1fr 102px 96px}.table-head .th:nth-child(4),.table-row .td:nth-child(4),.table-head .th:nth-child(5),.table-row .td:nth-child(5),.table-head .th:nth-child(7),.table-row .td:nth-child(7),.table-head .th:nth-child(10),.table-row .td:nth-child(10){display:none}.panel{width:100%;border-left:0}.grid,.edit-grid{grid-template-columns:1fr}}@media(max-width:520px){.main{padding:18px 14px}.title-row{display:block}.kpi-row{grid-template-columns:1fr 1fr}.panel-head{padding:13px}.tab-body{padding:16px}.save-row{flex-direction:column}.table-head,.table-row{grid-template-columns:86px 72px 1fr 92px}.table-head .th:nth-child(n+5),.table-row .td:nth-child(n+5){display:none}}
 </style>
 </head>
 <body>
 <nav class="nav"><div class="nav-inner"><div class="brand"><b>BOOXTIX</b> · 상담 관리자</div><div class="nav-right"><div class="status"><span class="dot" id="statusDot"></span><span class="status-text" id="statusText">연결 확인 중</span></div><button class="refresh-btn" id="refreshBtn" onclick="loadData()">↻ 새로고침</button></div></div></nav>
-
 <main class="main">
-  <div class="title-row"><div><div class="eyebrow">CRM FLOW</div><h1 class="title">1차 접수 → 상담 작성 → 다음액션</h1><p class="desc">기본정보는 읽기 전용으로 확인하고, 상담 탭에서 1차 상담과 다음액션을 작성·수정합니다. 저장하면 드라이브 폴더의 HTML이 자동 갱신됩니다.</p></div></div>
-
-  <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">전체 문의</div><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-sub">등록된 리드</div></div>
-    <div class="kpi"><div class="kpi-label">오늘 접수</div><div class="kpi-value" id="kpiToday">0</div><div class="kpi-sub" id="kpiDate">-</div></div>
-    <div class="kpi"><div class="kpi-label">1차 상담 대기</div><div class="kpi-value" id="kpiWaiting">0</div><div class="kpi-sub">미작성 리드</div></div>
-    <div class="kpi"><div class="kpi-label">다음액션 필요</div><div class="kpi-value" id="kpiNext">0</div><div class="kpi-sub">완료 후 후속관리</div></div>
-  </div>
-
-  <div class="filter-bar">
-    <div class="search"><span class="ico">⌕</span><input id="searchInput" placeholder="이름, 연락처, 지역, 문의내용 검색" oninput="applyFilter()"></div>
-    <select id="filterStage" onchange="applyFilter()"><option value="">단계 전체</option><option value="미작성">1차 상담 대기</option><option value="1차 상담 완료">1차 상담 완료</option></select>
-    <select id="filterNext" onchange="applyFilter()"><option value="">다음액션 전체</option><option>재통화</option><option>미팅잡기</option><option>자료발송</option><option>내부검토</option><option>상권확인</option><option>가계약</option><option>계약진행</option><option>보류</option><option>종료</option><option>상담 대기</option></select>
-    <select id="filterSource" onchange="applyFilter()"><option value="">유입 전체</option></select>
-    <select id="filterStore" onchange="applyFilter()"><option value="">점포 전체</option><option>점포 있음</option><option>점포 없음</option><option>확인 필요</option></select>
-    <select id="sortSelect" onchange="setSortFromSelect()"><option value="desc">문의일 최신순</option><option value="asc">문의일 오래된순</option></select>
-    <div class="count" id="filterCount">0 건</div>
-  </div>
-
-  <div class="table-wrap">
-    <div class="table-head">
-      <div class="th" onclick="sortBy(\'inquiryDateTime\')">문의일자</div>
-      <div class="th" onclick="sortBy(\'inquiryTime\')">시간</div>
-      <div class="th" onclick="sortBy(\'name\')">이름</div>
-      <div class="th">연락처</div>
-      <div class="th">점포</div>
-      <div class="th" onclick="sortBy(\'desiredRegion\')">희망지역</div>
-      <div class="th">유입경로</div>
-      <div class="th">단계</div>
-      <div class="th">다음액션</div>
-      <div class="th">수정내역</div>
-    </div>
-    <div id="tableBody"><div class="loading"><span class="spinner"></span>데이터 불러오는 중</div></div>
-  </div>
+  <div class="title-row"><div><div class="eyebrow">CRM FLOW</div><h1 class="title">1차 접수 → 1차 상담 완료 → 다음액션</h1><p class="desc">기본정보는 읽기 전용으로 확인하고, 상담 탭에서 1차 상담과 다음액션을 한 번에 작성합니다. 저장된 상담 내용은 기본 탭에 자동 반영됩니다.</p></div></div>
+  <div class="kpi-row"><div class="kpi"><div class="kpi-label">전체 문의</div><div class="kpi-value" id="kpiTotal">0</div><div class="kpi-sub">등록된 리드</div></div><div class="kpi"><div class="kpi-label">오늘 접수</div><div class="kpi-value" id="kpiToday">0</div><div class="kpi-sub" id="kpiDate">-</div></div><div class="kpi"><div class="kpi-label">1차 상담 대기</div><div class="kpi-value" id="kpiWaiting">0</div><div class="kpi-sub">미작성 리드</div></div><div class="kpi"><div class="kpi-label">다음액션 필요</div><div class="kpi-value" id="kpiNext">0</div><div class="kpi-sub">완료 후 후속관리</div></div></div>
+  <div class="filter-bar"><div class="search"><span class="ico">⌕</span><input id="searchInput" placeholder="이름, 연락처, 지역, 문의내용 검색" oninput="applyFilter()"></div><select id="filterStage" onchange="applyFilter()"><option value="">단계 전체</option><option value="미작성">1차 상담 대기</option><option value="1차 상담 완료">1차 상담 완료</option></select><select id="filterNext" onchange="applyFilter()"><option value="">다음액션 전체</option><option>재통화</option><option>미팅잡기</option><option>자료발송</option><option>내부검토</option><option>상권확인</option><option>가계약</option><option>계약진행</option><option>보류</option><option>종료</option><option>상담 대기</option></select><select id="filterSource" onchange="applyFilter()"><option value="">유입 전체</option></select><select id="filterStore" onchange="applyFilter()"><option value="">점포 전체</option><option>점포 있음</option><option>점포 없음</option><option>확인 필요</option></select><select id="sortSelect" onchange="setSortFromSelect()"><option value="desc">문의일 최신순</option><option value="asc">문의일 오래된순</option></select><div class="count" id="filterCount">0 건</div></div>
+  <div class="table-wrap"><div class="table-head"><div class="th" onclick="sortBy('inquiryDateTime')">문의일자</div><div class="th" onclick="sortBy('inquiryTime')">시간</div><div class="th" onclick="sortBy('name')">이름</div><div class="th">연락처</div><div class="th">점포</div><div class="th" onclick="sortBy('desiredRegion')">희망지역</div><div class="th">유입경로</div><div class="th">단계</div><div class="th">다음액션</div><div class="th">수정내역</div></div><div id="tableBody"><div class="loading"><span class="spinner"></span>데이터 불러오는 중</div></div></div>
 </main>
 
 <div class="panel-overlay" id="panelOverlay" onclick="closePanel()"></div>
 <aside class="panel" id="detailPanel">
   <div class="panel-head"><button class="panel-close" onclick="closePanel()">×</button><div class="panel-title" id="panelTitle">상담 상세</div><div id="panelBadge"></div></div>
-  <div class="tabs">
-    <div class="tab active" onclick="switchTab(\'basic\')">기본</div>
-    <div class="tab" onclick="switchTab(\'consult\')">상담</div>
-    <div class="tab" onclick="switchTab(\'history\')">수정내역 <span id="historyCount"></span></div>
-  </div>
-  <div class="panel-content">
-    <div class="tab-body active" id="basicTab"></div>
-    <div class="tab-body" id="consultTab"></div>
-    <div class="tab-body" id="historyTab"><div id="historyBody"></div></div>
-  </div>
+  <div class="tabs"><div class="tab active" onclick="switchTab('basic')">기본</div><div class="tab" onclick="switchTab('consult')">상담</div><div class="tab" onclick="switchTab('history')">수정내역 <span id="historyCount"></span></div></div>
+  <div class="panel-content"><div class="tab-body active" id="basicTab"></div><div class="tab-body" id="consultTab"></div><div class="tab-body" id="historyTab"><div id="historyBody"></div></div></div>
 </aside>
-
 <div class="toast" id="toast"></div>
 
 <script>
 const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzG8j8CW4nktZs-erFLTCGFLZqYDQFcfLeyWbmnHDilvWzCxGN8YvOANXPPfRViBTZIQw/exec";
-
-const LABELS = {
-  inquiryDate:'문의일자', inquiryTime:'문의시간', name:'이름', phone:'연락처',
-  hasStore:'점포 유/무', desiredRegion:'창업 희망지역', source:'유입경로',
-  sourceEtc:'기타 유입경로', note:'비고',
-  callStatus:'상담상태', workType:'작업형태',
-  currentSituation:'현재상황', inquiryTopic:'문의주제',
-  detailInquiryMemo:'상세문의 메모', answerType:'답변유형', answerMemo:'답변메모',
-  firstConsultStatus:'1차 상담 상태',
-  nextStep:'다음단계', nextActionDetail:'다음단계 상세내용',
-  nextActionDate:'다음액션 예정일', nextActionTime:'다음액션 예정시간',
-  nextActionOwner:'담당자', nextActionMemo:'내부메모', finalStatus:'최종상태'
-};
-
-let allData = [], filtered = [], currentIdx = null;
-let pendingNewRecords = []; // 새로 업로드할 녹음파일 (저장 전)
+const BASIC_FIELDS = ['inquiryDate','inquiryTime','name','phone','hasStore','desiredRegion','source','sourceEtc','note'];
+const FIRST_FIELDS = ['callStatus','workType','recordFiles','currentSituation','inquiryTopic','detailInquiryMemo','answerType','answerMemo'];
+const NEXT_FIELDS = ['nextStep','nextActionDetail','nextActionDate','nextActionTime','nextActionOwner','nextActionMemo','finalStatus'];
+const LABELS = {inquiryDate:'문의 일자',inquiryTime:'문의 시간',name:'이름',phone:'연락처',hasStore:'점포 유/무',desiredRegion:'창업 희망지역',source:'유입경로',sourceEtc:'기타 유입경로',note:'비고',callStatus:'상담상태',workType:'작업형태',recordFiles:'통화녹음 업로드',currentSituation:'현재상황',inquiryTopic:'문의주제',detailInquiryMemo:'상세문의 메모',answerType:'답변유형',answerMemo:'답변메모',firstConsultStatus:'1차 상담 상태',firstConsultCompletedAt:'1차 상담 완료일시',nextStep:'다음단계',nextActionDetail:'다음단계 상세내용',nextActionDate:'다음액션 예정일',nextActionTime:'다음액션 예정시간',nextActionOwner:'담당자',nextActionMemo:'다음액션 내부메모',finalStatus:'최종상태'};
+let allData = [], filtered = [], currentIdx = null, currentRecordFiles = [];
 let sortKey = 'inquiryDateTime', sortAsc = false;
-let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_v2') || '{}');
+let editHistory = JSON.parse(localStorage.getItem('booxtix_admin_history_v4') || '{}');
 
-function esc(v){return String(v ?? '').replace(/[&<>\'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"\'":'&#39;','"':'&quot;'}[s]));}
+function esc(v){return String(v ?? '').replace(/[&<>'"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[s]));}
 function pick(o, keys, fallback=''){for(const k of keys){if(o && o[k] !== undefined && o[k] !== null && String(o[k]).trim() !== '') return String(o[k]).trim();}return fallback;}
 function todayKST(){const parts = new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Seoul',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());const m=Object.fromEntries(parts.map(p=>[p.type,p.value]));return `${m.year}-${m.month}-${m.day}`;}
 function nowKST(){return new Date().toLocaleString('ko-KR',{timeZone:'Asia/Seoul'});}
 function rowId(d){return d.id || d.consultId || [d.inquiryDate,d.inquiryTime,d.name,d.phone].join('|');}
-
-function parseRecordLinks(d){
-  const raw = d.recordLinks || '';
-  if(!raw) return [];
-  return String(raw).split('\n').filter(Boolean).map((url, i) => ({url, name:`녹음 ${i+1}`}));
+function parseRecordFiles(raw){
+  const direct = raw.recordFiles ?? raw.records ?? raw['통화녹음 업로드'] ?? raw['녹음파일'] ?? '';
+  if(Array.isArray(direct)) return direct;
+  if(typeof direct === 'string' && direct.trim().startsWith('[')){try{return JSON.parse(direct);}catch(err){return [];}}
+  if(typeof direct === 'string' && direct.trim()) return [{name:direct,type:'',size:0,src:''}];
+  return [];
 }
-
 function normalize(raw){
   const d = {...raw};
-  d.id = pick(raw,['id','consultId','상담번호']) || '';
-  d.consultId = pick(raw,['consultId','id','상담번호']) || d.id;
-  d.inquiryDate = pick(raw,['inquiryDate','문의일자','date','callDate']);
-  d.inquiryTime = pick(raw,['inquiryTime','문의시간','time','callTime']);
-  d.name = pick(raw,['name','이름']);
-  d.phone = pick(raw,['phone','연락처']);
-  d.hasStore = pick(raw,['hasStore','점포유무']);
-  d.desiredRegion = pick(raw,['desiredRegion','창업희망지역','희망지역']);
-  d.source = pick(raw,['source','유입경로']);
-  d.sourceEtc = pick(raw,['sourceEtc','기타유입경로']);
-  d.note = pick(raw,['note','비고']);
-  d.firstConsultStatus = pick(raw,['firstConsultStatus','1차상담상태'], pick(raw,['callStatus']) ? '1차 상담 완료' : '미작성');
-  d.callStatus = pick(raw,['callStatus','상담상태']);
-  d.workType = pick(raw,['workType','작업형태']);
-  d.currentSituation = pick(raw,['currentSituation','현재상황']);
-  d.inquiryTopic = pick(raw,['inquiryTopic','문의주제']);
-  d.detailInquiryMemo = pick(raw,['detailInquiryMemo','상세문의메모']);
-  d.answerType = pick(raw,['answerType','답변유형']);
-  d.answerMemo = pick(raw,['answerMemo','답변메모']);
-  d.nextStep = pick(raw,['nextStep','다음단계'],'상담 대기');
-  d.nextActionDetail = pick(raw,['nextActionDetail','다음단계상세']);
-  d.nextActionDate = pick(raw,['nextActionDate','다음액션예정일']);
-  d.nextActionTime = pick(raw,['nextActionTime','다음액션예정시간']);
-  d.nextActionOwner = pick(raw,['nextActionOwner','담당자']);
-  d.nextActionMemo = pick(raw,['nextActionMemo','내부메모']);
-  d.finalStatus = pick(raw,['finalStatus','최종상태'], d.firstConsultStatus === '1차 상담 완료' ? '후속관리' : '신규 문의');
-  d.recordLinks = pick(raw,['recordLinks','녹음링크']);
-  d.htmlUrl = pick(raw,['htmlUrl','HTML보기']);
-  d.folderUrl = pick(raw,['folderUrl','폴더링크']);
+  d.id = pick(raw,['id','consultId','상담번호','접수번호']) || '';
+  d.consultId = pick(raw,['consultId','id','상담번호','접수번호']) || d.id;
+  d.inquiryDate = pick(raw,['inquiryDate','문의일자','문의 일자','date','날짜','callDate','통화날짜']);
+  d.inquiryTime = pick(raw,['inquiryTime','문의시간','문의 시간','time','시간','callTime','통화시간']);
+  d.name = pick(raw,['name','이름','고객명']);
+  d.phone = pick(raw,['phone','연락처','전화번호']);
+  d.hasStore = pick(raw,['hasStore','점포유무','점포 유/무','점포','storeStatus']);
+  d.desiredRegion = pick(raw,['desiredRegion','창업희망지역','창업 희망지역','희망지역','region','지역']);
+  d.source = pick(raw,['source','유입경로','유입 경로']);
+  d.sourceEtc = pick(raw,['sourceEtc','기타유입경로','기타 유입경로']);
+  d.note = pick(raw,['note','비고','basicMemo','메모']);
+  d.workflowStatus = pick(raw,['workflowStatus','진행상태'],'1차 접수 완료');
+  d.firstConsultStatus = pick(raw,['firstConsultStatus','1차상담상태','1차 상담 상태'], pick(raw,['callStatus','상담상태','통화상태']) ? '1차 상담 완료' : '미작성');
+  d.firstConsultCompletedAt = pick(raw,['firstConsultCompletedAt','1차상담완료일시','1차 상담 완료일시']);
+  d.callStatus = pick(raw,['callStatus','상담상태','상담 상태','통화상태','통화 상태']);
+  d.workType = pick(raw,['workType','작업형태','작업 형태','callRound','통화횟수']);
+  d.recordFiles = parseRecordFiles(raw);
+  d.currentSituation = pick(raw,['currentSituation','현재상황','현재 상황','situation']);
+  d.inquiryTopic = pick(raw,['inquiryTopic','문의주제','문의 주제','topic']);
+  d.detailInquiryMemo = pick(raw,['detailInquiryMemo','상세문의메모','상세문의 메모','inquiry','문의내용','문의 내용']);
+  d.answerType = pick(raw,['answerType','답변유형','답변 유형']);
+  d.answerMemo = pick(raw,['answerMemo','답변메모','답변 메모']);
+  d.nextStep = pick(raw,['nextStep','다음단계','다음 단계'],'상담 대기');
+  d.nextActionDetail = pick(raw,['nextActionDetail','다음액션상세','다음액션 상세','다음단계상세내용','다음단계 상세내용']);
+  d.nextActionDate = pick(raw,['nextActionDate','다음액션예정일','다음액션 예정일','recallDate','meetingDate']);
+  d.nextActionTime = pick(raw,['nextActionTime','다음액션예정시간','다음액션 예정시간','recallTime']);
+  d.nextActionOwner = pick(raw,['nextActionOwner','담당자','manager']);
+  d.nextActionMemo = pick(raw,['nextActionMemo','다음액션메모','다음액션 메모','internalMemo','내부메모']);
+  d.finalStatus = pick(raw,['finalStatus','최종상태','최종 상태','leadStatus'], d.firstConsultStatus === '1차 상담 완료' ? '후속관리' : '신규 문의');
   d.inquiryDateTime = `${d.inquiryDate || '0000-00-00'} ${d.inquiryTime || '00:00'}`;
   d._rowId = rowId(d);
   return d;
 }
-
 async function loadData(){
-  const btn = document.getElementById('refreshBtn');
-  btn.classList.add('loading');btn.textContent='↻ 로딩 중';
+  const btn = document.getElementById('refreshBtn');btn.classList.add('loading');btn.textContent='↻ 로딩 중';
   document.getElementById('tableBody').innerHTML='<div class="loading"><span class="spinner"></span>데이터 불러오는 중</div>';
   try{
     const res = await fetch(APPS_SCRIPT_URL + '?action=list&ts=' + Date.now());
@@ -265,388 +96,94 @@ async function loadData(){
     const rows = Array.isArray(json) ? json : (json.data || json.rows || []);
     allData = rows.map(normalize);
     updateSourceFilter();applyFilter();updateKpi();setStatus(true);
-  }catch(err){
-    setStatus(false);
-    document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 응답을 확인해주세요.</div>';
-    showToast('⚠ 데이터 불러오기 실패: '+err.message);
-  }finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
+  }catch(err){setStatus(false);document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">⚠️</span><b>연결 실패</b><br>Apps Script 조회 응답을 확인해주세요.</div>';showToast('⚠ 데이터 불러오기 실패: '+err.message);}finally{btn.classList.remove('loading');btn.textContent='↻ 새로고침';}
 }
-
-function updateSourceFilter(){
-  const sel=document.getElementById('filterSource');
-  const current=sel.value;
-  const sources=[...new Set(allData.map(d=>d.source).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));
-  sel.innerHTML='<option value="">유입 전체</option>'+sources.map(s=>`<option>${esc(s)}</option>`).join('');
-  sel.value=current;
-}
-
-function updateKpi(){
-  const today=todayKST();
-  document.getElementById('kpiTotal').textContent=allData.length;
-  document.getElementById('kpiToday').textContent=allData.filter(d=>d.inquiryDate===today).length;
-  document.getElementById('kpiDate').textContent=today;
-  document.getElementById('kpiWaiting').textContent=allData.filter(d=>d.firstConsultStatus!=='1차 상담 완료').length;
-  document.getElementById('kpiNext').textContent=allData.filter(d=>d.firstConsultStatus==='1차 상담 완료' && !['종료','보류'].includes(d.nextStep)).length;
-}
-
+function updateSourceFilter(){const sel=document.getElementById('filterSource');const current=sel.value;const sources=[...new Set(allData.map(d=>d.source).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'ko'));sel.innerHTML='<option value="">유입 전체</option>'+sources.map(s=>`<option>${esc(s)}</option>`).join('');sel.value=current;}
+function updateKpi(){const today=todayKST();document.getElementById('kpiTotal').textContent=allData.length;document.getElementById('kpiToday').textContent=allData.filter(d=>d.inquiryDate===today).length;document.getElementById('kpiDate').textContent=today;document.getElementById('kpiWaiting').textContent=allData.filter(d=>d.firstConsultStatus!=='1차 상담 완료').length;document.getElementById('kpiNext').textContent=allData.filter(d=>d.firstConsultStatus==='1차 상담 완료' && !['종료','보류'].includes(d.nextStep)).length;}
 function applyFilter(){
-  const q=document.getElementById('searchInput').value.trim().toLowerCase();
-  const stage=document.getElementById('filterStage').value;
-  const next=document.getElementById('filterNext').value;
-  const source=document.getElementById('filterSource').value;
-  const store=document.getElementById('filterStore').value;
-  filtered=allData.filter(d=>{
-    const blob=[d.name,d.phone,d.desiredRegion,d.source,d.note,d.currentSituation,d.inquiryTopic,d.detailInquiryMemo,d.answerMemo,d.nextActionDetail,d.nextActionMemo].join(' ').toLowerCase();
-    if(q && !blob.includes(q)) return false;
-    if(stage && d.firstConsultStatus!==stage) return false;
-    if(next && d.nextStep!==next) return false;
-    if(source && d.source!==source) return false;
-    if(store && d.hasStore!==store) return false;
-    return true;
-  });
+  const q=document.getElementById('searchInput').value.trim().toLowerCase();const stage=document.getElementById('filterStage').value;const next=document.getElementById('filterNext').value;const source=document.getElementById('filterSource').value;const store=document.getElementById('filterStore').value;
+  filtered=allData.filter(d=>{const blob=[d.name,d.phone,d.desiredRegion,d.source,d.note,d.currentSituation,d.inquiryTopic,d.detailInquiryMemo,d.answerMemo,d.nextActionDetail,d.nextActionMemo].join(' ').toLowerCase();if(q && !blob.includes(q)) return false;if(stage && d.firstConsultStatus!==stage) return false;if(next && d.nextStep!==next) return false;if(source && d.source!==source) return false;if(store && d.hasStore!==store) return false;return true;});
   filtered.sort((a,b)=>{const va=a[sortKey]||'',vb=b[sortKey]||'';return sortAsc ? va.localeCompare(vb,'ko') : vb.localeCompare(va,'ko');});
-  document.getElementById('filterCount').textContent=filtered.length+' 건';
-  renderTable();
+  document.getElementById('filterCount').textContent=filtered.length+' 건';renderTable();
 }
-
 function setSortFromSelect(){sortKey='inquiryDateTime';sortAsc=document.getElementById('sortSelect').value==='asc';applyFilter();}
 function sortBy(key){if(sortKey===key) sortAsc=!sortAsc;else{sortKey=key;sortAsc=false;}if(key==='inquiryDateTime')document.getElementById('sortSelect').value=sortAsc?'asc':'desc';applyFilter();}
-
-function statusClass(v){
-  if(['1차 상담 완료','통화 완료','가계약','계약진행','계약 완료'].includes(v))return'ok';
-  if(['미작성','상담 대기','재통화','미팅잡기','자료발송','내부검토','상권확인'].includes(v))return'warn';
-  if(['부재','관심 없음','보류','종료'].includes(v))return'err';
-  if(['신규 문의','후속관리'].includes(v))return'info';
-  return'grey';
-}
-
+function statusClass(v){if(['1차 상담 완료','통화 완료','가계약','계약진행','계약 완료'].includes(v))return'ok';if(['미작성','상담 대기','재통화','미팅잡기','자료발송','내부검토','상권확인'].includes(v))return'warn';if(['부재','관심 없음','보류','종료'].includes(v))return'err';if(['신규 문의','후속관리'].includes(v))return'info';return'grey';}
 function renderTable(){
-  if(!filtered.length){
-    document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🔍</span><b>검색 결과 없음</b><br>조건에 맞는 문의가 없습니다.</div>';
-    return;
-  }
-  document.getElementById('tableBody').innerHTML=filtered.map((d,i)=>{
-    const hist=(editHistory[rowId(d)]||[]).length;
-    return `<div class="table-row" onclick="openPanel(${i})">
-      <div class="td mono">${esc(d.inquiryDate||'-')}</div>
-      <div class="td mono">${esc(d.inquiryTime||'-')}</div>
-      <div class="td"><strong>${esc(d.name||'-')}</strong></div>
-      <div class="td sub">${esc(d.phone||'-')}</div>
-      <div class="td"><span class="badge grey">${esc(d.hasStore||'-')}</span></div>
-      <div class="td sub">${esc(d.desiredRegion||'-')}</div>
-      <div class="td sub">${esc(d.source||'-')}</div>
-      <div class="td"><span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span></div>
-      <div class="td"><span class="badge ${statusClass(d.nextStep)}">${esc(d.nextStep||'상담 대기')}</span></div>
-      <div class="td sub">${hist ? hist+'건' : '-'}</div>
-    </div>`;
-  }).join('');
+  if(!filtered.length){document.getElementById('tableBody').innerHTML='<div class="empty"><span class="empty-icon">🔍</span><b>검색 결과 없음</b><br>조건에 맞는 문의가 없습니다.</div>';return;}
+  document.getElementById('tableBody').innerHTML=filtered.map((d,i)=>{const hist=(editHistory[rowId(d)]||[]).length;return `<div class="table-row" onclick="openPanel(${i})"><div class="td mono">${esc(d.inquiryDate||'-')}</div><div class="td mono">${esc(d.inquiryTime||'-')}</div><div class="td"><strong>${esc(d.name||'-')}</strong></div><div class="td sub">${esc(d.phone||'-')}</div><div class="td"><span class="badge grey">${esc(d.hasStore||'-')}</span></div><div class="td sub">${esc(d.desiredRegion||'-')}</div><div class="td sub">${esc(d.source||'-')}</div><div class="td"><span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span></div><div class="td"><span class="badge ${statusClass(d.nextStep)}">${esc(d.nextStep||'상담 대기')}</span></div><div class="td sub">${hist ? hist+'건' : '-'}</div></div>`;}).join('');
 }
-
-function openPanel(idx){
-  currentIdx=idx;
-  const d=filtered[idx];
-  pendingNewRecords = [];
-  document.getElementById('panelTitle').textContent=`${d.name||'이름 없음'} · ${d.phone||''}`;
-  document.getElementById('panelBadge').innerHTML=`<span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span>`;
-  renderBasic(d);
-  renderConsult(d);
-  renderHistory(d);
-  switchTab('basic');
-  document.getElementById('panelOverlay').classList.add('show');
-  document.getElementById('detailPanel').classList.add('show');
-}
-
-function closePanel(){
-  document.getElementById('panelOverlay').classList.remove('show');
-  document.getElementById('detailPanel').classList.remove('show');
-  currentIdx=null;
-  pendingNewRecords=[];
-}
-
-function switchTab(tab){
-  document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['basic','consult','history'][i]===tab));
-  document.querySelectorAll('.tab-body').forEach(el=>el.classList.remove('active'));
-  document.getElementById(tab+'Tab').classList.add('active');
-}
-
-function viewField(label,value){return value ? `<div class="field"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div></div>` : '';}
-function viewMemo(label,value){return value ? `<div style="margin-top:12px"><div class="label" style="margin-bottom:6px">${esc(label)}</div><div class="memo">${esc(value)}</div></div>` : '';}
-
-function renderBasic(d){
-  const records = parseRecordLinks(d);
-  const recordsBlock = records.length > 0 ? `<div class="section"><div class="section-title">업로드된 녹음 파일 (${records.length}개)</div>${records.map((r,i)=>`<div class="file-item uploaded"><span>🎵</span><span class="name"><a href="${esc(r.url)}" target="_blank">녹음 ${i+1}</a></span><span class="badge-mini">업로드됨</span></div>`).join('')}</div>` : '';
-  const consultDone = d.firstConsultStatus === '1차 상담 완료' || d.callStatus;
-
-  document.getElementById('basicTab').innerHTML=`
-    <div class="section">
-      <div class="section-title">1차 접수 기본정보</div>
-      <div class="mini-help">마케터/영업팀이 처음 입력한 접수 정보입니다. 수정하지 않고 원본처럼 확인만 합니다.</div>
-      <div class="grid">
-        ${viewField('문의 일자',d.inquiryDate)}${viewField('문의 시간',d.inquiryTime)}
-        ${viewField('이름',d.name)}${viewField('연락처',d.phone)}
-        ${viewField('점포 유/무',d.hasStore)}${viewField('창업 희망지역',d.desiredRegion)}
-        ${viewField('유입경로',d.source)}${viewField('기타 유입경로',d.sourceEtc)}
-      </div>
-      ${viewMemo('비고',d.note)}
-      ${d.folderUrl ? `<div style="margin-top:14px"><a href="${esc(d.folderUrl)}" target="_blank" style="display:inline-block;padding:8px 14px;background:#F5F5F3;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;color:#333;text-decoration:none">📁 드라이브 폴더 열기</a> ${d.htmlUrl ? `<a href="${esc(d.htmlUrl)}" target="_blank" style="display:inline-block;padding:8px 14px;background:#F5F5F3;border:1px solid var(--border);border-radius:8px;font-size:12px;font-weight:700;color:#333;text-decoration:none;margin-left:6px">📄 상담기록 HTML</a>` : ''}</div>` : ''}
-    </div>
-
-    ${consultDone ? `<div class="section"><div class="section-title">상담 작성 내용 요약</div>
-      <div class="grid">
-        ${viewField('상담상태',d.callStatus)}${viewField('작업형태',d.workType)}
-        ${viewField('현재상황',d.currentSituation)}${viewField('문의주제',d.inquiryTopic)}
-        ${viewField('답변유형',d.answerType)}
-        ${viewField('다음단계',d.nextStep)}${viewField('최종상태',d.finalStatus)}
-        ${viewField('다음액션 예정일',d.nextActionDate)}${viewField('다음액션 시간',d.nextActionTime)}
-        ${viewField('담당자',d.nextActionOwner)}
-      </div>
-      ${viewMemo('상세문의 메모',d.detailInquiryMemo)}
-      ${viewMemo('답변메모',d.answerMemo)}
-      ${viewMemo('다음단계 상세내용',d.nextActionDetail)}
-      ${viewMemo('내부 메모',d.nextActionMemo)}
-    </div>` : `<div class="section"><div class="section-title">상담 작성 내용</div>
-      <div class="phase-card"><div class="phase-title">아직 1차 상담 작성 전입니다.</div><div class="phase-desc">상담 탭에서 1차 상담을 작성하고 저장하면 이 영역에 자동으로 요약됩니다.</div></div>
-    </div>`}
-
-    ${recordsBlock}
-  `;
-}
-
-function renderRecordList(d){
-  const list=document.getElementById('recordList');
-  if(!list)return;
-  const existing = parseRecordLinks(d);
-  let html = '';
-  // 기존 업로드된 파일
-  html += existing.map((r,i)=>`<div class="file-item uploaded"><span>🎵</span><span class="name"><a href="${esc(r.url)}" target="_blank">녹음 ${i+1}</a></span><span class="badge-mini">업로드됨</span></div>`).join('');
-  // 대기중 파일 (저장 전)
-  html += pendingNewRecords.map((r,i)=>`<div class="file-item"><span>🎵</span><span class="name">${esc(r.name)}</span><span class="badge-mini">저장 대기</span><button class="del" type="button" onclick="removePendingRecord(${i})">×</button></div>`).join('');
-  list.innerHTML = html;
-}
-
-function addRecord(input){
-  Array.from(input.files||[]).forEach(file=>{
-    if(file.size>25*1024*1024){showToast('⚠ 파일 크기가 25MB를 초과합니다');return;}
-    const reader=new FileReader();
-    reader.onload=e=>{
-      pendingNewRecords.push({src:e.target.result,name:file.name,type:file.type,size:file.size});
-      renderRecordList(getCurrent());
-    };
-    reader.readAsDataURL(file);
-  });
-  input.value='';
-}
-
-function removePendingRecord(i){pendingNewRecords.splice(i,1);renderRecordList(getCurrent());}
-
+function openPanel(idx){currentIdx=idx;const d=filtered[idx];currentRecordFiles=[...(d.recordFiles||[])];document.getElementById('panelTitle').textContent=`${d.name||'이름 없음'} · ${d.phone||''}`;document.getElementById('panelBadge').innerHTML=`<span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span>`;renderBasic(d);renderConsult(d);renderHistory(d);switchTab('basic');document.getElementById('panelOverlay').classList.add('show');document.getElementById('detailPanel').classList.add('show');}
+function closePanel(){document.getElementById('panelOverlay').classList.remove('show');document.getElementById('detailPanel').classList.remove('show');currentIdx=null;currentRecordFiles=[];}
+function switchTab(tab){document.querySelectorAll('.tab').forEach((el,i)=>el.classList.toggle('active',['basic','consult','history'][i]===tab));document.querySelectorAll('.tab-body').forEach(el=>el.classList.remove('active'));document.getElementById(tab+'Tab').classList.add('active');}
 function opt(value,current){return `<option${value===current?' selected':''}>${esc(value)}</option>`;}
 function textInput(id,label,value,type='text'){return `<div class="edit-group"><label class="edit-label" for="${id}">${esc(label)}</label><input class="edit-input" id="${id}" type="${type}" value="${esc(value||'')}"></div>`;}
 function textArea(id,label,value,placeholder=''){return `<div class="edit-group"><label class="edit-label" for="${id}">${esc(label)}</label><textarea class="edit-textarea" id="${id}" placeholder="${esc(placeholder)}">${esc(value||'')}</textarea></div>`;}
 function selectInput(id,label,value,options){return `<div class="edit-group"><label class="edit-label" for="${id}">${esc(label)}</label><select class="edit-select" id="${id}"><option value="">선택</option>${options.map(o=>opt(o,value)).join('')}</select></div>`;}
-
-function renderConsult(d){
-  document.getElementById('consultTab').innerHTML = `
-    <div class="phase-card">
-      <div class="phase-top">
-        <div>
-          <div class="phase-title">1차 상담 작성 / 수정</div>
-          <div class="phase-desc">상담상태, 작업형태, 상담내용을 자유롭게 작성·수정합니다. 저장하면 드라이브의 상담기록 HTML이 자동 갱신됩니다.</div>
-        </div>
-        <span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span>
-      </div>
-    </div>
-
-    <div class="edit-grid">
-      ${selectInput('c-callStatus','상담상태',d.callStatus,['통화 완료','부재','문자 발송','카톡 발송','재통화 예정','관심 없음'])}
-      ${selectInput('c-workType','작업형태',d.workType,['1차 상담','재상담','미팅 전','미팅 후','계약 전','보류 관리','계약 후'])}
-    </div>
-
-    <div class="edit-group">
-      <label class="edit-label">통화녹음 업로드 (드라이브 폴더에 자동 저장)</label>
-      <label class="file-upload" for="c-record">
-        <span class="file-upload-icon">🎙️</span>
-        <span class="file-upload-text">탭하여 녹음 파일 추가</span>
-        <div class="file-upload-sub">mp3, m4a, wav / 최대 25MB</div>
-        <input type="file" id="c-record" accept=".mp3,.m4a,.wav,audio/*" multiple onchange="addRecord(this)">
-      </label>
-      <div class="file-list" id="recordList"></div>
-    </div>
-
-    <div class="edit-grid">
-      ${selectInput('c-currentSituation','현재상황',d.currentSituation,['매장 있음','매장 알아보는 중','업종 변경 희망','기존 자영업자','초보 창업자','가족 운영','배달 전문','홀/배달 병행','미확인'])}
-      ${selectInput('c-inquiryTopic','문의주제',d.inquiryTopic,['창업비용','수익성','상권','메뉴/브랜드','배달운영','매장운영','계약조건','기타'])}
-    </div>
-
-    ${textArea('c-detailInquiryMemo','상세문의 메모',d.detailInquiryMemo,'고객이 실제로 물어본 내용을 정리')}
-    ${selectInput('c-answerType','답변유형',d.answerType,['통화 답변','문자 답변','카톡 답변','자료 발송','미팅 답변','내부검토 후 답변'])}
-    ${textArea('c-answerMemo','답변메모',d.answerMemo,'어떤 답변을 했는지 기록')}
-
-    <div class="section" style="margin-top:24px">
-      <div class="section-title">다음 액션</div>
-      <div class="next-box">
-        <div class="next-label">NEXT ACTION</div>
-        <div class="next-value">${esc(d.nextStep||'상담 대기')}</div>
-        ${d.nextActionDate||d.nextActionTime?`<div class="next-date">📅 ${esc([d.nextActionDate,d.nextActionTime].filter(Boolean).join(' '))}</div>`:''}
-      </div>
-      <div class="edit-grid">
-        ${selectInput('n-nextStep','다음단계',d.nextStep,['상담 대기','재통화','미팅잡기','자료발송','내부검토','상권확인','가계약','계약진행','보류','종료'])}
-        ${selectInput('n-finalStatus','최종상태',d.finalStatus,['신규 문의','후속관리','미팅 예정','계약 진행','보류','종료','계약 완료'])}
-        ${textInput('n-nextActionDate','다음액션 예정일',d.nextActionDate,'date')}
-        ${textInput('n-nextActionTime','다음액션 예정시간',d.nextActionTime,'time')}
-        ${selectInput('n-nextActionOwner','담당자',d.nextActionOwner,['다큐','워렌','실비아','기타'])}
-      </div>
-      ${textArea('n-nextActionDetail','다음단계 상세내용',d.nextActionDetail,'예: 4월 30일 오후 2시에 재통화, 창업비용표 카톡 발송 등')}
-      ${textArea('n-nextActionMemo','내부 메모',d.nextActionMemo,'내부에서 공유할 후속 메모')}
-    </div>
-
-    <div class="save-row">
-      <button class="cancel" onclick="renderConsult(getCurrent())">되돌리기</button>
-      <button class="save" id="saveAllBtn" onclick="saveAll()">전체 저장 (HTML 갱신)</button>
-    </div>
-  `;
-  setTimeout(()=>renderRecordList(d),0);
+function viewField(label,value){return value ? `<div class="field"><div class="label">${esc(label)}</div><div class="value">${esc(value)}</div></div>` : '';}
+function viewMemo(label,value){return value ? `<div style="margin-top:12px"><div class="label" style="margin-bottom:6px">${esc(label)}</div><div class="memo">${esc(value)}</div></div>` : '';}
+function renderBasic(d){
+  const recordNames = (d.recordFiles||[]).map(r=>r.name).filter(Boolean).join(', ');
+  const hasConsult = d.firstConsultStatus==='1차 상담 완료' || d.callStatus || d.workType || d.currentSituation || d.inquiryTopic || d.answerMemo || d.nextStep && d.nextStep !== '상담 대기' || d.nextActionDetail;
+  const consultBlock = hasConsult ? `<div class="section"><div class="section-title">상담 작성 내용 반영</div><div class="mini-help">상담 탭에서 저장한 1차 상담과 다음액션 내용이 이곳에 자동으로 옮겨져 보입니다.</div><div class="grid">${viewField('1차 상담 상태',d.firstConsultStatus)}${viewField('완료일시',d.firstConsultCompletedAt)}${viewField('상담상태',d.callStatus)}${viewField('작업형태',d.workType)}${viewField('현재상황',d.currentSituation)}${viewField('문의주제',d.inquiryTopic)}${viewField('답변유형',d.answerType)}${viewField('통화녹음',recordNames)}${viewField('다음단계',d.nextStep)}${viewField('최종상태',d.finalStatus)}${viewField('다음액션 예정일',d.nextActionDate)}${viewField('다음액션 예정시간',d.nextActionTime)}${viewField('담당자',d.nextActionOwner)}</div>${viewMemo('상세문의 메모',d.detailInquiryMemo)}${viewMemo('답변메모',d.answerMemo)}${viewMemo('다음단계 상세내용',d.nextActionDetail)}${viewMemo('내부 메모',d.nextActionMemo)}</div>` : `<div class="section"><div class="section-title">상담 작성 내용 반영</div><div class="phase-card"><div class="phase-title">아직 1차 상담 작성 전입니다.</div><div class="phase-desc">상담 탭에서 1차 상담과 다음액션을 작성하고 저장하면, 이 기본 탭에 자동으로 요약되어 표시됩니다.</div></div></div>`;
+  document.getElementById('basicTab').innerHTML=`<div class="section"><div class="section-title">1차 접수 기본정보</div><div class="mini-help">마케터/영업팀이 처음 입력한 접수 정보입니다. 이 영역은 수정하지 않고 원본처럼 확인만 합니다.</div><div class="grid">${viewField('문의 일자',d.inquiryDate)}${viewField('문의 시간',d.inquiryTime)}${viewField('이름',d.name)}${viewField('연락처',d.phone)}${viewField('점포 유/무',d.hasStore)}${viewField('창업 희망지역',d.desiredRegion)}${viewField('유입경로',d.source)}${viewField('기타 유입경로',d.sourceEtc)}</div>${viewMemo('비고',d.note)}</div>${consultBlock}`;
 }
-
+function renderRecordFiles(){const list=document.getElementById('recordList');if(!list)return;list.innerHTML=(currentRecordFiles||[]).map((r,i)=>{const name=esc(r.name||'녹음파일');const link=r.url||r.webViewLink||r.driveUrl||'';return `<div class="file-item"><span>🎵</span><span class="name">${link?`<a href="${esc(link)}" target="_blank" rel="noopener">${name}</a>`:name}</span><span class="td sub">${r.size?Math.round(r.size/1024)+'KB':''}</span><button class="del" type="button" onclick="removeRecordFile(${i})">×</button></div>`;}).join('');}
+function addRecord(input){Array.from(input.files||[]).forEach(file=>{if(file.size>25*1024*1024){showToast('⚠ 파일 크기가 25MB를 초과합니다');return;}const reader=new FileReader();reader.onload=e=>{currentRecordFiles.push({src:e.target.result,name:file.name,type:file.type,size:file.size});renderRecordFiles();};reader.readAsDataURL(file);});input.value='';}
+function removeRecordFile(i){currentRecordFiles.splice(i,1);renderRecordFiles();}
+function firstConsultForm(d, mode='write'){
+  return `<div id="firstConsultForm"><div class="phase-card"><div class="phase-top"><div><div class="phase-title">${d.firstConsultStatus==='1차 상담 완료'?'1차 상담 내용 수정':'1차 상담 작성'}</div><div class="phase-desc">상담상태, 작업형태, 상담내용과 아래 다음액션까지 한 화면에서 계속 작성/수정합니다. 저장하면 기본 탭과 수정내역에 자동 반영됩니다.</div></div><span class="badge ${statusClass(d.firstConsultStatus)}">${esc(d.firstConsultStatus||'미작성')}</span></div></div><div class="edit-grid">${selectInput('c-callStatus','상담상태',d.callStatus,['통화 완료','부재','문자 발송','카톡 발송','재통화 예정','관심 없음'])}${selectInput('c-workType','작업형태',d.workType,['1차 상담','재상담','미팅 전','미팅 후','계약 전','보류 관리','계약 후'])}</div><div class="edit-group"><label class="edit-label">통화녹음 업로드</label><label class="file-upload" for="c-record"><span class="file-upload-icon">🎙️</span><span class="file-upload-text">탭하여 녹음 파일 업로드</span><div class="file-upload-sub">mp3, m4a, wav / 최대 25MB · 관리자 추가 업로드 가능</div><input type="file" id="c-record" accept=".mp3,.m4a,.wav,audio/*" multiple onchange="addRecord(this)"></label><div class="file-list" id="recordList"></div></div><div class="edit-grid">${selectInput('c-currentSituation','현재상황',d.currentSituation,['매장 있음','매장 알아보는 중','업종 변경 희망','기존 자영업자','초보 창업자','가족 운영','배달 전문','홀/배달 병행','미확인'])}${selectInput('c-inquiryTopic','문의주제',d.inquiryTopic,['창업비용','수익성','상권','메뉴/브랜드','배달운영','매장운영','계약조건','기타'])}</div>${textArea('c-detailInquiryMemo','상세문의 메모',d.detailInquiryMemo,'고객이 실제로 물어본 내용을 정리')}${selectInput('c-answerType','답변유형',d.answerType,['통화 답변','문자 답변','카톡 답변','자료 발송','미팅 답변','내부검토 후 답변'])}${textArea('c-answerMemo','답변메모',d.answerMemo,'어떤 답변을 했는지 기록')}<div class="save-row"><button class="cancel" onclick="renderConsult(getCurrent())">취소</button><button class="save" onclick="saveFirstConsult()">${d.firstConsultStatus==='1차 상담 완료'?'1차 상담 수정 저장':'1차 상담 완료 저장'}</button></div></div>`;
+}
+function firstSummary(d){return `<div class="section"><div class="section-title">1차 상담 완료 요약</div><div class="phase-card"><div class="phase-top"><div><div class="phase-title">1차 상담 완료됨</div><div class="phase-desc">이제 상담상태 작성영역은 숨기고, 바로 다음액션을 관리합니다.</div></div><span class="badge ok">완료</span></div></div><div class="grid">${viewField('완료일시',d.firstConsultCompletedAt)}${viewField('상담상태',d.callStatus)}${viewField('작업형태',d.workType)}${viewField('현재상황',d.currentSituation)}${viewField('문의주제',d.inquiryTopic)}${viewField('답변유형',d.answerType)}${viewField('녹음파일',(d.recordFiles||[]).map(r=>r.name).filter(Boolean).join(', '))}</div>${viewMemo('상세문의 메모',d.detailInquiryMemo)}${viewMemo('답변메모',d.answerMemo)}<div class="save-row"><button class="ghost" onclick="showFirstEdit()">1차 상담 내용 수정</button></div></div>`;}
+function nextActionForm(d){return `<div class="section"><div class="section-title">다음액션 작성</div><div class="next-box"><div class="next-label">NEXT ACTION</div><div class="next-value">${esc(d.nextStep||'상담 대기')}</div>${d.nextActionDate||d.nextActionTime?`<div class="next-date">${esc([d.nextActionDate,d.nextActionTime].filter(Boolean).join(' '))}</div>`:''}</div><div class="edit-grid">${selectInput('n-nextStep','다음단계',d.nextStep,['재통화','미팅잡기','자료발송','내부검토','상권확인','가계약','계약진행','보류','종료'])}${selectInput('n-finalStatus','최종상태',d.finalStatus,['신규 문의','후속관리','미팅 예정','계약 진행','보류','종료','계약 완료'])}${textInput('n-nextActionDate','다음액션 예정일',d.nextActionDate,'date')}${textInput('n-nextActionTime','다음액션 예정시간',d.nextActionTime,'time')}${textInput('n-nextActionOwner','담당자',d.nextActionOwner)}</div>${textArea('n-nextActionDetail','다음단계 상세내용',d.nextActionDetail,'예: 4월 30일 오후 2시에 재통화, 창업비용표 카톡 발송 등')}${textArea('n-nextActionMemo','내부 메모',d.nextActionMemo,'내부에서 공유할 후속 메모')}<div class="save-row"><button class="cancel" onclick="renderConsult(getCurrent())">되돌리기</button><button class="save" onclick="saveNextAction()">다음액션 저장</button></div></div>`;}
+function renderConsult(d){document.getElementById('consultTab').innerHTML = firstConsultForm(d)+nextActionForm(d);setTimeout(renderRecordFiles,0);}
+function showFirstEdit(){document.getElementById('consultTab').innerHTML=firstConsultForm(getCurrent(),'edit') + nextActionForm(getCurrent());setTimeout(renderRecordFiles,0);}
 function getCurrent(){return currentIdx===null?null:filtered[currentIdx];}
+function fillBasicOriginal(){const d=getCurrent();if(d)renderBasic(d);}
+function readBasic(){return {inquiryDate:val('b-inquiryDate'),inquiryTime:val('b-inquiryTime'),name:val('b-name'),phone:val('b-phone'),hasStore:val('b-hasStore'),desiredRegion:val('b-desiredRegion'),source:val('b-source'),sourceEtc:val('b-sourceEtc'),note:val('b-note')};}
+function readFirst(){const current=getCurrent()||{};const updates={callStatus:val('c-callStatus'),workType:val('c-workType'),recordFiles:currentRecordFiles,currentSituation:val('c-currentSituation'),inquiryTopic:val('c-inquiryTopic'),detailInquiryMemo:val('c-detailInquiryMemo'),answerType:val('c-answerType'),answerMemo:val('c-answerMemo'),firstConsultStatus:'1차 상담 완료',firstConsultCompletedAt:current.firstConsultCompletedAt || nowKST(),workflowStatus:'1차 상담 완료'};const next=readNext();Object.keys(next).forEach(k=>{if(next[k]) updates[k]=next[k];});if(!updates.nextStep) updates.nextStep=current.nextStep || '상담 대기';if(!updates.finalStatus) updates.finalStatus=current.finalStatus || '후속관리';return updates;}
+function readNext(){return {nextStep:val('n-nextStep'),nextActionDetail:val('n-nextActionDetail'),nextActionDate:val('n-nextActionDate'),nextActionTime:val('n-nextActionTime'),nextActionOwner:val('n-nextActionOwner'),nextActionMemo:val('n-nextActionMemo'),finalStatus:val('n-finalStatus')};}
 function val(id){const el=document.getElementById(id);return el ? el.value.trim() : '';}
-
-function readAll(){
-  const current = getCurrent() || {};
-  return {
-    callStatus:val('c-callStatus'),
-    workType:val('c-workType'),
-    currentSituation:val('c-currentSituation'),
-    inquiryTopic:val('c-inquiryTopic'),
-    detailInquiryMemo:val('c-detailInquiryMemo'),
-    answerType:val('c-answerType'),
-    answerMemo:val('c-answerMemo'),
-    nextStep:val('n-nextStep') || current.nextStep || '상담 대기',
-    nextActionDetail:val('n-nextActionDetail'),
-    nextActionDate:val('n-nextActionDate'),
-    nextActionTime:val('n-nextActionTime'),
-    nextActionOwner:val('n-nextActionOwner'),
-    nextActionMemo:val('n-nextActionMemo'),
-    finalStatus:val('n-finalStatus') || current.finalStatus || '신규 문의',
-    firstConsultStatus: val('c-callStatus') ? '1차 상담 완료' : (current.firstConsultStatus || '미작성')
-  };
-}
-
-function diffAndApply(d, updates){
-  const changes=[];
-  Object.keys(updates).forEach(k=>{
-    const oldVal = String(d[k]||'');
-    const newVal = String(updates[k]||'');
-    if(oldVal !== newVal){
-      changes.push({field:LABELS[k]||k, old:oldVal||'없음', new:newVal||'없음'});
-      d[k]=updates[k];
-    }
-  });
-  return changes;
-}
-
-function addHistory(id,section,changes){
-  if(!editHistory[id]) editHistory[id]=[];
-  editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});
-  localStorage.setItem('booxtix_admin_history_v2',JSON.stringify(editHistory));
-}
-
-async function persistUpdates(d, updates, newRecords){
+function diffAndApply(d, updates){const changes=[];Object.keys(updates).forEach(k=>{const oldVal = k==='recordFiles' ? JSON.stringify(d[k]||[]) : String(d[k]||'');const newVal = k==='recordFiles' ? JSON.stringify(updates[k]||[]) : String(updates[k]||'');if(oldVal!==newVal){changes.push({field:LABELS[k]||k,old:displayVal(d[k]),new:displayVal(updates[k])});d[k]=updates[k];}});if(updates.inquiryDate||updates.inquiryTime)d.inquiryDateTime=`${d.inquiryDate||'0000-00-00'} ${d.inquiryTime||'00:00'}`;return changes;}
+function displayVal(v){if(Array.isArray(v))return v.map(x=>x.name||'파일').join(', ') || '없음';return String(v||'없음');}
+function addHistory(id,section,changes){if(!editHistory[id]) editHistory[id]=[];editHistory[id].unshift({time:nowKST(),editor:'관리자',section,changes});localStorage.setItem('booxtix_admin_history_v4',JSON.stringify(editHistory));}
+async function persistUpdates(d, updates, section, changes){
   const fd=new FormData();
   fd.append('action','update');
-  fd.append('data',JSON.stringify({
-    id:rowId(d),
-    consultId:d.consultId,
-    updates,
-    newRecords: newRecords || []
-  }));
+  fd.append('data',JSON.stringify({id:rowId(d),consultId:d.consultId,updates,historyEntry:{time:nowKST(),editor:'관리자',section,changes}}));
   const res=await fetch(APPS_SCRIPT_URL,{method:'POST',body:fd});
   const text=await res.text();
   let result={};
   try{result=JSON.parse(text);}catch(err){result={result:res.ok?'success':'error',raw:text};}
-  if(!res.ok || (result.result && result.result!=='success')){
-    throw new Error(result.message||result.error||'서버 저장 실패');
-  }
+  if(!res.ok || (result.result && result.result!=='success') || (result.status && !['success','ok'].includes(result.status))){throw new Error(result.error||result.message||'서버 저장 실패');}
+  if(result.recordFiles || result.savedFiles){updates.recordFiles = result.recordFiles || result.savedFiles;}
   return result;
 }
-
-async function saveAll(){
+async function saveSection(section, updates){
   const d=getCurrent();
-  if(!d) return;
-  const btn=document.getElementById('saveAllBtn');
-  btn.disabled=true;btn.textContent='저장 중...';
-
-  const updates = readAll();
-  const copy = JSON.parse(JSON.stringify(d));
-  const changes = diffAndApply(d, updates);
-  const recordCount = pendingNewRecords.length;
-
-  if(changes.length === 0 && recordCount === 0){
-    showToast('변경된 내용이 없습니다.');
-    btn.disabled=false;btn.textContent='전체 저장 (HTML 갱신)';
-    return;
-  }
-
+  if(!d)return;
+  const copy=JSON.parse(JSON.stringify(d));
+  const changes=diffAndApply(d,updates);
+  if(!changes.length){showToast('변경된 내용이 없습니다.');return;}
   try{
-    const result = await persistUpdates(d, updates, pendingNewRecords);
-    if(changes.length > 0){
-      addHistory(rowId(d), '상담 + 다음액션', changes);
-    }
-    if(recordCount > 0){
-      addHistory(rowId(d), '녹음파일 추가', [{field:'녹음파일', old:'', new:`${recordCount}개 추가됨`}]);
-      pendingNewRecords = [];
-    }
-    showToast(`✓ 저장 완료 (변경 ${changes.length}건${recordCount > 0 ? `, 녹음 ${recordCount}개`:''})`);
-    await loadData();
-    // 패널 갱신
-    const refreshed = allData.find(x=>rowId(x)===rowId(d));
-    if(refreshed){
-      const newIdx = filtered.findIndex(x=>rowId(x)===rowId(refreshed));
-      currentIdx = newIdx > -1 ? newIdx : currentIdx;
-      document.getElementById('panelTitle').textContent=`${refreshed.name||'이름 없음'} · ${refreshed.phone||''}`;
-      document.getElementById('panelBadge').innerHTML=`<span class="badge ${statusClass(refreshed.firstConsultStatus)}">${esc(refreshed.firstConsultStatus||'미작성')}</span>`;
-      renderBasic(refreshed);
-      renderConsult(refreshed);
-      renderHistory(refreshed);
-    }
+    const result=await persistUpdates(copy,updates,section,changes);
+    if((result.recordFiles||result.savedFiles) && updates.recordFiles){d.recordFiles=updates.recordFiles;currentRecordFiles=[...updates.recordFiles];}
+    addHistory(rowId(d),section,changes);
+    afterSave(d);
+    showToast('✓ 저장되었습니다. 수정내역에 기록했어요.');
   }catch(err){
     Object.assign(d,copy);
     showToast('⚠ 저장 실패: '+err.message);
-  }finally{
-    btn.disabled=false;btn.textContent='전체 저장 (HTML 갱신)';
+    renderBasic(d);renderConsult(d);renderHistory(d);
   }
 }
-
-function renderHistory(d){
-  const hist=editHistory[rowId(d)]||[];
-  document.getElementById('historyCount').textContent=hist.length?`(${hist.length})`:'';
-  if(!hist.length){
-    document.getElementById('historyBody').innerHTML='<div class="history-empty">수정 내역이 없습니다.</div>';
-    return;
-  }
-  document.getElementById('historyBody').innerHTML=hist.map(h=>`
-    <div class="history-item">
-      <div class="history-meta">
-        <span class="history-time">${esc(h.time)}</span>
-        <span class="history-editor">${esc(h.editor)}</span>
-        <span class="history-section">${esc(h.section||'수정')}</span>
-      </div>
-      ${h.changes.map(c=>`<div class="history-change"><b>${esc(c.field)}</b> <span class="old">${esc(c.old)}</span> → <span class="new">${esc(c.new)}</span></div>`).join('')}
-    </div>`).join('');
-}
-
-function setStatus(ok){
-  document.getElementById('statusDot').style.background=ok?'#2D7A55':'#E05252';
-  document.getElementById('statusText').textContent=ok?'연결됨':'오프라인';
-}
-
-let toastTimer=null;
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg;t.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
-}
-
+function afterSave(d){updateKpi();applyFilter();const refreshed=allData.find(x=>rowId(x)===rowId(d))||d;const idx=filtered.findIndex(x=>rowId(x)===rowId(d));currentIdx=idx>-1?idx:currentIdx;document.getElementById('panelTitle').textContent=`${refreshed.name||'이름 없음'} · ${refreshed.phone||''}`;document.getElementById('panelBadge').innerHTML=`<span class="badge ${statusClass(refreshed.firstConsultStatus)}">${esc(refreshed.firstConsultStatus||'미작성')}</span>`;renderBasic(refreshed);renderConsult(refreshed);renderHistory(refreshed);}
+function saveBasic(){saveSection('기본정보',readBasic());}
+function saveFirstConsult(){const updates=readFirst();if(!updates.callStatus){showToast('⚠ 상담상태를 선택해주세요');return;}if(!updates.workType){showToast('⚠ 작업형태를 선택해주세요');return;}saveSection('1차 상담',updates);}
+function saveNextAction(){const updates=readNext();if(!updates.nextStep){showToast('⚠ 다음단계를 선택해주세요');return;}saveSection('다음액션',updates);}
+function renderHistory(d){const hist=editHistory[rowId(d)]||[];document.getElementById('historyCount').textContent=hist.length?`(${hist.length})`:'';if(!hist.length){document.getElementById('historyBody').innerHTML='<div class="history-empty">수정 내역이 없습니다.</div>';return;}document.getElementById('historyBody').innerHTML=hist.map(h=>`<div class="history-item"><div class="history-meta"><span class="history-time">${esc(h.time)}</span><span class="history-editor">${esc(h.editor)}</span><span class="history-section">${esc(h.section||'수정')}</span></div>${h.changes.map(c=>`<div class="history-change"><b>${esc(c.field)}</b> <span class="old">${esc(c.old)}</span> → <span class="new">${esc(c.new)}</span></div>`).join('')}</div>`).join('');}
+function setStatus(ok){document.getElementById('statusDot').style.background=ok?'#2D7A55':'#E05252';document.getElementById('statusText').textContent=ok?'연결됨':'오프라인';}
+let toastTimer=null;function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>t.classList.remove('show'),3000);}
 loadData();
 </script>
 </body>
