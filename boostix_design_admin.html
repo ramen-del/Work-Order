@@ -56,7 +56,7 @@ a{color:inherit}.hidden{display:none!important}
 
 <main class="wrap">
   <div class="notice">
-    <b>관리자 전용 읽기 방식:</b> 구글시트를 CSV로 직접 긁지 않고, 저장용 Apps Script의 <b>doGet?action=list</b> API를 통해 읽습니다. 시트가 비공개여도 Apps Script 권한으로 데이터를 불러옵니다.
+    <b>관리자 전용 읽기 방식:</b> 요청서 제출 페이지와 <b>같은 Apps Script 배포 URL</b>의 <b>doGet?action=list</b> API로 읽습니다. CSV가 아니라 저장 API와 같은 통로를 씁니다.
   </div>
 
   <section class="stats">
@@ -108,7 +108,7 @@ a{color:inherit}.hidden{display:none!important}
 const SPREADSHEET_ID = "1ZJToDWEmJUbsj8dC5qasTAfqwX3yN8qV0kEHGIOK5M4";
 const SHEET_NAME = "업무요청서";
 const SHEET_VIEW_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2iUEsTbESb_3Gf0P_YDAa02E6_dHnNu93TP8-_x4whuePYz-N8hp-SV71zbqiIDV6/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3RylMFebodpeqV8l-UvplvtFOD6ge5l7oL_ZzYKaqPFzNUDmFI0W9c9XkvC0zmP1D/exec";
 const STATUS_OPTIONS = ["접수","검토중","작업중","1차전달","수정중","승인대기","완료","보류","취소"];
 
 let allRequests = [];
@@ -119,49 +119,37 @@ let toastTimer = null;
 document.getElementById("sheetLink").href = SHEET_VIEW_URL;
 function openCsv(){ window.open(`${APPS_SCRIPT_URL}?action=list&cacheBust=${Date.now()}`, "_blank"); }
 
-function callAppsScript(action, params = {}){
-  return new Promise((resolve, reject) => {
-    const callbackName = `booxtixAdminCb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
-    const query = new URLSearchParams({ action, callback: callbackName, cacheBust: Date.now(), ...params });
-    const script = document.createElement("script");
-    let done = false;
+async function callAppsScript(action, params = {}){
+  const query = new URLSearchParams({ action, _: Date.now(), ...params });
+  const url = `${APPS_SCRIPT_URL}?${query.toString()}`;
 
-    const cleanup = () => {
-      delete window[callbackName];
-      if(script.parentNode) script.parentNode.removeChild(script);
-      clearTimeout(timer);
-    };
+  const res = await fetch(url, { method:"GET", cache:"no-store" });
+  const text = await res.text();
+  const trimmed = text.trim();
 
-    const timer = setTimeout(() => {
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error("Apps Script 응답 시간이 초과되었습니다. 배포 권한 또는 URL을 확인해주세요."));
-    }, 15000);
+  if(!res.ok){
+    throw new Error(`Apps Script 응답 오류: ${res.status}`);
+  }
 
-    window[callbackName] = data => {
-      if(done) return;
-      done = true;
-      cleanup();
-      if(!data) return reject(new Error("Apps Script 응답이 비어 있습니다."));
-      if(data.result === "error") return reject(new Error(data.message || "Apps Script 오류"));
-      resolve(data);
-    };
+  if(trimmed.startsWith("<")){
+    throw new Error("Apps Script가 JSON이 아니라 HTML을 반환했습니다. 배포 권한 또는 URL을 확인해주세요.");
+  }
 
-    script.onerror = () => {
-      if(done) return;
-      done = true;
-      cleanup();
-      reject(new Error("Apps Script API를 불러오지 못했습니다. 배포 URL 또는 접근 권한을 확인해주세요."));
-    };
+  let data;
+  try{
+    data = JSON.parse(trimmed);
+  }catch(err){
+    throw new Error("Apps Script 응답을 JSON으로 읽지 못했습니다. API 확인 버튼으로 응답 내용을 확인해주세요.");
+  }
 
-    script.src = `${APPS_SCRIPT_URL}?${query.toString()}`;
-    document.body.appendChild(script);
-  });
+  if(!data) throw new Error("Apps Script 응답이 비어 있습니다.");
+  if(data.result === "error") throw new Error(data.message || "Apps Script 오류");
+
+  return data;
 }
 
 async function loadRequests(){
-  document.getElementById("requestList").innerHTML = '<div class="loading"><span class="spinner"></span>Apps Script에서 시트 읽는 중...</div>';
+  document.getElementById("requestList").innerHTML = '<div class="loading"><span class="spinner"></span>Apps Script API에서 시트 읽는 중...</div>';
   try{
     const payload = await callAppsScript("list");
     const rows = Array.isArray(payload.data) ? payload.data : [];
@@ -179,7 +167,7 @@ async function loadRequests(){
     toast(`요청 ${allRequests.length}건 로드 완료`);
   }catch(err){
     console.error(err);
-    document.getElementById("requestList").innerHTML = `<div class="loading">⚠ ${escapeHtml(err.message)}<br><br>관리자는 CSV가 아니라 Apps Script <b>action=list</b> API로 읽어야 합니다.</div>`;
+    document.getElementById("requestList").innerHTML = `<div class="loading">⚠ ${escapeHtml(err.message)}<br><br>요청서 제출 페이지와 같은 Apps Script 배포 URL인지 확인해주세요.</div>`;
     document.getElementById("detailPanel").innerHTML = '<div class="detail-empty">데이터를 불러오지 못했습니다.</div>';
     toast(err.message);
   }
