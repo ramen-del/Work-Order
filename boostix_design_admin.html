@@ -48,7 +48,7 @@ a{color:inherit}.hidden{display:none!important}
     </div>
     <div class="top-actions">
       <button class="btn ghost" onclick="loadRequests()">새로고침</button>
-      <button class="btn" onclick="openCsv()">CSV 확인</button>
+      <button class="btn" onclick="openCsv()">API 확인</button>
       <a class="btn dark" id="sheetLink" href="#" target="_blank" style="text-decoration:none">시트 열기</a>
     </div>
   </div>
@@ -56,7 +56,7 @@ a{color:inherit}.hidden{display:none!important}
 
 <main class="wrap">
   <div class="notice">
-    <b>관리자 전용 읽기 방식:</b> 기존 업무요청서 저장 Apps Script와 Drive 업로드는 건드리지 않고, 관리자 화면만 현재 <b>업무요청서</b> 시트를 CSV로 직접 읽어 표시합니다. 요청번호 헤더가 없어도 A열의 <b>WO-</b> 값을 요청번호로 인식합니다.
+    <b>관리자 전용 읽기 방식:</b> 구글시트를 CSV로 직접 긁지 않고, 저장용 Apps Script의 <b>doGet?action=list</b> API를 통해 읽습니다. 시트가 비공개여도 Apps Script 권한으로 데이터를 불러옵니다.
   </div>
 
   <section class="stats">
@@ -107,8 +107,8 @@ a{color:inherit}.hidden{display:none!important}
 <script>
 const SPREADSHEET_ID = "1ZJToDWEmJUbsj8dC5qasTAfqwX3yN8qV0kEHGIOK5M4";
 const SHEET_NAME = "업무요청서";
-const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&range=A:AF`;
 const SHEET_VIEW_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw2iUEsTbESb_3Gf0P_YDAa02E6_dHnNu93TP8-_x4whuePYz-N8hp-SV71zbqiIDV6/exec";
 const STATUS_OPTIONS = ["접수","검토중","작업중","1차전달","수정중","승인대기","완료","보류","취소"];
 
 let allRequests = [];
@@ -116,24 +116,58 @@ let filteredRequests = [];
 let selectedId = "";
 let toastTimer = null;
 
-function openCsv(){ window.open(SHEET_CSV_URL + `&cacheBust=${Date.now()}`, "_blank"); }
 document.getElementById("sheetLink").href = SHEET_VIEW_URL;
+function openCsv(){ window.open(`${APPS_SCRIPT_URL}?action=list&cacheBust=${Date.now()}`, "_blank"); }
+
+function callAppsScript(action, params = {}){
+  return new Promise((resolve, reject) => {
+    const callbackName = `booxtixAdminCb_${Date.now()}_${Math.floor(Math.random() * 100000)}`;
+    const query = new URLSearchParams({ action, callback: callbackName, cacheBust: Date.now(), ...params });
+    const script = document.createElement("script");
+    let done = false;
+
+    const cleanup = () => {
+      delete window[callbackName];
+      if(script.parentNode) script.parentNode.removeChild(script);
+      clearTimeout(timer);
+    };
+
+    const timer = setTimeout(() => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Apps Script 응답 시간이 초과되었습니다. 배포 권한 또는 URL을 확인해주세요."));
+    }, 15000);
+
+    window[callbackName] = data => {
+      if(done) return;
+      done = true;
+      cleanup();
+      if(!data) return reject(new Error("Apps Script 응답이 비어 있습니다."));
+      if(data.result === "error") return reject(new Error(data.message || "Apps Script 오류"));
+      resolve(data);
+    };
+
+    script.onerror = () => {
+      if(done) return;
+      done = true;
+      cleanup();
+      reject(new Error("Apps Script API를 불러오지 못했습니다. 배포 URL 또는 접근 권한을 확인해주세요."));
+    };
+
+    script.src = `${APPS_SCRIPT_URL}?${query.toString()}`;
+    document.body.appendChild(script);
+  });
+}
 
 async function loadRequests(){
-  document.getElementById("requestList").innerHTML = '<div class="loading"><span class="spinner"></span>시트 읽는 중...</div>';
+  document.getElementById("requestList").innerHTML = '<div class="loading"><span class="spinner"></span>Apps Script에서 시트 읽는 중...</div>';
   try{
-    const res = await fetch(SHEET_CSV_URL + `&cacheBust=${Date.now()}`);
-    if(!res.ok) throw new Error(`CSV 조회 실패: ${res.status}`);
+    const payload = await callAppsScript("list");
+    const rows = Array.isArray(payload.data) ? payload.data : [];
 
-    const csv = await res.text();
-    if(csv.trim().startsWith("<")) throw new Error("시트 CSV를 읽지 못했습니다. 시트 공유 권한 또는 웹 게시 설정을 확인해주세요.");
-
-    const rows = parseCSV(csv).filter(row => row.some(cell => String(cell || '').trim() !== ''));
-    if(!rows.length) throw new Error("시트에 데이터가 없습니다.");
-
-    const headers = rows[0].map(x => String(x || '').trim());
-    allRequests = rows.slice(1)
-      .map((row, idx) => normalizeSheetRow(headers, row, idx + 2))
+    allRequests = rows
+      .map(normalizeApiItem)
       .filter(item => item["요청번호"] || item["프로젝트명"] || item["발주자"]);
 
     if(!selectedId && allRequests[0]) selectedId = allRequests[0]["요청번호"];
@@ -145,10 +179,28 @@ async function loadRequests(){
     toast(`요청 ${allRequests.length}건 로드 완료`);
   }catch(err){
     console.error(err);
-    document.getElementById("requestList").innerHTML = `<div class="loading">⚠ ${escapeHtml(err.message)}<br><br>구글시트가 비공개라면 링크 보기 권한 또는 웹 게시가 필요합니다.</div>`;
+    document.getElementById("requestList").innerHTML = `<div class="loading">⚠ ${escapeHtml(err.message)}<br><br>관리자는 CSV가 아니라 Apps Script <b>action=list</b> API로 읽어야 합니다.</div>`;
     document.getElementById("detailPanel").innerHTML = '<div class="detail-empty">데이터를 불러오지 못했습니다.</div>';
     toast(err.message);
   }
+}
+
+function normalizeApiItem(item){
+  const obj = { ...(item || {}) };
+  obj._sourceMode = "Apps Script API";
+  obj["요청번호"] = clean(obj["요청번호"] || obj.requestId || obj.id || "");
+  obj["상태"] = clean(obj["상태"] || "접수");
+  obj["발주일자"] = shortDate(obj["발주일자"]);
+  obj["완성희망일"] = shortDate(obj["완성희망일"]);
+  obj["1차시안일"] = shortDate(obj["1차시안일"]);
+  obj.imageLinks = Array.isArray(obj.imageLinks) ? obj.imageLinks : splitLinks(obj["첨부사진링크"]);
+  obj.isDone = obj.isDone === true || isDoneValue(obj["완료체크"]) || obj["상태"] === "완료" || !!obj["완료일"];
+  if(obj.isDone && obj["상태"] === "접수") obj["상태"] = "완료";
+  obj._raw = Object.keys(obj)
+    .filter(k => !String(k).startsWith("_") && k !== "imageLinks" && k !== "isDone")
+    .map(k => [k, Array.isArray(obj[k]) ? obj[k].join("\n") : clean(obj[k])])
+    .filter(([,v]) => v !== "");
+  return obj;
 }
 
 function normalizeSheetRow(headers, row, rowNumber){
