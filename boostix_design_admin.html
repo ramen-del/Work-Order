@@ -2,115 +2,41 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>BOOXTIX 디자인 작업요청 관리자</title>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BOOXTIX · 디자인 작업요청 관리자</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#F6F6F3;--panel:#FFFFFF;--text:#151515;--sub:#8B8B84;--line:#E5E3DD;
   --soft:#F0EFEA;--dark:#151515;--good:#297A4A;--good-bg:#EAF5EE;
   --warn:#9A6A18;--warn-bg:#FFF4D8;--danger:#B04747;--danger-bg:#FBEAEA;
-  --blue:#315E9E;--blue-bg:#EAF1FB;--radius:18px;
+  --blue:#315E9E;--blue-bg:#EAF1FB;--gray:#667085;--gray-bg:#F2F4F7;--radius:18px;
 }
 html{font-size:16px}
 body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 button,input,select,textarea{font-family:inherit}
-a{color:inherit}
+a{color:inherit}.hidden{display:none!important}
 .topbar{position:sticky;top:0;z-index:50;background:rgba(246,246,243,.88);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
 .topbar-inner{max-width:1440px;margin:0 auto;padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:16px}
-.brand{display:flex;flex-direction:column;gap:2px}
-.brand-kicker{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--sub)}
-.brand-title{font-size:22px;font-weight:800;letter-spacing:-.04em}
-.top-actions{display:flex;gap:8px;align-items:center}
-.btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
-.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}
-.btn.dark{background:var(--dark);color:#fff;border-color:var(--dark)}
-.btn.ghost{background:transparent}
-.wrap{max-width:1440px;margin:0 auto;padding:20px 22px 34px}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}
-.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
-.stat-label{font-size:11px;color:var(--sub);font-weight:800;letter-spacing:.08em}
-.stat-value{font-family:"DM Mono",monospace;font-size:27px;font-weight:500;margin-top:6px}
+.brand{display:flex;flex-direction:column;gap:2px}.brand-kicker{font-family:"DM Mono",monospace;font-size:10px;letter-spacing:.16em;color:var(--sub)}
+.brand-title{font-size:22px;font-weight:900;letter-spacing:-.04em}.top-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer;transition:.15s;white-space:nowrap;text-decoration:none;color:var(--text)}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}.btn.dark{background:var(--dark);color:#fff;border-color:var(--dark)}.btn.ghost{background:transparent}.btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.wrap{max-width:1440px;margin:0 auto;padding:20px 22px 34px}.notice{background:#fff;border:1px solid var(--line);border-radius:18px;padding:13px 16px;margin-bottom:14px;color:#666;font-size:12px;line-height:1.6}
+.notice b{color:#151515}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:14px}.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px}
+.stat-label{font-size:11px;color:var(--sub);font-weight:800;letter-spacing:.08em}.stat-value{font-family:"DM Mono",monospace;font-size:27px;font-weight:500;margin-top:6px}.stat-sub{font-size:11px;color:var(--sub);margin-top:4px}
 .toolbar{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:12px;display:grid;grid-template-columns:1.3fr 180px 140px;gap:10px;margin-bottom:14px}
-.search,.select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 13px;font-size:14px;outline:none}
-.search:focus,.select:focus,input:focus,textarea:focus{border-color:#151515}
-.main{display:grid;grid-template-columns:430px minmax(0,1fr);gap:14px;align-items:start}
-.list-panel,.detail-panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;overflow:hidden}
-.list-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}
-.panel-title{font-size:14px;font-weight:800;letter-spacing:-.02em}
-.mono{font-family:"DM Mono",monospace}
-.list{max-height:calc(100vh - 295px);overflow:auto;padding:10px}
-.item{border:1px solid transparent;border-radius:18px;padding:14px;cursor:pointer;transition:.14s;background:#fff;margin-bottom:8px}
-.item:hover{background:#FAFAF8;border-color:var(--line)}
-.item.active{background:#151515;color:#fff;border-color:#151515;box-shadow:0 12px 24px rgba(0,0,0,.12)}
-.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
-.item-id{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub)}
-.item.active .item-id,.item.active .item-sub,.item.active .meta{color:rgba(255,255,255,.65)}
-.item-title{font-size:15px;font-weight:800;letter-spacing:-.03em;line-height:1.35}
-.item-sub{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.45}
-.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
-.meta{font-size:11px;color:var(--sub);background:#F2F1EC;border-radius:20px;padding:4px 8px}
-.item.active .meta{background:rgba(255,255,255,.12)}
-.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:800;white-space:nowrap}
-.b-접수{background:#F2F1EC;color:#555}
-.b-검토중,.b-작업중,.b-수정중{background:var(--blue-bg);color:var(--blue)}
-.b-1차전달,.b-승인대기{background:var(--warn-bg);color:var(--warn)}
-.b-완료{background:var(--good-bg);color:var(--good)}
-.b-보류,.b-취소{background:var(--danger-bg);color:var(--danger)}
-.item.active .badge{background:rgba(255,255,255,.15);color:#fff}
-.detail-empty{padding:80px 20px;text-align:center;color:var(--sub)}
-.detail{display:grid;grid-template-columns:minmax(0,1fr) 330px;min-height:calc(100vh - 245px)}
-.detail-main{padding:24px;min-width:0}
-.detail-side{border-left:1px solid var(--line);background:#FAFAF8;padding:18px}
-.detail-kicker{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub);margin-bottom:6px}
-.detail-title{font-size:30px;font-weight:800;letter-spacing:-.05em;line-height:1.2;margin-bottom:8px}
-.detail-desc{color:var(--sub);font-size:13px;line-height:1.6}
-.detail-status-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}
-.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
-.info{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff}
-.info-label{font-size:10px;font-weight:800;color:var(--sub);letter-spacing:.08em;margin-bottom:5px}
-.info-value{font-size:13px;font-weight:700;line-height:1.45;word-break:break-word}
-.section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
-.section h3{font-size:14px;margin-bottom:10px}
-.textbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word}
-.link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
-.link-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;font-size:13px;font-weight:800;transition:.14s;min-width:0}
-.link-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}
-.link-card span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.control{display:flex;flex-direction:column;gap:7px;margin-bottom:12px}
-.control label{font-size:11px;font-weight:800;color:var(--sub);letter-spacing:.08em}
-.control input,.control select,.control textarea{border:1px solid var(--line);border-radius:12px;background:#fff;padding:11px 12px;font-size:14px;outline:none;width:100%}
-.control textarea{resize:vertical;line-height:1.6;min-height:120px}
-.done-box{display:flex;align-items:center;justify-content:space-between;background:#fff;border:1px solid var(--line);border-radius:15px;padding:13px 14px;margin:8px 0 14px}
-.done-box strong{font-size:14px}
-.done-box small{display:block;font-size:11px;color:var(--sub);margin-top:2px}
-.switch{appearance:none;width:46px;height:28px;border-radius:999px;background:#D7D5CE;position:relative;cursor:pointer;transition:.2s;flex-shrink:0}
-.switch::after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;background:#fff;top:3px;left:3px;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:.2s}
-.switch:checked{background:#151515}
-.switch:checked::after{left:21px}
-.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#151515;color:#fff;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:700;opacity:0;pointer-events:none;transition:.25s;z-index:100}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.loading{padding:44px 20px;text-align:center;color:var(--sub);font-size:13px}
-@media(max-width:980px){
-  .stats{grid-template-columns:repeat(2,1fr)}
-  .toolbar{grid-template-columns:1fr}
-  .main{grid-template-columns:1fr}
-  .list{max-height:none}
-  .detail{grid-template-columns:1fr}
-  .detail-side{border-left:none;border-top:1px solid var(--line)}
-  .grid{grid-template-columns:repeat(2,1fr)}
-}
-@media(max-width:560px){
-  .topbar-inner{align-items:flex-start;flex-direction:column}
-  .top-actions{width:100%}.top-actions .btn{flex:1}
-  .wrap{padding:14px 12px 24px}
-  .stats{grid-template-columns:1fr 1fr;gap:8px}
-  .stat{padding:13px}
-  .detail-main,.detail-side{padding:16px}
-  .detail-title{font-size:24px}
-  .grid,.link-grid{grid-template-columns:1fr}
-}
+.search,.select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:12px 13px;font-size:14px;outline:none}.search:focus,.select:focus{border-color:#151515}
+.main{display:grid;grid-template-columns:430px minmax(0,1fr);gap:14px;align-items:start}.list-panel,.detail-panel{background:var(--panel);border:1px solid var(--line);border-radius:24px;overflow:hidden}
+.list-head{padding:16px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between}.panel-title{font-size:14px;font-weight:900;letter-spacing:-.02em}.mono{font-family:"DM Mono",monospace}
+.list{max-height:calc(100vh - 340px);overflow:auto;padding:10px}.item{border:1px solid transparent;border-radius:18px;padding:14px;cursor:pointer;transition:.14s;background:#fff;margin-bottom:8px}
+.item:hover{background:#FAFAF8;border-color:var(--line)}.item.active{background:#151515;color:#fff;border-color:#151515;box-shadow:0 12px 24px rgba(0,0,0,.12)}.item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:9px}
+.item-id{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub)}.item.active .item-id,.item.active .item-sub,.item.active .meta{color:rgba(255,255,255,.65)}.item-title{font-size:15px;font-weight:900;letter-spacing:-.03em;line-height:1.35;word-break:break-word}.item-sub{font-size:12px;color:var(--sub);margin-top:3px;line-height:1.45}.meta-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}.meta{font-size:11px;color:var(--sub);background:#F2F1EC;border-radius:20px;padding:4px 8px}.item.active .meta{background:rgba(255,255,255,.12)}
+.badge{display:inline-flex;align-items:center;gap:5px;border-radius:999px;padding:5px 9px;font-size:11px;font-weight:900;white-space:nowrap;border:1px solid transparent}.b-접수{background:#F2F1EC;color:#555}.b-검토중,.b-작업중,.b-수정중{background:var(--blue-bg);color:var(--blue)}.b-1차전달,.b-승인대기{background:var(--warn-bg);color:var(--warn)}.b-완료{background:var(--good-bg);color:var(--good)}.b-보류,.b-취소{background:var(--danger-bg);color:var(--danger)}.b-읽기전용{background:var(--gray-bg);color:var(--gray)}.item.active .badge{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.08)}
+.detail-empty{padding:80px 20px;text-align:center;color:var(--sub)}.detail{display:grid;grid-template-columns:minmax(0,1fr) 330px;min-height:calc(100vh - 290px)}.detail-main{padding:24px;min-width:0}.detail-side{border-left:1px solid var(--line);background:#FAFAF8;padding:18px}.detail-kicker{font-family:"DM Mono",monospace;font-size:11px;color:var(--sub);margin-bottom:6px}.detail-title{font-size:30px;font-weight:900;letter-spacing:-.05em;line-height:1.2;margin-bottom:8px}.detail-desc{color:var(--sub);font-size:13px;line-height:1.6}.detail-status-row{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 18px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}.info{border:1px solid var(--line);border-radius:14px;padding:12px 13px;background:#fff}.info-label{font-size:10px;font-weight:900;color:var(--sub);letter-spacing:.08em;margin-bottom:5px}.info-value{font-size:13px;font-weight:700;line-height:1.45;word-break:break-word}.section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}.section h3{font-size:14px;margin-bottom:10px}.textbox{background:#fff;border:1px solid var(--line);border-radius:16px;padding:15px;font-size:14px;line-height:1.75;white-space:pre-wrap;word-break:break-word}.link-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.link-card{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;background:#fff;border:1px solid var(--line);border-radius:14px;text-decoration:none;font-size:13px;font-weight:900;transition:.14s;min-width:0}.link-card:hover{transform:translateY(-1px);box-shadow:0 8px 18px rgba(0,0,0,.06)}.link-card span:first-child{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.side-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px;margin-bottom:12px}.side-title{font-size:13px;font-weight:900;margin-bottom:8px}.side-text{font-size:12px;line-height:1.65;color:#666}.raw-table{width:100%;border-collapse:collapse;font-size:11px;margin-top:8px}.raw-table th,.raw-table td{text-align:left;vertical-align:top;border-bottom:1px solid #eee;padding:7px 3px;word-break:break-word}.raw-table th{color:#999;width:90px}.toast{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:#151515;color:#fff;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:800;opacity:0;pointer-events:none;transition:.25s;z-index:100}.toast.show{opacity:1;transform:translate(-50%,0)}.loading{padding:44px 20px;text-align:center;color:var(--sub);font-size:13px}.spinner{display:inline-block;width:18px;height:18px;border:2px solid var(--line);border-top-color:#151515;border-radius:50%;animation:spin .7s linear infinite;margin-right:8px;vertical-align:middle}@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:980px){.stats{grid-template-columns:repeat(2,1fr)}.toolbar{grid-template-columns:1fr}.main{grid-template-columns:1fr}.list{max-height:none}.detail{grid-template-columns:1fr}.detail-side{border-left:none;border-top:1px solid var(--line)}.grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:560px){.topbar-inner{align-items:flex-start;flex-direction:column}.top-actions{width:100%}.top-actions .btn{flex:1;text-align:center}.wrap{padding:14px 12px 24px}.stats{grid-template-columns:1fr 1fr;gap:8px}.stat{padding:13px}.detail-main,.detail-side{padding:16px}.detail-title{font-size:24px}.grid,.link-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -122,17 +48,22 @@ a{color:inherit}
     </div>
     <div class="top-actions">
       <button class="btn ghost" onclick="loadRequests()">새로고침</button>
-      <a class="btn dark" href="https://script.google.com/macros/s/AKfycbz3RylMFebodpeqV8l-UvplvtFOD6ge5l7oL_ZzYKaqPFzNUDmFI0W9c9XkvC0zmP1D/exec?action=list" target="_blank" style="text-decoration:none">API 확인</a>
+      <button class="btn" onclick="openCsv()">CSV 확인</button>
+      <a class="btn dark" id="sheetLink" href="#" target="_blank" style="text-decoration:none">시트 열기</a>
     </div>
   </div>
 </header>
 
 <main class="wrap">
+  <div class="notice">
+    <b>관리자 전용 읽기 방식:</b> 기존 업무요청서 저장 Apps Script와 Drive 업로드는 건드리지 않고, 관리자 화면만 현재 <b>업무요청서</b> 시트를 CSV로 직접 읽어 표시합니다. 요청번호 헤더가 없어도 A열의 <b>WO-</b> 값을 요청번호로 인식합니다.
+  </div>
+
   <section class="stats">
-    <div class="stat"><div class="stat-label">TOTAL</div><div class="stat-value" id="stTotal">0</div></div>
-    <div class="stat"><div class="stat-label">ACTIVE</div><div class="stat-value" id="stActive">0</div></div>
-    <div class="stat"><div class="stat-label">DONE</div><div class="stat-value" id="stDone">0</div></div>
-    <div class="stat"><div class="stat-label">URGENT</div><div class="stat-value" id="stUrgent">0</div></div>
+    <div class="stat"><div class="stat-label">TOTAL</div><div class="stat-value" id="stTotal">0</div><div class="stat-sub">전체 요청</div></div>
+    <div class="stat"><div class="stat-label">ACTIVE</div><div class="stat-value" id="stActive">0</div><div class="stat-sub">완료/취소 제외</div></div>
+    <div class="stat"><div class="stat-label">DONE</div><div class="stat-value" id="stDone">0</div><div class="stat-sub">완료 상태</div></div>
+    <div class="stat"><div class="stat-label">URGENT</div><div class="stat-value" id="stUrgent">0</div><div class="stat-sub">긴급 우선순위</div></div>
   </section>
 
   <section class="toolbar">
@@ -162,7 +93,7 @@ a{color:inherit}
         <div class="panel-title">요청 리스트</div>
         <div class="mono" id="listCount" style="font-size:12px;color:var(--sub)">0건</div>
       </div>
-      <div class="list" id="requestList"><div class="loading">불러오는 중...</div></div>
+      <div class="list" id="requestList"><div class="loading"><span class="spinner"></span>시트 읽는 중...</div></div>
     </aside>
 
     <section class="detail-panel" id="detailPanel">
@@ -174,76 +105,207 @@ a{color:inherit}
 <div class="toast" id="toast"></div>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbz3RylMFebodpeqV8l-UvplvtFOD6ge5l7oL_ZzYKaqPFzNUDmFI0W9c9XkvC0zmP1D/exec";
+const SPREADSHEET_ID = "1ZJToDWEmJUbsj8dC5qasTAfqwX3yN8qV0kEHGIOK5M4";
+const SHEET_NAME = "업무요청서";
+const SHEET_CSV_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}&range=A:AF`;
+const SHEET_VIEW_URL = `https://docs.google.com/spreadsheets/d/${SPREADSHEET_ID}/edit`;
 const STATUS_OPTIONS = ["접수","검토중","작업중","1차전달","수정중","승인대기","완료","보류","취소"];
+
 let allRequests = [];
 let filteredRequests = [];
 let selectedId = "";
+let toastTimer = null;
 
-async function apiFetch(params){
-  const query = new URLSearchParams({...params, _: Date.now()});
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 15000);
-
-  try{
-    const res = await fetch(APPS_SCRIPT_URL + "?" + query.toString(), {
-      method: "GET",
-      cache: "no-store",
-      signal: controller.signal
-    });
-
-    const text = await res.text();
-    let data = {};
-
-    try{
-      data = JSON.parse(text);
-    }catch(err){
-      throw new Error("JSON 응답 파싱 실패: " + text.slice(0, 120));
-    }
-
-    if(!res.ok){
-      throw new Error(data.message || data.error || "HTTP " + res.status);
-    }
-
-    return data;
-
-  }catch(err){
-    if(err.name === "AbortError"){
-      throw new Error("요청 시간이 초과됐습니다.");
-    }
-    throw err;
-
-  }finally{
-    clearTimeout(timer);
-  }
-}
+function openCsv(){ window.open(SHEET_CSV_URL + `&cacheBust=${Date.now()}`, "_blank"); }
+document.getElementById("sheetLink").href = SHEET_VIEW_URL;
 
 async function loadRequests(){
-  document.getElementById("requestList").innerHTML = '<div class="loading">불러오는 중...</div>';
+  document.getElementById("requestList").innerHTML = '<div class="loading"><span class="spinner"></span>시트 읽는 중...</div>';
   try{
-    const res = await apiFetch({action:"list"});
-    if(res.result !== "success") throw new Error(res.message || "목록을 불러오지 못했습니다.");
-    allRequests = res.data || [];
-    setStats(res.counts || {});
+    const res = await fetch(SHEET_CSV_URL + `&cacheBust=${Date.now()}`);
+    if(!res.ok) throw new Error(`CSV 조회 실패: ${res.status}`);
+
+    const csv = await res.text();
+    if(csv.trim().startsWith("<")) throw new Error("시트 CSV를 읽지 못했습니다. 시트 공유 권한 또는 웹 게시 설정을 확인해주세요.");
+
+    const rows = parseCSV(csv).filter(row => row.some(cell => String(cell || '').trim() !== ''));
+    if(!rows.length) throw new Error("시트에 데이터가 없습니다.");
+
+    const headers = rows[0].map(x => String(x || '').trim());
+    allRequests = rows.slice(1)
+      .map((row, idx) => normalizeSheetRow(headers, row, idx + 2))
+      .filter(item => item["요청번호"] || item["프로젝트명"] || item["발주자"]);
+
     if(!selectedId && allRequests[0]) selectedId = allRequests[0]["요청번호"];
+    if(selectedId && !allRequests.some(r => r["요청번호"] === selectedId)) selectedId = allRequests[0] ? allRequests[0]["요청번호"] : "";
+
+    setStats();
     renderList();
     renderDetail(getSelected());
+    toast(`요청 ${allRequests.length}건 로드 완료`);
   }catch(err){
-    document.getElementById("requestList").innerHTML = '<div class="loading">⚠ '+escapeHtml(err.message)+'</div>';
+    console.error(err);
+    document.getElementById("requestList").innerHTML = `<div class="loading">⚠ ${escapeHtml(err.message)}<br><br>구글시트가 비공개라면 링크 보기 권한 또는 웹 게시가 필요합니다.</div>`;
+    document.getElementById("detailPanel").innerHTML = '<div class="detail-empty">데이터를 불러오지 못했습니다.</div>';
     toast(err.message);
   }
 }
 
-function setStats(c){
-  document.getElementById("stTotal").textContent = c.total || 0;
-  document.getElementById("stActive").textContent = c.active || 0;
-  document.getElementById("stDone").textContent = c.done || 0;
-  document.getElementById("stUrgent").textContent = c.urgent || 0;
+function normalizeSheetRow(headers, row, rowNumber){
+  const first = clean(row[0]);
+  const isNewPositional = /^WO-\d{8}-\d{3}/.test(first) || /^WO-/.test(first);
+  const get = name => {
+    const idx = headers.indexOf(name);
+    return idx >= 0 ? clean(row[idx]) : "";
+  };
+
+  let obj;
+
+  if(isNewPositional){
+    obj = {
+      rowNumber,
+      _sourceMode:"WO 위치기준",
+      "요청번호": clean(row[0]) || `ROW-${rowNumber}`,
+      "상태": clean(row[1]) || "접수",
+      "완료체크": clean(row[2]),
+      "담당자": clean(row[3]),
+      "제출일시": clean(row[4]),
+      "프로젝트명": clean(row[5]),
+      "발주부서": clean(row[6]),
+      "발주자": clean(row[7]),
+      "발주일자": shortDate(clean(row[8])),
+      "완성희망일": shortDate(clean(row[9])),
+      "1차시안일": shortDate(clean(row[10])),
+      "수량": clean(row[11]),
+      "소재": clean(row[12]),
+      "사용용도": clean(row[13]),
+      "사용장소": clean(row[14]),
+      "사이즈": clean(row[15]),
+      "작업유형": clean(row[16]),
+      "들어갈내용": clean(row[17]),
+      "희망이미지설명": clean(row[18]),
+      "선택색상": clean(row[19]),
+      "스타일값": clean(row[20]),
+      "일반주의사항": clean(row[21]),
+      "배송지": clean(row[22]),
+      "배송메모": clean(row[23]),
+      "우선순위": clean(row[24]),
+      "첨부사진링크": clean(row[25]),
+      "HTML보기": clean(row[26]),
+      "폴더링크": clean(row[27]),
+      "수정횟수": clean(row[28]),
+      "최종파일링크": clean(row[29]),
+      "완료일": clean(row[30]),
+      "내부메모": clean(row[31])
+    };
+  }else{
+    obj = {
+      rowNumber,
+      _sourceMode:"현재 헤더기준",
+      "요청번호": get("요청번호") || `ROW-${rowNumber}`,
+      "상태": get("상태") || inferStatus(get("디자인팀비고") || get("내부메모")),
+      "완료체크": get("완료체크"),
+      "담당자": get("담당자"),
+      "제출일시": get("제출일시"),
+      "프로젝트명": get("프로젝트명"),
+      "발주부서": get("발주부서"),
+      "발주자": get("발주자"),
+      "발주일자": shortDate(get("발주일자")),
+      "완성희망일": shortDate(get("완성희망일")),
+      "1차시안일": shortDate(get("1차시안일")),
+      "수량": get("수량"),
+      "소재": get("소재"),
+      "사용용도": get("사용용도"),
+      "사용장소": get("사용장소"),
+      "사이즈": get("사이즈"),
+      "작업유형": get("작업유형"),
+      "들어갈내용": get("들어갈내용"),
+      "희망이미지설명": get("희망이미지") || get("희망이미지설명"),
+      "선택색상": get("선택색상"),
+      "스타일값": get("스타일값"),
+      "일반주의사항": get("주의사항") || get("일반주의사항"),
+      "배송지": get("배송지"),
+      "배송메모": get("배송메모"),
+      "우선순위": get("우선순위"),
+      "첨부사진링크": get("첨부사진링크"),
+      "HTML보기": get("HTML보기"),
+      "폴더링크": get("폴더링크"),
+      "수정횟수": get("수정횟수") || "0",
+      "최종파일링크": get("최종파일링크"),
+      "완료일": get("완료일"),
+      "내부메모": get("내부메모") || get("디자인팀비고")
+    };
+  }
+
+  obj.imageLinks = splitLinks(obj["첨부사진링크"]);
+  obj.isDone = isDoneValue(obj["완료체크"]) || obj["상태"] === "완료" || !!obj["완료일"];
+  if(obj.isDone && obj["상태"] === "접수") obj["상태"] = "완료";
+  obj._raw = headers.map((h,i) => [h || columnName(i), clean(row[i])]).filter(([,v]) => v);
+  return obj;
 }
 
-function getSelected(){
-  return allRequests.find(r => r["요청번호"] === selectedId) || null;
+function inferStatus(text){
+  const s = String(text || "");
+  if(s.includes("완료")) return "완료";
+  if(s.includes("보류")) return "보류";
+  if(s.includes("수정")) return "수정중";
+  if(s.includes("작업")) return "작업중";
+  return "접수";
 }
+
+function parseCSV(text){
+  const rows = [];
+  let row = [];
+  let value = "";
+  let inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+    const c = text[i];
+    const next = text[i+1];
+
+    if(inQuotes){
+      if(c === '"' && next === '"'){
+        value += '"';
+        i++;
+      }else if(c === '"'){
+        inQuotes = false;
+      }else{
+        value += c;
+      }
+    }else{
+      if(c === '"'){
+        inQuotes = true;
+      }else if(c === ','){
+        row.push(value);
+        value = "";
+      }else if(c === '\n'){
+        row.push(value);
+        rows.push(row);
+        row = [];
+        value = "";
+      }else if(c !== '\r'){
+        value += c;
+      }
+    }
+  }
+
+  row.push(value);
+  rows.push(row);
+  return rows;
+}
+
+function setStats(){
+  const total = allRequests.length;
+  const done = allRequests.filter(x => x.isDone).length;
+  const active = allRequests.filter(x => !x.isDone && x["상태"] !== "취소").length;
+  const urgent = allRequests.filter(x => String(x["우선순위"] || "").includes("긴급")).length;
+  document.getElementById("stTotal").textContent = total;
+  document.getElementById("stActive").textContent = active;
+  document.getElementById("stDone").textContent = done;
+  document.getElementById("stUrgent").textContent = urgent;
+}
+
+function getSelected(){ return allRequests.find(r => r["요청번호"] === selectedId) || null; }
 
 function getFiltered(){
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -252,7 +314,7 @@ function getFiltered(){
 
   let arr = allRequests.filter(r => {
     const blob = [
-      r["요청번호"], r["프로젝트명"], r["발주자"], r["발주부서"], r["들어갈내용"], r["작업유형"]
+      r["요청번호"], r["프로젝트명"], r["발주자"], r["발주부서"], r["들어갈내용"], r["작업유형"], r["내부메모"], r["희망이미지설명"]
     ].join(" ").toLowerCase();
     return (!q || blob.includes(q)) && (!status || r["상태"] === status);
   });
@@ -261,6 +323,8 @@ function getFiltered(){
     arr.sort((a,b)=>String(a["완성희망일"]||"9999").localeCompare(String(b["완성희망일"]||"9999")));
   }else if(sort === "urgent"){
     arr.sort((a,b)=>urgentScore(b)-urgentScore(a));
+  }else{
+    arr.sort((a,b)=>String(b["제출일시"]||b["요청번호"]).localeCompare(String(a["제출일시"]||a["요청번호"])));
   }
   return arr;
 }
@@ -279,8 +343,11 @@ function renderList(){
 
   if(!filteredRequests.length){
     document.getElementById("requestList").innerHTML = '<div class="loading">조건에 맞는 요청이 없습니다.</div>';
+    renderDetail(null);
     return;
   }
+
+  if(!selectedId || !filteredRequests.some(r => r["요청번호"] === selectedId)) selectedId = filteredRequests[0]["요청번호"];
 
   document.getElementById("requestList").innerHTML = filteredRequests.map(r => {
     const id = r["요청번호"];
@@ -304,6 +371,8 @@ function renderList(){
         </div>
       </div>`;
   }).join("");
+
+  renderDetail(getSelected());
 }
 
 function selectRequest(id){
@@ -331,15 +400,15 @@ function renderDetail(r){
   panel.innerHTML = `
     <div class="detail">
       <div class="detail-main">
-        <div class="detail-kicker">${escapeHtml(r["요청번호"])}</div>
+        <div class="detail-kicker">${escapeHtml(r["요청번호"])} · ${escapeHtml(r._sourceMode || "시트 직접조회")}</div>
         <h1 class="detail-title">${escapeHtml(r["프로젝트명"] || "제목 없음")}</h1>
         <div class="detail-desc">
           제출 ${escapeHtml(r["제출일시"] || "-")} · 발주자 ${escapeHtml(r["발주자"] || "-")}
         </div>
         <div class="detail-status-row">
           <span class="badge b-${escapeClass(status)}">${escapeHtml(status)}</span>
-          <span class="badge b-접수">${r.isDone ? "작업완료" : "진행중"}</span>
-          <span class="badge b-접수">수정 ${escapeHtml(r["수정횟수"] || 0)}회</span>
+          <span class="badge b-${r.isDone ? "완료" : "읽기전용"}">${r.isDone ? "작업완료" : "진행중"}</span>
+          <span class="badge b-읽기전용">수정 ${escapeHtml(r["수정횟수"] || 0)}회</span>
           ${r["우선순위"] ? `<span class="badge b-1차전달">${escapeHtml(r["우선순위"])}</span>` : ""}
         </div>
 
@@ -364,6 +433,7 @@ function renderDetail(r){
         ${sectionText("스타일값", r["스타일값"])}
         ${sectionText("주의사항", r["일반주의사항"])}
         ${sectionText("배송지", [r["배송지"], r["배송메모"]].filter(Boolean).join("\n"))}
+        ${sectionText("디자인팀 비고 / 내부메모", r["내부메모"])}
 
         <div class="section">
           <h3>올린 파일 / 보기 링크</h3>
@@ -375,58 +445,27 @@ function renderDetail(r){
       </div>
 
       <aside class="detail-side">
-        <div class="panel-title" style="margin-bottom:14px">작업 진행 관리</div>
-
-        <div class="control">
-          <label>상태</label>
-          <select id="editStatus" onchange="syncDoneFromStatus()">
-            ${STATUS_OPTIONS.map(s=>`<option value="${s}" ${s===status?"selected":""}>${s}</option>`).join("")}
-          </select>
-        </div>
-
-        <div class="done-box">
-          <div>
-            <strong>작업진행 완료 체크</strong>
-            <small>체크하면 상태가 완료로 저장되고 완료일이 찍힙니다.</small>
-          </div>
-          <input class="switch" type="checkbox" id="editDone" ${r.isDone ? "checked" : ""} onchange="syncStatusFromDone()">
-        </div>
-
-        <div class="control">
-          <label>담당자</label>
-          <input id="editAssignee" value="${escapeAttr(r["담당자"] || "")}" placeholder="예: 라면">
-        </div>
-
-        <div class="control">
-          <label>1차시안일</label>
-          <input id="editFirstDraft" type="date" value="${escapeAttr(dateInputValue(r["1차시안일"]))}">
-        </div>
-
-        <div class="control">
-          <label>최종파일링크</label>
-          <input id="editFinalFile" value="${escapeAttr(r["최종파일링크"] || "")}" placeholder="구글드라이브 / 최종 산출물 링크">
-        </div>
-
-        <div class="control">
-          <label>내부메모</label>
-          <textarea id="editMemo" placeholder="작업자용 메모, 수정 방향, 고객 특이사항 등">${escapeHtml(r["내부메모"] || "")}</textarea>
-        </div>
-
-        <button class="btn dark" style="width:100%;padding:14px" onclick="saveCurrent(event)">진행상태 저장</button>
-
-        <div class="section">
-          <h3>바로가기</h3>
-          <div style="display:flex;flex-direction:column;gap:8px">
-            ${links.map(([label,url])=>linkCard(label,url)).join("") || '<div class="textbox">연결 링크 없음</div>'}
+        <div class="side-card">
+          <div class="side-title">현재 버전 안내</div>
+          <div class="side-text">
+            이 관리자 화면은 <b>Apps Script를 건드리지 않고</b> 업무요청서 시트를 직접 읽는 조회 전용 버전입니다.<br><br>
+            기존 접수 저장, 구글드라이브 업로드, HTML 요청서 생성 흐름은 그대로 유지됩니다.
           </div>
         </div>
-
-        <div class="section">
-          <h3>완료 정보</h3>
-          <div class="textbox">
-            완료일: ${escapeHtml(r["완료일"] || "-")}<br>
-            최종파일: ${r["최종파일링크"] ? "등록됨" : "미등록"}
+        <div class="side-card">
+          <div class="side-title">빠른 링크</div>
+          <div class="link-grid" style="grid-template-columns:1fr">
+            <a class="link-card" href="${escapeAttr(SHEET_VIEW_URL)}" target="_blank"><span>구글시트 열기</span><b>↗</b></a>
+            ${r["폴더링크"] ? `<a class="link-card" href="${escapeAttr(r["폴더링크"])}" target="_blank"><span>요청 폴더 열기</span><b>↗</b></a>` : ""}
+            ${r["HTML보기"] ? `<a class="link-card" href="${escapeAttr(r["HTML보기"])}" target="_blank"><span>HTML 요청서 열기</span><b>↗</b></a>` : ""}
           </div>
+        </div>
+        <div class="side-card">
+          <div class="side-title">원본 행 데이터</div>
+          <div class="side-text">시트에서 읽어온 원본 값을 확인합니다.</div>
+          <table class="raw-table">
+            ${r._raw.map(([k,v]) => `<tr><th>${escapeHtml(k)}</th><td>${escapeHtml(v)}</td></tr>`).join("")}
+          </table>
         </div>
       </aside>
     </div>`;
@@ -436,97 +475,76 @@ function info(label,value){
   return `<div class="info"><div class="info-label">${escapeHtml(label)}</div><div class="info-value">${escapeHtml(value || "-")}</div></div>`;
 }
 
-function sectionText(title,value){
-  if(!value) return "";
-  return `<div class="section"><h3>${escapeHtml(title)}</h3><div class="textbox">${escapeHtml(value)}</div></div>`;
+function sectionText(title,body){
+  if(!body) return "";
+  return `<div class="section"><h3>${escapeHtml(title)}</h3><div class="textbox">${escapeHtml(body)}</div></div>`;
 }
 
 function linkCard(label,url){
-  return `<a class="link-card" href="${escapeAttr(url)}" target="_blank" rel="noopener">
-    <span>${escapeHtml(label)}</span><span>↗</span>
-  </a>`;
+  return `<a class="link-card" href="${escapeAttr(url)}" target="_blank" rel="noopener"><span>${escapeHtml(label)}</span><b>↗</b></a>`;
 }
 
-function syncStatusFromDone(){
-  const done = document.getElementById("editDone");
-  const status = document.getElementById("editStatus");
-  if(done.checked) status.value = "완료";
-  else if(status.value === "완료") status.value = "작업중";
+function clean(v){
+  return String(v ?? "").trim();
 }
 
-function syncDoneFromStatus(){
-  const done = document.getElementById("editDone");
-  const status = document.getElementById("editStatus");
-  done.checked = status.value === "완료";
+function splitLinks(raw){
+  return String(raw || "")
+    .split(/\n|,\s*/)
+    .map(s => s.trim())
+    .filter(s => /^https?:\/\//.test(s));
 }
 
-async function saveCurrent(ev){
-  const r = getSelected();
-  if(!r) return;
-
-  const btn = ev?.currentTarget || document.querySelector(".detail-side .btn.dark");
-  const oldText = btn.textContent;
-  btn.disabled = true;
-  btn.textContent = "저장 중...";
-
-  const params = {
-    action: "update",
-    requestId: r["요청번호"],
-    status: document.getElementById("editStatus").value,
-    completed: document.getElementById("editDone").checked ? "true" : "false",
-    assignee: document.getElementById("editAssignee").value.trim(),
-    firstDraftDate: document.getElementById("editFirstDraft").value,
-    finalFileUrl: document.getElementById("editFinalFile").value.trim(),
-    internalMemo: document.getElementById("editMemo").value.trim()
-  };
-
-  try{
-    const res = await apiFetch(params);
-    if(res.result !== "success") throw new Error(res.message || "저장 실패");
-    const updated = res.item;
-    allRequests = allRequests.map(item => item["요청번호"] === updated["요청번호"] ? updated : item);
-    selectedId = updated["요청번호"];
-    renderList();
-    renderDetail(updated);
-    toast("저장 완료");
-  }catch(err){
-    toast("⚠ " + err.message);
-  }finally{
-    btn.disabled = false;
-    btn.textContent = oldText;
-  }
+function isDoneValue(v){
+  const s = String(v || "").trim().toLowerCase();
+  return s === "true" || s === "1" || s === "yes" || s === "완료" || s === "y";
 }
 
 function shortDate(v){
-  if(!v) return "";
-  return String(v).slice(0,10);
+  const s = String(v || "").trim();
+  if(!s) return "";
+  const m = s.match(/(\d{4})[-\.\/](\d{1,2})[-\.\/](\d{1,2})/);
+  if(m) return `${m[1]}-${String(m[2]).padStart(2,"0")}-${String(m[3]).padStart(2,"0")}`;
+  return s.split(" ")[0] || s;
 }
 
-function dateInputValue(v){
-  const s = shortDate(v);
-  return /^\d{4}-\d{2}-\d{2}$/.test(s) ? s : "";
+function columnName(i){
+  let n = i + 1;
+  let s = "";
+  while(n > 0){
+    const r = (n - 1) % 26;
+    s = String.fromCharCode(65 + r) + s;
+    n = Math.floor((n - 1) / 26);
+  }
+  return s;
 }
 
-function escapeHtml(v){
-  return String(v ?? "").replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));
+function escapeHtml(value){
+  return String(value ?? "")
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
 }
 
-function escapeAttr(v){
-  return escapeHtml(v).replace(/`/g,"&#096;");
+function escapeAttr(value){
+  return escapeHtml(value).replace(/`/g,"&#096;");
 }
 
-function escapeClass(v){
-  return String(v || "").replace(/[^가-힣A-Za-z0-9_-]/g,"");
+function escapeClass(value){
+  return String(value || "접수").replace(/[^가-힣a-zA-Z0-9_-]/g, "");
 }
 
 function toast(msg){
   const t = document.getElementById("toast");
   t.textContent = msg;
   t.classList.add("show");
-  setTimeout(()=>t.classList.remove("show"),2600);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove("show"),2600);
 }
 
-document.addEventListener("DOMContentLoaded", loadRequests);
+loadRequests();
 </script>
 </body>
 </html>
