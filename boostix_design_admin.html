@@ -112,9 +112,9 @@ tbody tr.done{opacity:.58}
 .amount-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .amount-help{font-size:12px;color:var(--muted)}
 .amount-rows{display:flex;flex-direction:column;gap:8px}
-.amount-row{border:1px solid var(--line);background:#FCFCFA;border-radius:8px;padding:10px;overflow-x:auto}
-.amount-grid{display:grid;grid-template-columns:1.05fr 1fr .52fr .8fr .78fr .78fr .78fr 1.08fr auto;gap:8px;align-items:end;min-width:1180px}
-.amount-remove{width:38px;height:38px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:18px;line-height:1}
+.amount-row{border:1px solid var(--line);background:#FCFCFA;border-radius:8px;padding:12px 54px 12px 12px;position:relative}
+.amount-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px 10px;align-items:end}
+.amount-remove{position:absolute;right:12px;top:43px;width:34px;height:34px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:18px;line-height:1}
 .input.readonly{background:#F3F3F0;color:#555}
 .calc-box.amount-total{grid-template-columns:repeat(4,1fr)}
 body.detail-expanded .board{grid-template-columns:1fr}
@@ -123,7 +123,7 @@ body.detail-expanded .detail-panel{position:relative;top:auto;max-height:none}
 body.detail-expanded .detail-scroll{overflow:visible}
 body.detail-expanded .edit-grid{grid-template-columns:repeat(4,1fr)}
 body.detail-expanded .readonly-grid{grid-template-columns:repeat(4,1fr)}
-body.detail-expanded .amount-grid{grid-template-columns:1.05fr 1fr .52fr .8fr .78fr .78fr .78fr 1.08fr auto;min-width:0}
+body.detail-expanded .amount-grid{grid-template-columns:repeat(8,minmax(0,1fr))}
 body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
 .hidden{display:none!important}
 .loading,.empty-row{text-align:center;color:var(--muted);padding:38px 12px}
@@ -143,8 +143,9 @@ body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
   .board{grid-template-columns:1fr}
   .detail-panel{position:relative;top:auto;max-height:none}
   .table-wrap{max-height:none}
-  .amount-grid{grid-template-columns:1fr 1fr;min-width:0}
-  .amount-remove{width:100%}
+  .amount-row{padding-right:12px}
+  .amount-grid{grid-template-columns:1fr 1fr}
+  .amount-remove{position:static;width:100%;grid-column:1/-1}
   .calc-box.amount-total{grid-template-columns:1fr 1fr}
   body.detail-expanded .edit-grid,body.detail-expanded .readonly-grid{grid-template-columns:1fr 1fr}
   body.detail-expanded .image-grid{grid-template-columns:repeat(3,1fr)}
@@ -249,11 +250,12 @@ body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
 <datalist id="assigneeList"></datalist>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwMLOquCr0R0qJ5WToGbleMoOpyBgEkMghwC-Qj_b6NKYAys7JQbR3JbzZeE-E74KTO/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_3QxauzbMaW1cA40xVpE03D3q9L4V_mvczj56Wxe3i3vpE4iKjypH0gdRXTzLgVeM/exec";
 
 const STATUS_OPTIONS = ['접수', '확인중', '자료부족', '작업중', '1차시안완료', '수정요청', '최종완료', '보류', '취소'];
 const BRAND_OPTIONS = ['쌈보보쌈', '평화김해뒷고기푸짐한판', '일키로삼겹의대소동', '오롯농장', '부스틱스', '기타'];
 const URGENCY_OPTIONS = ['일반', '빠름', '긴급'];
+const ASSIGNEE_OPTIONS = ['레몬', '라면', '기타'];
 
 let allItems = [];
 let filteredItems = [];
@@ -355,7 +357,7 @@ function refreshDynamicFilters() {
   const currentBrand = document.getElementById('brandFilter').value;
   const currentAssignee = document.getElementById('assigneeFilter').value;
   const brands = unique([...BRAND_OPTIONS, ...allItems.map(item => item._brand).filter(Boolean)]).filter(v => v !== '미지정');
-  const assignees = unique(allItems.map(item => item._assignee));
+  const assignees = unique([...ASSIGNEE_OPTIONS.filter(v => v !== '기타'), ...allItems.map(item => item._assignee)]);
 
   document.getElementById('brandFilter').innerHTML = '<option value="">브랜드 전체</option>' + brands.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
   document.getElementById('assigneeFilter').innerHTML = '<option value="">담당자 전체</option>' + assignees.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
@@ -490,6 +492,9 @@ function renderDetail(item) {
   const selectedBrand = adminBrand || (customBrand ? '기타' : '');
   const adminMemo = item['관리자메모'] || item['내부메모'] || '';
   const amountRows = getAmountRows(item);
+  const currentAssignee = item._assignee === '미지정' ? '' : item._assignee;
+  const selectedAssignee = ASSIGNEE_OPTIONS.includes(currentAssignee) ? currentAssignee : (currentAssignee ? '기타' : '');
+  const customAssignee = selectedAssignee === '기타' ? currentAssignee : '';
 
   panel.innerHTML = `
     <div class="detail-scroll">
@@ -517,8 +522,12 @@ function renderDetail(item) {
             <select class="input" id="d-status">${selectOptions(STATUS_OPTIONS, item._status)}</select>
           </div>
           <div class="form-group">
-            <label class="form-label" for="d-assignee">담당자</label>
-            <input class="input" id="d-assignee" list="assigneeList" value="${escapeAttr(item._assignee === '미지정' ? '' : item._assignee)}" placeholder="미지정">
+            <label class="form-label" for="d-assignee-select">담당자</label>
+            <select class="input" id="d-assignee-select">${selectOptions(['', ...ASSIGNEE_OPTIONS], selectedAssignee)}</select>
+          </div>
+          <div class="form-group ${selectedAssignee === '기타' ? '' : 'hidden'}" id="customAssigneeGroup">
+            <label class="form-label" for="d-assignee-custom">기타 담당자</label>
+            <input class="input" id="d-assignee-custom" value="${escapeAttr(customAssignee)}" placeholder="담당자 직접 입력">
           </div>
           <div class="form-group">
             <label class="form-label" for="d-brand">관리자 브랜드</label>
@@ -628,6 +637,9 @@ function bindDetailEvents(item) {
   document.getElementById('detailCancelBtn').addEventListener('click', clearSelection);
   document.getElementById('saveDetailBtn').addEventListener('click', () => saveDetail(item._id));
   document.getElementById('detailWideBtn').addEventListener('click', () => toggleDetailWide());
+  document.getElementById('d-assignee-select').addEventListener('change', event => {
+    document.getElementById('customAssigneeGroup').classList.toggle('hidden', event.target.value !== '기타');
+  });
   document.getElementById('d-brand').addEventListener('change', event => {
     document.getElementById('customBrandGroup').classList.toggle('hidden', event.target.value !== '기타');
   });
@@ -645,6 +657,10 @@ function bindDetailEvents(item) {
 async function saveDetail(requestId) {
   const brand = document.getElementById('d-brand').value;
   const customBrand = brand === '기타' ? document.getElementById('d-custom-brand').value.trim() : '';
+  const assigneeChoice = document.getElementById('d-assignee-select').value;
+  const assignee = assigneeChoice === '기타'
+    ? document.getElementById('d-assignee-custom').value.trim()
+    : assigneeChoice;
   const amountItems = collectAmountRows();
   const firstAmount = amountItems[0] || { vendor: '', note: '' };
   const purchasePrice = amountItems.reduce((sum, row) => sum + parseNumber(row.purchasePrice), 0);
@@ -653,11 +669,11 @@ async function saveDetail(requestId) {
   const profit = hasMoney ? salePrice - purchasePrice : '';
   const marginRate = purchasePrice ? (profit / purchasePrice) * 100 : '';
 
-  const params = new URLSearchParams({
+  const payload = {
     action: 'update',
     requestId,
     status: document.getElementById('d-status').value,
-    assignee: document.getElementById('d-assignee').value.trim(),
+    assignee,
     adminBrand: brand,
     customBrand,
     priority: document.getElementById('d-urgency').value,
@@ -672,18 +688,16 @@ async function saveDetail(requestId) {
     marginRate: marginRate === '' ? '' : String(marginRate.toFixed(2)),
     adminMemo: document.getElementById('d-admin-memo').value.trim(),
     revisionNote: document.getElementById('d-revision-note').value.trim()
-  });
+  };
 
   const btn = document.getElementById('saveDetailBtn');
   btn.disabled = true;
   btn.textContent = '저장 중';
 
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
-    const json = await res.json();
-    const ok = json && (json.success === true || json.result === 'success');
-    if (!ok) throw new Error((json && json.message) || '저장 실패');
+    await postUpdate(payload);
     showToast('저장 완료');
+    await sleep(900);
     await loadData();
   } catch (err) {
     console.error(err);
@@ -692,6 +706,16 @@ async function saveDetail(requestId) {
     btn.disabled = false;
     btn.textContent = '저장';
   }
+}
+
+async function postUpdate(payload) {
+  const fd = new FormData();
+  Object.entries(payload).forEach(([key, value]) => fd.append(key, value == null ? '' : String(value)));
+  await fetch(APPS_SCRIPT_URL, { method: 'POST', mode: 'no-cors', body: fd });
+}
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function updateMoneyPreview() {
