@@ -3,219 +3,896 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>부스틱스 업무 관리자</title>
+<title>부스틱스 디자인 작업 운영판</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-  :root{--bg:#F7F7F5;--text:#1A1A1A;--sub:#666;--border:#E8E8E4;--radius:12px;--primary:#1A1A1A;}
-  body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);padding:20px;font-size:14px;}
-  
-  /* Layout */
-  .header{display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;}
-  .title{font-size:24px;font-weight:700;letter-spacing:-0.03em;}
-  .refresh-btn{background:var(--primary);color:#fff;border:none;padding:10px 16px;border-radius:8px;cursor:pointer;font-weight:600;transition:0.2s;}
-  .refresh-btn:hover{opacity:0.8;}
-  
-  /* Dashboard Cards */
-  .stats-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:16px;margin-bottom:24px;}
-  .stat-card{background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;flex-direction:column;gap:8px;}
-  .stat-title{font-size:13px;color:var(--sub);font-weight:500;}
-  .stat-value{font-size:32px;font-weight:700;font-family:"DM Mono",monospace;}
-  .stat-value.urgent{color:#E05252;}
-  
-  /* Table */
-  .table-wrap{background:#fff;border:1px solid var(--border);border-radius:var(--radius);overflow-x:auto;}
-  table{width:100%;border-collapse:collapse;text-align:left;white-space:nowrap;}
-  th,td{padding:14px 16px;border-bottom:1px solid var(--border);}
-  th{background:#fafafa;font-size:12px;color:var(--sub);font-weight:600;}
-  tr:last-child td{border-bottom:none;}
-  tr:hover td{background:#fdfdfd;}
-  
-  /* Status Select & Inputs */
-  select, input[type="text"] {
-    padding:6px 10px; border:1px solid var(--border); border-radius:6px; font-family:inherit; font-size:13px; outline:none;
-  }
-  select:focus, input[type="text"]:focus { border-color:var(--primary); }
-  
-  /* Badges */
-  .badge{display:inline-block;padding:4px 8px;border-radius:4px;font-size:11px;font-weight:600;}
-  .badge-urgent{background:#FEECEB;color:#E05252;}
-  .badge-normal{background:#F0F0EE;color:#666;}
-  
-  .badge-status{font-family:"Noto Sans KR",sans-serif;}
-  
-  /* Action Buttons */
-  .btn-link{color:#1565C0;text-decoration:none;font-weight:600;padding:6px 12px;border:1px solid #1565C0;border-radius:6px;font-size:12px;transition:0.2s;display:inline-block;}
-  .btn-link:hover{background:#1565C0;color:#fff;}
-  .btn-folder{color:#795548;border-color:#795548;}
-  .btn-folder:hover{background:#795548;color:#fff;}
-  
-  /* Toast */
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--text);color:#fff;padding:12px 24px;border-radius:30px;font-size:14px;opacity:0;visibility:hidden;transition:0.3s;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,0.15);}
-  .toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0);}
-  
-  .loading{text-align:center;padding:40px;color:var(--sub);font-size:15px;}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F6F6F3;--panel:#fff;--text:#1A1A1A;--muted:#74746F;--soft:#A7A7A1;
+  --border:#E4E3DC;--line:#EFEFEA;--primary:#1A1A1A;--radius:8px;
+  --red:#D94A3D;--red-bg:#FDECEA;--orange:#C96F18;--orange-bg:#FFF2E4;
+  --green:#237A4B;--green-bg:#EAF6EF;--blue:#1E65B7;--blue-bg:#EAF2FF;
+  --purple:#7652B7;--purple-bg:#F1ECFF;--yellow:#8B6B10;--yellow-bg:#FFF7D8;
+  --brown:#7A5135;--brown-bg:#F4ECE5;--cyan:#117A8B;--cyan-bg:#E8F8FB;
+}
+body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
+button,input,select,textarea{font-family:inherit}
+button{cursor:pointer}
+.app{max-width:1680px;margin:0 auto;padding:22px}
+.topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
+.eyebrow{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--soft);margin-bottom:4px}
+h1{font-size:25px;letter-spacing:0;font-weight:800}
+.top-actions{display:flex;gap:8px;align-items:center}
+.btn{border:1px solid var(--border);background:#fff;color:var(--text);border-radius:8px;padding:9px 13px;font-size:13px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:38px}
+.btn:hover{border-color:#C8C7C0}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.small{min-height:32px;padding:6px 10px;font-size:12px}
+.summary-grid{display:grid;grid-template-columns:repeat(6,minmax(126px,1fr));gap:10px;margin-bottom:10px}
+.summary-card{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:14px 15px;min-height:82px}
+.summary-label{font-size:12px;color:var(--muted);font-weight:700;margin-bottom:6px}
+.summary-value{font-family:"DM Mono",monospace;font-size:28px;font-weight:700;letter-spacing:0}
+.summary-card.alert .summary-value{color:var(--red)}
+.assignee-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;color:var(--muted);font-size:12px}
+.assignee-chip{background:#fff;border:1px solid var(--border);border-radius:999px;padding:5px 9px}
+.toolbar{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;display:grid;grid-template-columns:minmax(220px,1.8fr) repeat(6,minmax(120px,1fr)) auto;gap:8px;align-items:center}
+.field,.select{width:100%;height:38px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);padding:0 11px;font-size:13px;outline:none}
+.field:focus,.select:focus,textarea:focus{border-color:#555}
+.board{display:grid;grid-template-columns:minmax(760px,1fr) 520px;gap:14px;align-items:start}
+.list-panel,.detail-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.list-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
+.list-title{font-size:15px;font-weight:800}
+.list-count{font-family:"DM Mono",monospace;color:var(--muted);font-size:12px}
+.table-wrap{overflow:auto;max-height:calc(100vh - 276px)}
+table{width:100%;border-collapse:collapse;min-width:1120px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+th{position:sticky;top:0;background:#FAFAF8;color:var(--muted);font-size:12px;font-weight:800;z-index:1}
+td{font-size:13px}
+tbody tr{cursor:pointer}
+tbody tr:hover td{background:#FCFCFA}
+tbody tr.selected td{background:#F0F4FF}
+tbody tr.done{opacity:.58}
+.mono{font-family:"DM Mono",monospace;letter-spacing:0}
+.muted{color:var(--muted)}
+.work-title{font-weight:800;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.requester{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.money{text-align:right;font-family:"DM Mono",monospace;letter-spacing:0}
+.badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;white-space:nowrap;border:1px solid transparent}
+.status-received{background:#F1F1EE;color:#61615B}
+.status-checking{background:var(--blue-bg);color:var(--blue)}
+.status-missing{background:var(--yellow-bg);color:var(--yellow)}
+.status-working{background:var(--purple-bg);color:var(--purple)}
+.status-draft{background:var(--cyan-bg);color:var(--cyan)}
+.status-revision{background:var(--orange-bg);color:var(--orange)}
+.status-done{background:var(--green-bg);color:var(--green)}
+.status-hold{background:var(--brown-bg);color:var(--brown)}
+.status-cancel{background:#ECECEA;color:#3F3F3B}
+.urgency-normal{background:#F1F1EE;color:#61615B}
+.urgency-fast{background:var(--orange-bg);color:var(--orange)}
+.urgency-urgent{background:var(--red-bg);color:var(--red)}
+.deadline-pill{font-weight:800}
+.deadline-today{color:var(--red)}
+.deadline-overdue{color:#A82017;background:#FFE2DF;border-radius:6px;padding:3px 6px}
+.deadline-tomorrow{color:var(--orange)}
+.done-mark{color:var(--green);font-weight:800}
+.detail-panel{position:sticky;top:16px;max-height:calc(100vh - 32px);display:flex;flex-direction:column}
+.detail-empty{min-height:360px;display:flex;align-items:center;justify-content:center;text-align:center;color:var(--muted);padding:30px}
+.detail-scroll{overflow:auto;padding-bottom:14px}
+.detail-top{padding:18px 18px 14px;border-bottom:1px solid var(--line)}
+.detail-title-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.detail-title{font-size:20px;font-weight:800;letter-spacing:0;line-height:1.3;margin-top:2px}
+.close-btn{width:32px;height:32px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:18px;line-height:1}
+.quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.section{padding:16px 18px;border-bottom:1px solid var(--line)}
+.section-title{font-size:14px;font-weight:900;margin-bottom:12px}
+.edit-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.edit-grid.one{grid-template-columns:1fr}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-label{font-size:12px;color:var(--muted);font-weight:800}
+.input,.textarea{width:100%;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);padding:9px 10px;font-size:13px;outline:none}
+.input{height:38px}
+.textarea{min-height:92px;resize:vertical;line-height:1.6}
+.textarea.revision{min-height:70px}
+.readonly-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.info{border:1px solid var(--line);border-radius:8px;padding:10px;min-height:62px;background:#FCFCFA}
+.info.wide{grid-column:1/-1}
+.info-label{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:4px}
+.info-value{font-size:13px;white-space:pre-wrap;word-break:break-word}
+.image-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.image-tile{position:relative;aspect-ratio:1;border:1px solid var(--border);border-radius:8px;background:#F7F7F5;overflow:hidden;padding:0}
+.image-tile img{width:100%;height:100%;object-fit:cover;display:block}
+.image-fallback{position:absolute;inset:0;display:none;align-items:center;justify-content:center;text-align:center;font-size:12px;color:var(--muted);padding:10px;background:#F7F7F5}
+.image-tile.no-preview .image-fallback{display:flex}
+.image-tile.no-preview img{display:none}
+.save-bar{padding:14px 18px;border-top:1px solid var(--line);background:#fff;display:flex;gap:8px;justify-content:flex-end}
+.calc-box{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.calc-item{background:#FCFCFA;border:1px solid var(--line);border-radius:8px;padding:10px}
+.calc-label{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:3px}
+.calc-value{font-family:"DM Mono",monospace;font-size:17px;font-weight:800}
+.hidden{display:none!important}
+.loading,.empty-row{text-align:center;color:var(--muted);padding:38px 12px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1A1A1A;color:#fff;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:800;opacity:0;visibility:hidden;transition:.22s;z-index:1000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
+.toast.show{opacity:1;visibility:visible;transform:translateX(-50%) translateY(0)}
+.image-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.72);z-index:900;align-items:center;justify-content:center;padding:28px}
+.image-modal.show{display:flex}
+.modal-card{position:relative;max-width:min(1000px,92vw);max-height:90vh;background:#111;border-radius:8px;padding:44px 14px 14px}
+.modal-card img{display:block;max-width:100%;max-height:72vh;object-fit:contain;background:#222}
+.modal-actions{display:flex;justify-content:center;gap:8px;margin-top:12px}
+.modal-close{position:absolute;top:10px;right:10px;width:30px;height:30px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.08);color:#fff;border-radius:8px;font-size:18px}
+.modal-fallback{display:none;color:#fff;text-align:center;padding:60px 40px}
+@media (max-width:1280px){
+  .summary-grid{grid-template-columns:repeat(3,1fr)}
+  .toolbar{grid-template-columns:repeat(3,1fr)}
+  .toolbar .search-cell{grid-column:1/-1}
+  .board{grid-template-columns:1fr}
+  .detail-panel{position:relative;top:auto;max-height:none}
+  .table-wrap{max-height:none}
+}
 </style>
 </head>
 <body>
+<div class="app">
+  <header class="topbar">
+    <div>
+      <div class="eyebrow">BOOSTIX ADMIN</div>
+      <h1>디자인 작업 운영판</h1>
+    </div>
+    <div class="top-actions">
+      <button class="btn" id="clearSelectionBtn" type="button">상세 닫기</button>
+      <button class="btn primary" id="refreshBtn" type="button">새로고침</button>
+    </div>
+  </header>
 
-<div class="header">
-  <div class="title">BOOSTIX ADMIN ⚡️</div>
-  <button class="refresh-btn" onclick="loadData()">새로고침</button>
+  <section class="summary-grid">
+    <div class="summary-card"><div class="summary-label">전체 작업 수</div><div class="summary-value" id="sum-total">-</div></div>
+    <div class="summary-card"><div class="summary-label">미완료 수</div><div class="summary-value" id="sum-incomplete">-</div></div>
+    <div class="summary-card alert"><div class="summary-label">오늘 마감 수</div><div class="summary-value" id="sum-today">-</div></div>
+    <div class="summary-card alert"><div class="summary-label">지연 수</div><div class="summary-value" id="sum-overdue">-</div></div>
+    <div class="summary-card"><div class="summary-label">자료부족 수</div><div class="summary-value" id="sum-missing">-</div></div>
+    <div class="summary-card"><div class="summary-label">최종완료 수</div><div class="summary-value" id="sum-done">-</div></div>
+  </section>
+  <div class="assignee-strip" id="assigneeSummary"></div>
+
+  <section class="toolbar">
+    <input class="field search-cell" id="searchInput" type="search" placeholder="요청번호, 프로젝트명, 발주자, 담당자, 내용 검색">
+    <select class="select" id="brandFilter"><option value="">브랜드 전체</option></select>
+    <select class="select" id="statusFilter"><option value="">상태 전체</option></select>
+    <select class="select" id="assigneeFilter"><option value="">담당자 전체</option></select>
+    <select class="select" id="urgencyFilter"><option value="">긴급도 전체</option></select>
+    <select class="select" id="completeFilter">
+      <option value="">완료 전체</option>
+      <option value="incomplete">미완료</option>
+      <option value="done">완료</option>
+    </select>
+    <select class="select" id="sortSelect">
+      <option value="latest">최신순</option>
+      <option value="oldest">오래된순</option>
+      <option value="deadline">마감일 임박순</option>
+      <option value="urgency">긴급도순</option>
+      <option value="saleDesc">판가 높은순</option>
+      <option value="profitDesc">이익 높은순</option>
+    </select>
+    <button class="btn" id="resetFiltersBtn" type="button">초기화</button>
+  </section>
+
+  <main class="board">
+    <section class="list-panel">
+      <div class="list-head">
+        <div class="list-title">작업 리스트</div>
+        <div class="list-count" id="listCount">0건</div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>접수일</th>
+              <th>브랜드</th>
+              <th>작업명</th>
+              <th>요청자</th>
+              <th>담당자</th>
+              <th>상태</th>
+              <th>긴급도</th>
+              <th>마감일</th>
+              <th class="money">구매가</th>
+              <th class="money">판가</th>
+              <th class="money">이익</th>
+              <th>완료여부</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody">
+            <tr><td colspan="12" class="loading">데이터를 불러오는 중입니다...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <aside class="detail-panel" id="detailPanel">
+      <div class="detail-empty">작업을 선택해주세요.</div>
+    </aside>
+  </main>
 </div>
 
-<div class="stats-grid">
-  <div class="stat-card"><div class="stat-title">전체 요청</div><div class="stat-value" id="st-total">-</div></div>
-  <div class="stat-card"><div class="stat-title">진행 중</div><div class="stat-value" id="st-active">-</div></div>
-  <div class="stat-card"><div class="stat-title">완료됨</div><div class="stat-value" id="st-done">-</div></div>
-  <div class="stat-card"><div class="stat-title">긴급 건 🚨</div><div class="stat-value urgent" id="st-urgent">-</div></div>
+<div class="toast" id="toast"></div>
+
+<div class="image-modal" id="imageModal">
+  <div class="modal-card">
+    <button class="modal-close" id="modalCloseBtn" type="button">×</button>
+    <img id="modalImage" alt="첨부 이미지 미리보기">
+    <div class="modal-fallback" id="modalFallback">미리보기를 불러오지 못했습니다.</div>
+    <div class="modal-actions">
+      <a class="btn" id="modalOpenLink" href="#" target="_blank" rel="noopener">이미지 열기</a>
+    </div>
+  </div>
 </div>
 
-<div class="table-wrap">
-  <table>
-    <thead>
-      <tr>
-        <th>요청번호</th>
-        <th>프로젝트명</th>
-        <th>요청자(부서)</th>
-        <th>우선순위</th>
-        <th>완성희망일</th>
-        <th>상태 관리</th>
-        <th>담당자</th>
-        <th>상세보기</th>
-      </tr>
-    </thead>
-    <tbody id="tableBody">
-      <tr><td colspan="8" class="loading">데이터를 불러오는 중입니다...</td></tr>
-    </tbody>
-  </table>
-</div>
-
-<div class="toast" id="toast">저장되었습니다.</div>
+<datalist id="assigneeList"></datalist>
 
 <script>
-// 앱스 스크립트 웹앱 URL
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyzKIAV-Da_8NunRaWBYRGJdDjv7IVJ8AG7RJANdEdinE9Hg8qeGtq9SrL7rl0EJMRt/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtMXA0Kfx1gnEXsHzGNYJjaDqBguYSvCtD1A8jhwagfeAtSiTwq7mYpgSK0ByOwI6D/exec";
 
-// 상태 목록 (GAS 백엔드와 동일)
-const STATUS_OPTIONS = ['접수', '검토중', '작업중', '1차전달', '수정중', '승인대기', '완료', '보류', '취소'];
+const STATUS_OPTIONS = ['접수', '확인중', '자료부족', '작업중', '1차시안완료', '수정요청', '최종완료', '보류', '취소'];
+const BRAND_OPTIONS = ['쌈보보쌈', '평화김해뒷고기푸짐한판', '일키로삼겹의대소동', '오롯농장', '부스틱스', '기타'];
+const URGENCY_OPTIONS = ['일반', '빠름', '긴급'];
 
-// 페이지 로드 시 데이터 호출
-document.addEventListener("DOMContentLoaded", loadData);
+let allItems = [];
+let filteredItems = [];
+let selectedId = '';
+let isLoading = false;
+
+document.addEventListener('DOMContentLoaded', () => {
+  bindStaticEvents();
+  renderStaticSelects();
+  loadData();
+});
+
+function bindStaticEvents() {
+  document.getElementById('refreshBtn').addEventListener('click', loadData);
+  document.getElementById('clearSelectionBtn').addEventListener('click', clearSelection);
+  document.getElementById('resetFiltersBtn').addEventListener('click', resetFilters);
+  document.getElementById('modalCloseBtn').addEventListener('click', closeImageModal);
+  document.getElementById('imageModal').addEventListener('click', event => {
+    if (event.target.id === 'imageModal') closeImageModal();
+  });
+
+  ['searchInput','brandFilter','statusFilter','assigneeFilter','urgencyFilter','completeFilter','sortSelect'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener(id === 'searchInput' ? 'input' : 'change', applyFilters);
+  });
+}
+
+function renderStaticSelects() {
+  document.getElementById('statusFilter').innerHTML = '<option value="">상태 전체</option>' + STATUS_OPTIONS.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+  document.getElementById('urgencyFilter').innerHTML = '<option value="">긴급도 전체</option>' + URGENCY_OPTIONS.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+}
 
 async function loadData() {
-  const tbody = document.getElementById("tableBody");
-  tbody.innerHTML = '<tr><td colspan="8" class="loading">데이터를 불러오는 중입니다...</td></tr>';
-  
+  isLoading = true;
+  document.getElementById('tableBody').innerHTML = '<tr><td colspan="12" class="loading">데이터를 불러오는 중입니다...</td></tr>';
+
   try {
-    const res = await fetch(`${APPS_SCRIPT_URL}?action=list`);
+    const res = await fetch(`${APPS_SCRIPT_URL}?action=list&ts=${Date.now()}`);
     const json = await res.json();
-    
-    if(json.result === 'success') {
-      renderStats(json.counts);
-      renderTable(json.data);
+    const ok = json && (json.success === true || json.result === 'success');
+    if (!ok) throw new Error((json && json.message) || '데이터 로딩 실패');
+
+    allItems = (json.data || []).map(normalizeItem);
+    refreshDynamicFilters();
+    renderSummary();
+    applyFilters();
+
+    if (selectedId && allItems.some(item => item._id === selectedId)) {
+      renderDetail(allItems.find(item => item._id === selectedId));
     } else {
-      showToast("데이터를 불러오는데 실패했습니다.");
+      selectedId = '';
+      renderDetail(null);
     }
-  } catch(e) {
-    console.error(e);
-    showToast("네트워크 오류가 발생했습니다.");
-    tbody.innerHTML = '<tr><td colspan="8" class="loading" style="color:red;">로딩 실패. 새로고침을 눌러주세요.</td></tr>';
+  } catch (err) {
+    console.error(err);
+    showToast('데이터를 불러오지 못했습니다.');
+    document.getElementById('tableBody').innerHTML = '<tr><td colspan="12" class="loading">로딩 실패. 새로고침을 눌러주세요.</td></tr>';
+  } finally {
+    isLoading = false;
   }
 }
 
-function renderStats(counts) {
-  document.getElementById("st-total").textContent = counts.total || 0;
-  document.getElementById("st-active").textContent = counts.active || 0;
-  document.getElementById("st-done").textContent = counts.done || 0;
-  document.getElementById("st-urgent").textContent = counts.urgent || 0;
+function normalizeItem(item) {
+  const status = normalizeStatus(item['상태']);
+  const assignee = String(item['담당자'] || '').trim() || '미지정';
+  const adminBrand = String(item['관리자브랜드'] || '').trim();
+  const customBrand = String(item['기타브랜드명'] || '').trim();
+  const brand = customBrand || adminBrand || '미지정';
+  const urgency = normalizeUrgency(item['긴급도'] || item['우선순위']);
+  const deadline = dateOnly(item['마감일']) || dateOnly(item['완성희망일']);
+  const purchase = parseNumber(item['구매가']);
+  const sale = parseNumber(item['판가']);
+  const savedProfit = parseNumber(item['이익']);
+  const profit = item['이익'] === '' || item['이익'] == null ? ((purchase || sale) ? sale - purchase : 0) : savedProfit;
+  const done = isDone(item, status);
+  const searchBlob = [
+    item['요청번호'], item['프로젝트명'], item['발주자'], item['발주부서'], assignee,
+    adminBrand, customBrand, item['디자인발주처'], item['들어갈내용'], item['희망이미지설명']
+  ].join(' ').toLowerCase();
+
+  return {
+    ...item,
+    _id: String(item['요청번호'] || '').trim(),
+    _status: status,
+    _assignee: assignee,
+    _brand: brand,
+    _urgency: urgency,
+    _deadline: deadline,
+    _submittedDate: dateOnly(item['제출일시']),
+    _purchase: purchase,
+    _sale: sale,
+    _profit: profit,
+    _done: done,
+    _searchBlob: searchBlob
+  };
 }
 
-function renderTable(data) {
-  const tbody = document.getElementById("tableBody");
-  
-  if(!data || data.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" class="loading">등록된 요청서가 없습니다.</td></tr>';
+function refreshDynamicFilters() {
+  const currentBrand = document.getElementById('brandFilter').value;
+  const currentAssignee = document.getElementById('assigneeFilter').value;
+  const brands = unique([...BRAND_OPTIONS, ...allItems.map(item => item._brand).filter(Boolean)]).filter(v => v !== '미지정');
+  const assignees = unique(allItems.map(item => item._assignee));
+
+  document.getElementById('brandFilter').innerHTML = '<option value="">브랜드 전체</option>' + brands.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+  document.getElementById('assigneeFilter').innerHTML = '<option value="">담당자 전체</option>' + assignees.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+  document.getElementById('assigneeList').innerHTML = assignees.filter(v => v !== '미지정').map(v => `<option value="${escapeAttr(v)}"></option>`).join('');
+
+  if (brands.includes(currentBrand)) document.getElementById('brandFilter').value = currentBrand;
+  if (assignees.includes(currentAssignee)) document.getElementById('assigneeFilter').value = currentAssignee;
+}
+
+function renderSummary() {
+  const total = allItems.length;
+  const incomplete = allItems.filter(item => !item._done).length;
+  const todayDue = allItems.filter(item => !item._done && item._deadline === todayString()).length;
+  const overdue = allItems.filter(item => !item._done && item._deadline && item._deadline < todayString()).length;
+  const missing = allItems.filter(item => item._status === '자료부족').length;
+  const finalDone = allItems.filter(item => item._status === '최종완료').length;
+
+  setText('sum-total', total);
+  setText('sum-incomplete', incomplete);
+  setText('sum-today', todayDue);
+  setText('sum-overdue', overdue);
+  setText('sum-missing', missing);
+  setText('sum-done', finalDone);
+
+  const activeByAssignee = {};
+  allItems.forEach(item => {
+    if (!item._done && item._status !== '취소') activeByAssignee[item._assignee] = (activeByAssignee[item._assignee] || 0) + 1;
+  });
+  const entries = Object.entries(activeByAssignee).sort((a,b) => b[1] - a[1]);
+  document.getElementById('assigneeSummary').innerHTML = entries.length
+    ? entries.map(([name,count]) => `<span class="assignee-chip">${escapeHtml(name)} 작업중 ${count}</span>`).join('')
+    : '<span class="assignee-chip">담당자별 작업중 0</span>';
+}
+
+function applyFilters() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const brand = document.getElementById('brandFilter').value;
+  const status = document.getElementById('statusFilter').value;
+  const assignee = document.getElementById('assigneeFilter').value;
+  const urgency = document.getElementById('urgencyFilter').value;
+  const complete = document.getElementById('completeFilter').value;
+  const sort = document.getElementById('sortSelect').value;
+
+  filteredItems = allItems.filter(item => {
+    if (q && !item._searchBlob.includes(q)) return false;
+    if (brand && item._brand !== brand && item['관리자브랜드'] !== brand) return false;
+    if (status && item._status !== status) return false;
+    if (assignee && item._assignee !== assignee) return false;
+    if (urgency && item._urgency !== urgency) return false;
+    if (complete === 'done' && !item._done) return false;
+    if (complete === 'incomplete' && item._done) return false;
+    return true;
+  });
+
+  sortItems(filteredItems, sort);
+  renderTable();
+}
+
+function sortItems(items, sort) {
+  const urgencyRank = { '긴급': 0, '빠름': 1, '일반': 2 };
+  const byDate = value => value ? new Date(value).getTime() : 0;
+  items.sort((a,b) => {
+    if (sort === 'oldest') return byDate(a['제출일시']) - byDate(b['제출일시']);
+    if (sort === 'deadline') return (a._deadline ? new Date(a._deadline).getTime() : 9999999999999) - (b._deadline ? new Date(b._deadline).getTime() : 9999999999999);
+    if (sort === 'urgency') return (urgencyRank[a._urgency] ?? 9) - (urgencyRank[b._urgency] ?? 9);
+    if (sort === 'saleDesc') return b._sale - a._sale;
+    if (sort === 'profitDesc') return b._profit - a._profit;
+    return byDate(b['제출일시']) - byDate(a['제출일시']);
+  });
+}
+
+function renderTable() {
+  const tbody = document.getElementById('tableBody');
+  document.getElementById('listCount').textContent = `${filteredItems.length}건`;
+
+  if (!filteredItems.length) {
+    tbody.innerHTML = `<tr><td colspan="12" class="empty-row">${isLoading ? '데이터를 불러오는 중입니다...' : '조건에 맞는 작업이 없습니다.'}</td></tr>`;
     return;
   }
 
-  tbody.innerHTML = data.map(item => {
-    // 우선순위 뱃지 스타일
-    const isUrgent = item['우선순위'].includes('긴급');
-    const badgeClass = isUrgent ? 'badge-urgent' : 'badge-normal';
-    
-    // 상태 드롭다운 생성
-    const statusSelect = `<select onchange="updateRequest('${item['요청번호']}', 'status', this.value)" style="background:${getStatusColor(item['상태'])}">
-      ${STATUS_OPTIONS.map(opt => `<option value="${opt}" ${item['상태'] === opt ? 'selected' : ''}>${opt}</option>`).join('')}
-    </select>`;
-
+  tbody.innerHTML = filteredItems.map(item => {
+    const dueClass = getDeadlineClass(item);
     return `
-      <tr>
-        <td style="font-family:'DM Mono',monospace;font-size:12px;color:#666;">${item['요청번호']}</td>
-        <td style="font-weight:600;">${item['프로젝트명'] || '-'}</td>
-        <td>${item['발주자']} <span style="color:#999;font-size:11px;">(${item['발주부서']})</span></td>
-        <td><span class="badge ${badgeClass}">${item['우선순위'].split(' ')[0] || '-'}</span></td>
-        <td style="color:${new Date(item['완성희망일']) < new Date() && item['상태'] !== '완료' ? '#E05252' : 'inherit'};font-weight:500;">
-          ${item['완성희망일']}
-        </td>
-        <td>${statusSelect}</td>
-        <td>
-          <input type="text" placeholder="담당자 입력" value="${item['담당자'] || ''}" 
-                 onblur="updateRequest('${item['요청번호']}', 'assignee', this.value)"
-                 onkeydown="if(event.key === 'Enter') this.blur();" style="width:100px;">
-        </td>
-        <td style="display:flex;gap:6px;">
-          ${item['HTML보기'] ? `<a href="${item['HTML보기']}" target="_blank" class="btn-link">요청서 보기</a>` : '-'}
-          ${item['폴더링크'] ? `<a href="${item['폴더링크']}" target="_blank" class="btn-link btn-folder">폴더 열기</a>` : ''}
-        </td>
+      <tr data-id="${escapeAttr(item._id)}" class="${item._done ? 'done' : ''} ${selectedId === item._id ? 'selected' : ''}">
+        <td class="mono muted">${escapeHtml(item._submittedDate || '-')}</td>
+        <td>${escapeHtml(item._brand || '미지정')}</td>
+        <td><div class="work-title" title="${escapeAttr(item['프로젝트명'] || '')}">${escapeHtml(item['프로젝트명'] || '-')}</div></td>
+        <td><div class="requester">${escapeHtml(item['발주자'] || '-')}<span class="muted">${item['발주부서'] ? ' / ' + escapeHtml(item['발주부서']) : ''}</span></div></td>
+        <td>${escapeHtml(item._assignee)}</td>
+        <td>${statusBadge(item._status)}</td>
+        <td>${urgencyBadge(item._urgency)}</td>
+        <td><span class="deadline-pill ${dueClass}">${escapeHtml(item._deadline || '-')}</span></td>
+        <td class="money">${formatMoney(item._purchase)}</td>
+        <td class="money">${formatMoney(item._sale)}</td>
+        <td class="money">${formatMoney(item._profit)}</td>
+        <td>${item._done ? '<span class="done-mark">완료</span>' : '미완료'}</td>
       </tr>
     `;
   }).join('');
+
+  tbody.querySelectorAll('tr[data-id]').forEach(row => {
+    row.addEventListener('click', event => {
+      if (event.target.closest('button,a,input,select,textarea,label')) return;
+      selectItem(row.dataset.id);
+    });
+  });
 }
 
-// 백엔드로 업데이트 요청 보내기
-async function updateRequest(requestId, field, value) {
+function selectItem(id) {
+  selectedId = id;
+  renderTable();
+  const item = allItems.find(entry => entry._id === id);
+  renderDetail(item || null);
+}
+
+function clearSelection() {
+  selectedId = '';
+  renderTable();
+  renderDetail(null);
+}
+
+function renderDetail(item) {
+  const panel = document.getElementById('detailPanel');
+  if (!item) {
+    panel.innerHTML = '<div class="detail-empty">작업을 선택해주세요.</div>';
+    return;
+  }
+
+  const adminBrand = item['관리자브랜드'] || '';
+  const customBrand = item['기타브랜드명'] || '';
+  const selectedBrand = adminBrand || (customBrand ? '기타' : '');
+  const adminMemo = item['관리자메모'] || item['내부메모'] || '';
+
+  panel.innerHTML = `
+    <div class="detail-scroll">
+      <div class="detail-top">
+        <div class="detail-title-row">
+          <div>
+            <div class="mono muted">${escapeHtml(item._id)}</div>
+            <div class="detail-title">${escapeHtml(item['프로젝트명'] || '제목 없음')}</div>
+          </div>
+          <button class="close-btn" id="detailCloseBtn" type="button">×</button>
+        </div>
+        <div class="quick-actions">
+          ${item['HTML보기'] ? `<a class="btn small primary" href="${escapeAttr(item['HTML보기'])}" target="_blank" rel="noopener">주문서 HTML 열기</a>` : ''}
+          ${item['폴더링크'] ? `<a class="btn small" href="${escapeAttr(item['폴더링크'])}" target="_blank" rel="noopener">Drive 폴더 열기</a>` : ''}
+          ${item['최종파일링크'] ? `<a class="btn small" href="${escapeAttr(item['최종파일링크'])}" target="_blank" rel="noopener">최종파일 열기</a>` : ''}
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="section-title">운영 정보</div>
+        <div class="edit-grid">
+          <div class="form-group">
+            <label class="form-label" for="d-status">상태</label>
+            <select class="input" id="d-status">${selectOptions(STATUS_OPTIONS, item._status)}</select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-assignee">담당자</label>
+            <input class="input" id="d-assignee" list="assigneeList" value="${escapeAttr(item._assignee === '미지정' ? '' : item._assignee)}" placeholder="미지정">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-brand">관리자 브랜드</label>
+            <select class="input" id="d-brand">${selectOptions(['', ...BRAND_OPTIONS], selectedBrand)}</select>
+          </div>
+          <div class="form-group ${selectedBrand === '기타' ? '' : 'hidden'}" id="customBrandGroup">
+            <label class="form-label" for="d-custom-brand">기타 브랜드명</label>
+            <input class="input" id="d-custom-brand" value="${escapeAttr(customBrand)}" placeholder="브랜드명 직접 입력">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-vendor">디자인 발주처</label>
+            <input class="input" id="d-vendor" value="${escapeAttr(item['디자인발주처'] || '')}" placeholder="내부, 외주, 업체명">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-urgency">긴급도</label>
+            <select class="input" id="d-urgency">${selectOptions(URGENCY_OPTIONS, item._urgency)}</select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-deadline">마감일</label>
+            <input class="input" id="d-deadline" type="date" value="${escapeAttr(item._deadline)}">
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">금액</div>
+        <div class="edit-grid">
+          <div class="form-group">
+            <label class="form-label" for="d-purchase">구매가</label>
+            <input class="input money-input" id="d-purchase" value="${escapeAttr(formatMoney(item._purchase))}" inputmode="numeric">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-sale">판가</label>
+            <input class="input money-input" id="d-sale" value="${escapeAttr(formatMoney(item._sale))}" inputmode="numeric">
+          </div>
+        </div>
+        <div class="calc-box" style="margin-top:8px">
+          <div class="calc-item"><div class="calc-label">이익</div><div class="calc-value" id="calcProfit">0</div></div>
+          <div class="calc-item"><div class="calc-label">마진율</div><div class="calc-value" id="calcMargin">0%</div></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">요청서 전체 내용</div>
+        <div class="readonly-grid">
+          ${info('요청번호', item['요청번호'])}
+          ${info('제출일시', item['제출일시'])}
+          ${info('프로젝트명', item['프로젝트명'])}
+          ${info('발주부서', item['발주부서'])}
+          ${info('발주자', item['발주자'])}
+          ${info('발주일자', item['발주일자'])}
+          ${info('완성희망일', item['완성희망일'])}
+          ${info('1차시안일', item['1차시안일'])}
+          ${info('수량', item['수량'])}
+          ${info('소재', item['소재'])}
+          ${info('사용용도', item['사용용도'])}
+          ${info('사용장소', item['사용장소'])}
+          ${info('사이즈', item['사이즈'])}
+          ${info('작업유형', item['작업유형'])}
+          ${info('우선순위', item['우선순위'])}
+          ${info('최종파일링크', linkText(item['최종파일링크']), true)}
+          ${info('들어갈내용', item['들어갈내용'], true)}
+          ${info('희망이미지설명', item['희망이미지설명'], true)}
+          ${info('선택색상', item['선택색상'], true)}
+          ${info('스타일값', item['스타일값'], true)}
+          ${info('일반주의사항', item['일반주의사항'], true)}
+          ${info('배송지', item['배송지'], true)}
+          ${info('배송메모', item['배송메모'], true)}
+          ${info('첨부사진링크', linkListText(item['첨부사진링크']), true)}
+          ${info('HTML보기', linkText(item['HTML보기']), true)}
+          ${info('폴더링크', linkText(item['폴더링크']), true)}
+          ${info('내부메모', item['내부메모'], true)}
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-title">첨부 이미지</div>
+        ${renderImageGrid(item['첨부사진링크'])}
+      </section>
+
+      <section class="section">
+        <div class="section-title">관리자 메모 및 수정이력</div>
+        <div class="edit-grid one">
+          <div class="form-group">
+            <label class="form-label" for="d-admin-memo">관리자 메모</label>
+            <textarea class="textarea" id="d-admin-memo" placeholder="관리자만 볼 수 있는 메모">${escapeHtml(adminMemo)}</textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="d-revision-note">수정 내용 입력</label>
+            <textarea class="textarea revision" id="d-revision-note" placeholder="저장 시 수정횟수 +1, 수정이력에 누적됩니다."></textarea>
+          </div>
+          <div class="readonly-grid">
+            ${info('수정횟수', item['수정횟수'])}
+            ${info('완료일시', item['완료일시'] || item['완료일'])}
+            ${info('수정이력', item['수정이력'], true)}
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="save-bar">
+      <button class="btn" id="detailCancelBtn" type="button">닫기</button>
+      <button class="btn primary" id="saveDetailBtn" type="button">저장</button>
+    </div>
+  `;
+
+  bindDetailEvents(item);
+  updateMoneyPreview();
+}
+
+function bindDetailEvents(item) {
+  document.getElementById('detailCloseBtn').addEventListener('click', clearSelection);
+  document.getElementById('detailCancelBtn').addEventListener('click', clearSelection);
+  document.getElementById('saveDetailBtn').addEventListener('click', () => saveDetail(item._id));
+  document.getElementById('d-brand').addEventListener('change', event => {
+    document.getElementById('customBrandGroup').classList.toggle('hidden', event.target.value !== '기타');
+  });
+  ['d-purchase','d-sale'].forEach(id => {
+    const el = document.getElementById(id);
+    el.addEventListener('input', updateMoneyPreview);
+    el.addEventListener('blur', () => {
+      el.value = formatMoney(parseNumber(el.value));
+      updateMoneyPreview();
+    });
+  });
+  document.querySelectorAll('.image-tile[data-link]').forEach(tile => {
+    tile.addEventListener('click', () => openImageModal(tile.dataset.link));
+  });
+}
+
+async function saveDetail(requestId) {
+  const brand = document.getElementById('d-brand').value;
+  const customBrand = brand === '기타' ? document.getElementById('d-custom-brand').value.trim() : '';
+  const purchasePrice = numericFieldValue('d-purchase');
+  const salePrice = numericFieldValue('d-sale');
+  const purchaseNum = purchasePrice === '' ? 0 : purchasePrice;
+  const saleNum = salePrice === '' ? 0 : salePrice;
+  const hasMoney = purchasePrice !== '' || salePrice !== '';
+  const profit = hasMoney ? saleNum - purchaseNum : '';
+  const marginRate = saleNum ? (profit / saleNum) * 100 : '';
+
+  const params = new URLSearchParams({
+    action: 'update',
+    requestId,
+    status: document.getElementById('d-status').value,
+    assignee: document.getElementById('d-assignee').value.trim(),
+    adminBrand: brand,
+    customBrand,
+    priority: document.getElementById('d-urgency').value,
+    deadline: document.getElementById('d-deadline').value,
+    vendor: document.getElementById('d-vendor').value.trim(),
+    purchasePrice: String(purchasePrice),
+    salePrice: String(salePrice),
+    profit: String(profit),
+    marginRate: marginRate === '' ? '' : String(marginRate.toFixed(2)),
+    adminMemo: document.getElementById('d-admin-memo').value.trim(),
+    revisionNote: document.getElementById('d-revision-note').value.trim()
+  });
+
+  const btn = document.getElementById('saveDetailBtn');
+  btn.disabled = true;
+  btn.textContent = '저장 중';
+
   try {
-    const url = `${APPS_SCRIPT_URL}?action=update&requestId=${encodeURIComponent(requestId)}&${field}=${encodeURIComponent(value)}`;
-    const res = await fetch(url);
+    const res = await fetch(`${APPS_SCRIPT_URL}?${params.toString()}`);
     const json = await res.json();
-    
-    if(json.result === 'success') {
-      showToast("✓ 정상적으로 업데이트 되었습니다.");
-      // 완료 처리 시 화면 리로드 (통계 업데이트를 위해)
-      if(field === 'status' && value === '완료') {
-        setTimeout(loadData, 500);
-      } else if (field === 'status') {
-        event.target.style.background = getStatusColor(value);
-      }
-    } else {
-      showToast("⚠ 업데이트 실패: " + json.message);
+    const ok = json && (json.success === true || json.result === 'success');
+    if (!ok) throw new Error((json && json.message) || '저장 실패');
+    showToast('저장 완료');
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast(`저장 실패: ${err.message}`);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '저장';
+  }
+}
+
+function updateMoneyPreview() {
+  const purchaseValue = numericFieldValue('d-purchase');
+  const saleValue = numericFieldValue('d-sale');
+  const purchase = purchaseValue === '' ? 0 : purchaseValue;
+  const sale = saleValue === '' ? 0 : saleValue;
+  const hasMoney = purchaseValue !== '' || saleValue !== '';
+  const profit = hasMoney ? sale - purchase : 0;
+  const margin = sale ? (profit / sale) * 100 : 0;
+  setText('calcProfit', hasMoney ? formatMoney(profit) : '');
+  setText('calcMargin', sale ? `${margin.toFixed(2)}%` : '0%');
+}
+
+function renderImageGrid(rawLinks) {
+  const links = parseLinks(rawLinks);
+  if (!links.length) return '<div class="muted">첨부 이미지 없음</div>';
+  return `<div class="image-grid">${links.map((link, idx) => {
+    const thumb = drivePreviewUrl(link, 500);
+    if (!thumb) {
+      return `<button class="image-tile no-preview" type="button" data-link="${escapeAttr(link)}"><span class="image-fallback">이미지 열기 ${idx + 1}</span></button>`;
     }
-  } catch(e) {
-    showToast("⚠ 네트워크 오류로 저장하지 못했습니다.");
-  }
+    return `
+      <button class="image-tile" type="button" data-link="${escapeAttr(link)}">
+        <img src="${escapeAttr(thumb)}" alt="첨부 이미지 ${idx + 1}" onerror="this.closest('.image-tile').classList.add('no-preview')">
+        <span class="image-fallback">이미지 열기 ${idx + 1}</span>
+      </button>
+    `;
+  }).join('')}</div>`;
 }
 
-// 상태별 드롭다운 배경색
-function getStatusColor(status) {
-  switch(status) {
-    case '접수': return '#F5F5F3';
-    case '작업중': case '수정중': return '#E3F2FD';
-    case '승인대기': return '#FFF3E0';
-    case '완료': return '#E8F5E9';
-    case '긴급': return '#FFEBEE';
-    default: return '#fff';
-  }
+function openImageModal(link) {
+  const modal = document.getElementById('imageModal');
+  const img = document.getElementById('modalImage');
+  const fallback = document.getElementById('modalFallback');
+  const openLink = document.getElementById('modalOpenLink');
+  const preview = drivePreviewUrl(link, 1600) || link;
+
+  img.style.display = 'block';
+  fallback.style.display = 'none';
+  img.src = preview;
+  img.onerror = () => {
+    img.style.display = 'none';
+    fallback.style.display = 'block';
+  };
+  openLink.href = link;
+  modal.classList.add('show');
 }
 
-// 토스트 알림
-function showToast(msg) {
-  const t = document.getElementById("toast");
-  t.textContent = msg;
-  t.classList.add("show");
-  setTimeout(() => t.classList.remove("show"), 3000);
+function closeImageModal() {
+  document.getElementById('imageModal').classList.remove('show');
+  document.getElementById('modalImage').src = '';
+}
+
+function resetFilters() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('brandFilter').value = '';
+  document.getElementById('statusFilter').value = '';
+  document.getElementById('assigneeFilter').value = '';
+  document.getElementById('urgencyFilter').value = '';
+  document.getElementById('completeFilter').value = '';
+  document.getElementById('sortSelect').value = 'latest';
+  applyFilters();
+}
+
+function statusBadge(status) {
+  const classMap = {
+    '접수':'status-received','확인중':'status-checking','자료부족':'status-missing','작업중':'status-working',
+    '1차시안완료':'status-draft','수정요청':'status-revision','최종완료':'status-done','보류':'status-hold','취소':'status-cancel'
+  };
+  return `<span class="badge ${classMap[status] || 'status-received'}">${escapeHtml(status || '접수')}</span>`;
+}
+
+function urgencyBadge(value) {
+  const classMap = { '일반':'urgency-normal', '빠름':'urgency-fast', '긴급':'urgency-urgent' };
+  return `<span class="badge ${classMap[value] || 'urgency-normal'}">${escapeHtml(value || '일반')}</span>`;
+}
+
+function getDeadlineClass(item) {
+  if (item._done || !item._deadline) return '';
+  const today = todayString();
+  const tomorrow = addDays(today, 1);
+  if (item._deadline < today) return 'deadline-overdue';
+  if (item._deadline === today) return 'deadline-today';
+  if (item._deadline === tomorrow) return 'deadline-tomorrow';
+  return '';
+}
+
+function normalizeStatus(status) {
+  const raw = String(status || '').trim();
+  const legacy = { '검토중':'확인중', '1차전달':'1차시안완료', '수정중':'수정요청', '승인대기':'확인중', '완료':'최종완료' };
+  const mapped = legacy[raw] || raw;
+  return STATUS_OPTIONS.includes(mapped) ? mapped : (mapped || '접수');
+}
+
+function normalizeUrgency(value) {
+  const raw = String(value || '').trim();
+  if (raw.includes('긴급')) return '긴급';
+  if (raw.includes('빠름')) return '빠름';
+  return URGENCY_OPTIONS.includes(raw) ? raw : '일반';
+}
+
+function isDone(item, status) {
+  const checked = item['완료체크'] === true || String(item['완료체크']).toUpperCase() === 'TRUE';
+  return checked || status === '최종완료';
+}
+
+function parseNumber(value) {
+  const cleaned = String(value == null ? '' : value).replace(/,/g, '').trim();
+  if (!cleaned) return 0;
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? num : 0;
+}
+
+function numericFieldValue(id) {
+  const el = document.getElementById(id);
+  const cleaned = String(el ? el.value : '').replace(/,/g, '').trim();
+  if (cleaned === '') return '';
+  const num = Number(cleaned);
+  return Number.isFinite(num) ? num : '';
+}
+
+function formatMoney(value) {
+  const num = Number(value || 0);
+  if (!num) return '';
+  return num.toLocaleString('ko-KR');
+}
+
+function dateOnly(value) {
+  if (!value) return '';
+  const text = String(value).trim();
+  const matched = text.match(/\d{4}-\d{2}-\d{2}/);
+  return matched ? matched[0] : '';
+}
+
+function todayString() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function addDays(dateText, days) {
+  const d = new Date(`${dateText}T00:00:00`);
+  d.setDate(d.getDate() + days);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function parseLinks(raw) {
+  return String(raw || '')
+    .split(/[\n,]+/)
+    .map(v => v.trim())
+    .filter(v => /^https?:\/\//i.test(v));
+}
+
+function driveFileId(link) {
+  const text = String(link || '');
+  const patterns = [
+    /\/file\/d\/([a-zA-Z0-9_-]+)/,
+    /[?&]id=([a-zA-Z0-9_-]+)/,
+    /\/d\/([a-zA-Z0-9_-]+)/
+  ];
+  for (const pattern of patterns) {
+    const match = text.match(pattern);
+    if (match) return match[1];
+  }
+  return '';
+}
+
+function drivePreviewUrl(link, size) {
+  const id = driveFileId(link);
+  return id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${size}` : '';
+}
+
+function info(label, value, wide) {
+  return `<div class="info ${wide ? 'wide' : ''}"><div class="info-label">${escapeHtml(label)}</div><div class="info-value">${value ? escapeHtml(value) : '-'}</div></div>`;
+}
+
+function linkText(value) {
+  return value ? String(value) : '';
+}
+
+function linkListText(value) {
+  return parseLinks(value).join('\n');
+}
+
+function selectOptions(options, selected) {
+  return options.map(opt => {
+    const label = opt || '선택 안 함';
+    return `<option value="${escapeAttr(opt)}" ${String(opt) === String(selected || '') ? 'selected' : ''}>${escapeHtml(label)}</option>`;
+  }).join('');
+}
+
+function unique(values) {
+  return [...new Set(values.map(v => String(v || '').trim()).filter(Boolean))];
+}
+
+function setText(id, value) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = value;
+}
+
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 2600);
+}
+
+function escapeHtml(value) {
+  return String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({
+    '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;'
+  }[ch]));
+}
+
+function escapeAttr(value) {
+  return escapeHtml(value).replace(/`/g, '&#96;');
 }
 </script>
-
 </body>
 </html>
