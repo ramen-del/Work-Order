@@ -326,6 +326,7 @@ async function loadData() {
     if (!ok) throw new Error((json && json.message) || '데이터 로딩 실패');
 
     allItems = (json.data || []).map(normalizeItem);
+    isLoading = false;
     refreshDynamicFilters();
     renderSummary();
     applyFilters();
@@ -337,6 +338,7 @@ async function loadData() {
       renderDetail(null);
     }
   } catch (err) {
+    isLoading = false;
     console.error(err);
     showToast('데이터를 불러오지 못했습니다.');
     document.getElementById('tableBody').innerHTML = '<tr><td colspan="12" class="loading">로딩 실패. 새로고침을 눌러주세요.</td></tr>';
@@ -474,7 +476,8 @@ function renderTable() {
   document.getElementById('listCount').textContent = `${filteredItems.length}건`;
 
   if (!filteredItems.length) {
-    tbody.innerHTML = `<tr><td colspan="12" class="empty-row">${isLoading ? '데이터를 불러오는 중입니다...' : '조건에 맞는 작업이 없습니다.'}</td></tr>`;
+    const message = isLoading ? '데이터를 불러오는 중입니다...' : (allItems.length ? '조건에 맞는 작업이 없습니다.' : '등록된 작업이 없습니다.');
+    tbody.innerHTML = `<tr><td colspan="12" class="empty-row">${message}</td></tr>`;
     return;
   }
 
