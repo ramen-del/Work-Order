@@ -696,9 +696,8 @@ async function saveDetail(requestId) {
 
   try {
     await postUpdate(payload);
+    applySavedPayload(requestId, payload);
     showToast('저장 완료');
-    await sleep(900);
-    await loadData();
   } catch (err) {
     console.error(err);
     showToast(`저장 실패: ${err.message}`);
@@ -716,6 +715,62 @@ async function postUpdate(payload) {
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function applySavedPayload(requestId, payload) {
+  const idx = allItems.findIndex(item => item._id === requestId);
+  if (idx === -1) return;
+
+  const base = { ...allItems[idx] };
+  base['상태'] = payload.status || base['상태'];
+  base['담당자'] = payload.assignee || '';
+  base['관리자브랜드'] = payload.adminBrand || '';
+  base['기타브랜드명'] = payload.customBrand || '';
+  base['긴급도'] = payload.priority || '';
+  base['마감일'] = payload.deadline || '';
+  base['디자인발주처'] = payload.vendor || '';
+  base['금액비고'] = payload.amountNote || '';
+  base['추가금액항목'] = payload.amountItems || '';
+  base['합계금액'] = payload.amountTotal || '';
+  base['구매가'] = payload.purchasePrice || '';
+  base['판가'] = payload.salePrice || '';
+  base['이익'] = payload.profit || '';
+  base['마진율'] = payload.marginRate || '';
+  base['관리자메모'] = payload.adminMemo || '';
+
+  if (payload.status === '최종완료') {
+    const now = currentDateTimeText();
+    base['완료체크'] = true;
+    base['완료일'] = base['완료일'] || now;
+    base['완료일시'] = base['완료일시'] || now;
+  } else {
+    base['완료체크'] = false;
+  }
+
+  const revisionNote = String(payload.revisionNote || '').trim();
+  if (revisionNote) {
+    const prevCount = parseInt(String(base['수정횟수'] || '0').replace(/,/g, ''), 10) || 0;
+    const line = `[${currentDateTimeText().slice(0, 16)}] 수정요청: ${revisionNote}`;
+    base['수정횟수'] = prevCount + 1;
+    base['수정이력'] = base['수정이력'] ? `${base['수정이력']}\n${line}` : line;
+  }
+
+  allItems[idx] = normalizeItem(base);
+  refreshDynamicFilters();
+  renderSummary();
+  applyFilters();
+  renderDetail(allItems[idx]);
+}
+
+function currentDateTimeText() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const h = String(d.getHours()).padStart(2, '0');
+  const min = String(d.getMinutes()).padStart(2, '0');
+  const s = String(d.getSeconds()).padStart(2, '0');
+  return `${y}-${m}-${day} ${h}:${min}:${s}`;
 }
 
 function updateMoneyPreview() {
