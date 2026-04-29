@@ -18,7 +18,7 @@
 body{font-family:"Noto Sans KR",sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5}
 button,input,select,textarea{font-family:inherit}
 button{cursor:pointer}
-.app{max-width:1680px;margin:0 auto;padding:22px}
+.app{max-width:1840px;margin:0 auto;padding:22px}
 .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;margin-bottom:18px}
 .eyebrow{font-family:"DM Mono",monospace;font-size:11px;letter-spacing:.12em;color:var(--soft);margin-bottom:4px}
 h1{font-size:25px;letter-spacing:0;font-weight:800}
@@ -38,7 +38,7 @@ h1{font-size:25px;letter-spacing:0;font-weight:800}
 .toolbar{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:14px;display:grid;grid-template-columns:minmax(220px,1.8fr) repeat(6,minmax(120px,1fr)) auto;gap:8px;align-items:center}
 .field,.select{width:100%;height:38px;border:1px solid var(--border);border-radius:8px;background:#fff;color:var(--text);padding:0 11px;font-size:13px;outline:none}
 .field:focus,.select:focus,textarea:focus{border-color:#555}
-.board{display:grid;grid-template-columns:minmax(760px,1fr) 520px;gap:14px;align-items:start}
+.board{display:grid;grid-template-columns:minmax(760px,1fr) minmax(620px,760px);gap:14px;align-items:start}
 .list-panel,.detail-panel{background:var(--panel);border:1px solid var(--border);border-radius:8px;overflow:hidden}
 .list-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--line)}
 .list-title{font-size:15px;font-weight:800}
@@ -109,6 +109,20 @@ tbody tr.done{opacity:.58}
 .calc-item{background:#FCFCFA;border:1px solid var(--line);border-radius:8px;padding:10px}
 .calc-label{font-size:11px;color:var(--muted);font-weight:800;margin-bottom:3px}
 .calc-value{font-family:"DM Mono",monospace;font-size:17px;font-weight:800}
+.amount-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.amount-help{font-size:12px;color:var(--muted)}
+.amount-rows{display:flex;flex-direction:column;gap:8px}
+.amount-row{border:1px solid var(--line);background:#FCFCFA;border-radius:8px;padding:10px}
+.amount-grid{display:grid;grid-template-columns:1.1fr .8fr .8fr 1.2fr auto;gap:8px;align-items:end}
+.amount-remove{width:38px;height:38px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:18px;line-height:1}
+body.detail-expanded .board{grid-template-columns:1fr}
+body.detail-expanded .list-panel{display:none}
+body.detail-expanded .detail-panel{position:relative;top:auto;max-height:none}
+body.detail-expanded .detail-scroll{overflow:visible}
+body.detail-expanded .edit-grid{grid-template-columns:repeat(4,1fr)}
+body.detail-expanded .readonly-grid{grid-template-columns:repeat(4,1fr)}
+body.detail-expanded .amount-grid{grid-template-columns:1.2fr .7fr .7fr 1.4fr auto}
+body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
 .hidden{display:none!important}
 .loading,.empty-row{text-align:center;color:var(--muted);padding:38px 12px}
 .toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);background:#1A1A1A;color:#fff;border-radius:999px;padding:12px 18px;font-size:13px;font-weight:800;opacity:0;visibility:hidden;transition:.22s;z-index:1000;box-shadow:0 10px 30px rgba(0,0,0,.18)}
@@ -127,6 +141,10 @@ tbody tr.done{opacity:.58}
   .board{grid-template-columns:1fr}
   .detail-panel{position:relative;top:auto;max-height:none}
   .table-wrap{max-height:none}
+  .amount-grid{grid-template-columns:1fr 1fr}
+  .amount-remove{width:100%}
+  body.detail-expanded .edit-grid,body.detail-expanded .readonly-grid{grid-template-columns:1fr 1fr}
+  body.detail-expanded .image-grid{grid-template-columns:repeat(3,1fr)}
 }
 </style>
 </head>
@@ -228,7 +246,7 @@ tbody tr.done{opacity:.58}
 <datalist id="assigneeList"></datalist>
 
 <script>
-const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxtMXA0Kfx1gnEXsHzGNYJjaDqBguYSvCtD1A8jhwagfeAtSiTwq7mYpgSK0ByOwI6D/exec";
+const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbw3sndcdqwoyKP-DpvCDkPnAqgv6D4MEX8fnHUFPhJ-n2T6Mx5HJjBlQcu8-aImdNxq/exec";
 
 const STATUS_OPTIONS = ['접수', '확인중', '자료부족', '작업중', '1차시안완료', '수정요청', '최종완료', '보류', '취소'];
 const BRAND_OPTIONS = ['쌈보보쌈', '평화김해뒷고기푸짐한판', '일키로삼겹의대소동', '오롯농장', '부스틱스', '기타'];
@@ -310,7 +328,7 @@ function normalizeItem(item) {
   const done = isDone(item, status);
   const searchBlob = [
     item['요청번호'], item['프로젝트명'], item['발주자'], item['발주부서'], assignee,
-    adminBrand, customBrand, item['디자인발주처'], item['들어갈내용'], item['희망이미지설명']
+    adminBrand, customBrand, item['디자인발주처'], item['금액비고'], item['추가금액항목'], item['들어갈내용'], item['희망이미지설명']
   ].join(' ').toLowerCase();
 
   return {
@@ -452,6 +470,7 @@ function selectItem(id) {
 
 function clearSelection() {
   selectedId = '';
+  document.body.classList.remove('detail-expanded');
   renderTable();
   renderDetail(null);
 }
@@ -467,6 +486,7 @@ function renderDetail(item) {
   const customBrand = item['기타브랜드명'] || '';
   const selectedBrand = adminBrand || (customBrand ? '기타' : '');
   const adminMemo = item['관리자메모'] || item['내부메모'] || '';
+  const amountRows = getAmountRows(item);
 
   panel.innerHTML = `
     <div class="detail-scroll">
@@ -479,6 +499,7 @@ function renderDetail(item) {
           <button class="close-btn" id="detailCloseBtn" type="button">×</button>
         </div>
         <div class="quick-actions">
+          <button class="btn small" id="detailWideBtn" type="button">${document.body.classList.contains('detail-expanded') ? '리스트 같이 보기' : '상세 크게 보기'}</button>
           ${item['HTML보기'] ? `<a class="btn small primary" href="${escapeAttr(item['HTML보기'])}" target="_blank" rel="noopener">주문서 HTML 열기</a>` : ''}
           ${item['폴더링크'] ? `<a class="btn small" href="${escapeAttr(item['폴더링크'])}" target="_blank" rel="noopener">Drive 폴더 열기</a>` : ''}
           ${item['최종파일링크'] ? `<a class="btn small" href="${escapeAttr(item['최종파일링크'])}" target="_blank" rel="noopener">최종파일 열기</a>` : ''}
@@ -505,10 +526,6 @@ function renderDetail(item) {
             <input class="input" id="d-custom-brand" value="${escapeAttr(customBrand)}" placeholder="브랜드명 직접 입력">
           </div>
           <div class="form-group">
-            <label class="form-label" for="d-vendor">디자인 발주처</label>
-            <input class="input" id="d-vendor" value="${escapeAttr(item['디자인발주처'] || '')}" placeholder="내부, 외주, 업체명">
-          </div>
-          <div class="form-group">
             <label class="form-label" for="d-urgency">긴급도</label>
             <select class="input" id="d-urgency">${selectOptions(URGENCY_OPTIONS, item._urgency)}</select>
           </div>
@@ -521,15 +538,12 @@ function renderDetail(item) {
 
       <section class="section">
         <div class="section-title">금액</div>
-        <div class="edit-grid">
-          <div class="form-group">
-            <label class="form-label" for="d-purchase">구매가</label>
-            <input class="input money-input" id="d-purchase" value="${escapeAttr(formatMoney(item._purchase))}" inputmode="numeric">
-          </div>
-          <div class="form-group">
-            <label class="form-label" for="d-sale">판가</label>
-            <input class="input money-input" id="d-sale" value="${escapeAttr(formatMoney(item._sale))}" inputmode="numeric">
-          </div>
+        <div class="amount-toolbar">
+          <div class="amount-help">발주처, 금액, 비고를 행 단위로 추가할 수 있습니다.</div>
+          <button class="btn small" id="addAmountRowBtn" type="button">+ 항목 추가</button>
+        </div>
+        <div class="amount-rows" id="amountRows">
+          ${amountRows.map((row, idx) => renderAmountRow(row, idx)).join('')}
         </div>
         <div class="calc-box" style="margin-top:8px">
           <div class="calc-item"><div class="calc-label">이익</div><div class="calc-value" id="calcProfit">0</div></div>
@@ -608,16 +622,15 @@ function bindDetailEvents(item) {
   document.getElementById('detailCloseBtn').addEventListener('click', clearSelection);
   document.getElementById('detailCancelBtn').addEventListener('click', clearSelection);
   document.getElementById('saveDetailBtn').addEventListener('click', () => saveDetail(item._id));
+  document.getElementById('detailWideBtn').addEventListener('click', () => toggleDetailWide());
   document.getElementById('d-brand').addEventListener('change', event => {
     document.getElementById('customBrandGroup').classList.toggle('hidden', event.target.value !== '기타');
   });
-  ['d-purchase','d-sale'].forEach(id => {
-    const el = document.getElementById(id);
-    el.addEventListener('input', updateMoneyPreview);
-    el.addEventListener('blur', () => {
-      el.value = formatMoney(parseNumber(el.value));
-      updateMoneyPreview();
-    });
+  bindAmountRows();
+  document.getElementById('addAmountRowBtn').addEventListener('click', () => {
+    addAmountRow();
+    bindAmountRows();
+    updateMoneyPreview();
   });
   document.querySelectorAll('.image-tile[data-link]').forEach(tile => {
     tile.addEventListener('click', () => openImageModal(tile.dataset.link));
@@ -627,13 +640,13 @@ function bindDetailEvents(item) {
 async function saveDetail(requestId) {
   const brand = document.getElementById('d-brand').value;
   const customBrand = brand === '기타' ? document.getElementById('d-custom-brand').value.trim() : '';
-  const purchasePrice = numericFieldValue('d-purchase');
-  const salePrice = numericFieldValue('d-sale');
-  const purchaseNum = purchasePrice === '' ? 0 : purchasePrice;
-  const saleNum = salePrice === '' ? 0 : salePrice;
-  const hasMoney = purchasePrice !== '' || salePrice !== '';
-  const profit = hasMoney ? saleNum - purchaseNum : '';
-  const marginRate = saleNum ? (profit / saleNum) * 100 : '';
+  const amountItems = collectAmountRows();
+  const firstAmount = amountItems[0] || { vendor: '', note: '' };
+  const purchasePrice = amountItems.reduce((sum, row) => sum + parseNumber(row.purchasePrice), 0);
+  const salePrice = amountItems.reduce((sum, row) => sum + parseNumber(row.salePrice), 0);
+  const hasMoney = amountItems.some(row => String(row.purchasePrice || '').trim() || String(row.salePrice || '').trim());
+  const profit = hasMoney ? salePrice - purchasePrice : '';
+  const marginRate = salePrice ? (profit / salePrice) * 100 : '';
 
   const params = new URLSearchParams({
     action: 'update',
@@ -644,9 +657,11 @@ async function saveDetail(requestId) {
     customBrand,
     priority: document.getElementById('d-urgency').value,
     deadline: document.getElementById('d-deadline').value,
-    vendor: document.getElementById('d-vendor').value.trim(),
-    purchasePrice: String(purchasePrice),
-    salePrice: String(salePrice),
+    vendor: firstAmount.vendor || '',
+    amountNote: firstAmount.note || '',
+    amountItems: JSON.stringify(amountItems),
+    purchasePrice: hasMoney ? String(purchasePrice) : '',
+    salePrice: hasMoney ? String(salePrice) : '',
     profit: String(profit),
     marginRate: marginRate === '' ? '' : String(marginRate.toFixed(2)),
     adminMemo: document.getElementById('d-admin-memo').value.trim(),
@@ -674,28 +689,135 @@ async function saveDetail(requestId) {
 }
 
 function updateMoneyPreview() {
-  const purchaseValue = numericFieldValue('d-purchase');
-  const saleValue = numericFieldValue('d-sale');
-  const purchase = purchaseValue === '' ? 0 : purchaseValue;
-  const sale = saleValue === '' ? 0 : saleValue;
-  const hasMoney = purchaseValue !== '' || saleValue !== '';
+  const rows = collectAmountRows();
+  const purchase = rows.reduce((sum, row) => sum + parseNumber(row.purchasePrice), 0);
+  const sale = rows.reduce((sum, row) => sum + parseNumber(row.salePrice), 0);
+  const hasMoney = rows.some(row => String(row.purchasePrice || '').trim() || String(row.salePrice || '').trim());
   const profit = hasMoney ? sale - purchase : 0;
   const margin = sale ? (profit / sale) * 100 : 0;
   setText('calcProfit', hasMoney ? formatMoney(profit) : '');
   setText('calcMargin', sale ? `${margin.toFixed(2)}%` : '0%');
 }
 
+function getAmountRows(item) {
+  const saved = String(item['추가금액항목'] || '').trim();
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length) {
+        return parsed.map(normalizeAmountRow);
+      }
+    } catch (err) {
+      console.warn('추가금액항목 파싱 실패', err);
+    }
+  }
+
+  return [normalizeAmountRow({
+    vendor: item['디자인발주처'] || '',
+    purchasePrice: item._purchase || '',
+    salePrice: item._sale || '',
+    note: item['금액비고'] || ''
+  })];
+}
+
+function normalizeAmountRow(row) {
+  return {
+    vendor: String(row.vendor || row['디자인발주처'] || '').trim(),
+    purchasePrice: row.purchasePrice === '' || row.purchasePrice == null ? '' : parseNumber(row.purchasePrice),
+    salePrice: row.salePrice === '' || row.salePrice == null ? '' : parseNumber(row.salePrice),
+    note: String(row.note || row['비고'] || '').trim()
+  };
+}
+
+function renderAmountRow(row, idx) {
+  return `
+    <div class="amount-row" data-index="${idx}">
+      <div class="amount-grid">
+        <div class="form-group">
+          <label class="form-label">디자인 발주처</label>
+          <input class="input amount-vendor" value="${escapeAttr(row.vendor)}" placeholder="내부, 외주, 업체명">
+        </div>
+        <div class="form-group">
+          <label class="form-label">구매가</label>
+          <input class="input amount-purchase money-input" value="${escapeAttr(formatMoney(row.purchasePrice))}" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">판가</label>
+          <input class="input amount-sale money-input" value="${escapeAttr(formatMoney(row.salePrice))}" inputmode="numeric">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비고</label>
+          <input class="input amount-note" value="${escapeAttr(row.note)}" placeholder="품목, 전달사항, 정산 메모">
+        </div>
+        <button class="amount-remove" type="button" title="항목 삭제">×</button>
+      </div>
+    </div>
+  `;
+}
+
+function addAmountRow(row) {
+  const wrap = document.getElementById('amountRows');
+  wrap.insertAdjacentHTML('beforeend', renderAmountRow(normalizeAmountRow(row || {}), wrap.querySelectorAll('.amount-row').length));
+}
+
+function bindAmountRows() {
+  document.querySelectorAll('.amount-row').forEach(row => {
+    row.querySelectorAll('.amount-purchase,.amount-sale').forEach(input => {
+      if (input.dataset.bound) return;
+      input.dataset.bound = '1';
+      input.addEventListener('input', updateMoneyPreview);
+      input.addEventListener('blur', () => {
+        input.value = formatMoney(parseNumber(input.value));
+        updateMoneyPreview();
+      });
+    });
+
+    const remove = row.querySelector('.amount-remove');
+    if (remove && !remove.dataset.bound) {
+      remove.dataset.bound = '1';
+      remove.addEventListener('click', () => {
+        const rows = document.querySelectorAll('.amount-row');
+        if (rows.length <= 1) {
+          row.querySelectorAll('input').forEach(input => input.value = '');
+        } else {
+          row.remove();
+        }
+        updateMoneyPreview();
+      });
+    }
+  });
+}
+
+function collectAmountRows() {
+  return [...document.querySelectorAll('.amount-row')].map(row => normalizeAmountRow({
+    vendor: row.querySelector('.amount-vendor')?.value || '',
+    purchasePrice: numericInputValue(row.querySelector('.amount-purchase')),
+    salePrice: numericInputValue(row.querySelector('.amount-sale')),
+    note: row.querySelector('.amount-note')?.value || ''
+  })).filter((row, idx, arr) => {
+    if (arr.length === 1) return true;
+    return row.vendor || row.purchasePrice !== '' || row.salePrice !== '' || row.note;
+  });
+}
+
+function toggleDetailWide() {
+  document.body.classList.toggle('detail-expanded');
+  const btn = document.getElementById('detailWideBtn');
+  if (btn) btn.textContent = document.body.classList.contains('detail-expanded') ? '리스트 같이 보기' : '상세 크게 보기';
+}
+
 function renderImageGrid(rawLinks) {
   const links = parseLinks(rawLinks);
   if (!links.length) return '<div class="muted">첨부 이미지 없음</div>';
   return `<div class="image-grid">${links.map((link, idx) => {
-    const thumb = drivePreviewUrl(link, 500);
+    const candidates = getImagePreviewCandidates(link, 700);
+    const thumb = candidates[0] || '';
     if (!thumb) {
       return `<button class="image-tile no-preview" type="button" data-link="${escapeAttr(link)}"><span class="image-fallback">이미지 열기 ${idx + 1}</span></button>`;
     }
     return `
       <button class="image-tile" type="button" data-link="${escapeAttr(link)}">
-        <img src="${escapeAttr(thumb)}" alt="첨부 이미지 ${idx + 1}" onerror="this.closest('.image-tile').classList.add('no-preview')">
+        <img src="${escapeAttr(thumb)}" alt="첨부 이미지 ${idx + 1}" data-preview-index="0" data-preview-list="${escapeAttr(JSON.stringify(candidates))}" onerror="tryNextPreview(this)">
         <span class="image-fallback">이미지 열기 ${idx + 1}</span>
       </button>
     `;
@@ -707,15 +829,15 @@ function openImageModal(link) {
   const img = document.getElementById('modalImage');
   const fallback = document.getElementById('modalFallback');
   const openLink = document.getElementById('modalOpenLink');
-  const preview = drivePreviewUrl(link, 1600) || link;
+  const candidates = getImagePreviewCandidates(link, 1600);
+  const preview = candidates[0] || link;
 
   img.style.display = 'block';
   fallback.style.display = 'none';
+  img.dataset.previewIndex = '0';
+  img.dataset.previewList = JSON.stringify(candidates.length ? candidates : [link]);
   img.src = preview;
-  img.onerror = () => {
-    img.style.display = 'none';
-    fallback.style.display = 'block';
-  };
+  img.onerror = () => tryNextPreview(img);
   openLink.href = link;
   modal.classList.add('show');
 }
@@ -787,6 +909,10 @@ function parseNumber(value) {
 
 function numericFieldValue(id) {
   const el = document.getElementById(id);
+  return numericInputValue(el);
+}
+
+function numericInputValue(el) {
   const cleaned = String(el ? el.value : '').replace(/,/g, '').trim();
   if (cleaned === '') return '';
   const num = Number(cleaned);
@@ -844,9 +970,44 @@ function driveFileId(link) {
   return '';
 }
 
-function drivePreviewUrl(link, size) {
+function getImagePreviewCandidates(link, size) {
   const id = driveFileId(link);
-  return id ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(id)}&sz=w${size}` : '';
+  if (!id) return [link].filter(Boolean);
+  const encodedId = encodeURIComponent(id);
+  return [
+    `https://drive.google.com/thumbnail?id=${encodedId}&sz=w${size}`,
+    `https://lh3.googleusercontent.com/d/${encodedId}=w${size}`,
+    `https://drive.google.com/uc?export=view&id=${encodedId}`,
+    `https://drive.usercontent.google.com/download?id=${encodedId}&export=view&authuser=0`
+  ];
+}
+
+function drivePreviewUrl(link, size) {
+  return getImagePreviewCandidates(link, size)[0] || '';
+}
+
+function tryNextPreview(img) {
+  let list = [];
+  try {
+    list = JSON.parse(img.dataset.previewList || '[]');
+  } catch (err) {
+    list = [];
+  }
+  const nextIndex = (Number(img.dataset.previewIndex || 0) + 1);
+  if (nextIndex < list.length) {
+    img.dataset.previewIndex = String(nextIndex);
+    img.src = list[nextIndex];
+    return;
+  }
+
+  if (img.id === 'modalImage') {
+    img.style.display = 'none';
+    document.getElementById('modalFallback').style.display = 'block';
+    return;
+  }
+
+  const tile = img.closest('.image-tile');
+  if (tile) tile.classList.add('no-preview');
 }
 
 function info(label, value, wide) {
