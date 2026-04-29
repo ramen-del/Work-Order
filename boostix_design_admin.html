@@ -112,16 +112,18 @@ tbody tr.done{opacity:.58}
 .amount-toolbar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
 .amount-help{font-size:12px;color:var(--muted)}
 .amount-rows{display:flex;flex-direction:column;gap:8px}
-.amount-row{border:1px solid var(--line);background:#FCFCFA;border-radius:8px;padding:10px}
-.amount-grid{display:grid;grid-template-columns:1.1fr .8fr .8fr 1.2fr auto;gap:8px;align-items:end}
+.amount-row{border:1px solid var(--line);background:#FCFCFA;border-radius:8px;padding:10px;overflow-x:auto}
+.amount-grid{display:grid;grid-template-columns:1.05fr 1fr .52fr .8fr .78fr .78fr .78fr 1.08fr auto;gap:8px;align-items:end;min-width:1180px}
 .amount-remove{width:38px;height:38px;border:1px solid var(--border);background:#fff;border-radius:8px;font-size:18px;line-height:1}
+.input.readonly{background:#F3F3F0;color:#555}
+.calc-box.amount-total{grid-template-columns:repeat(4,1fr)}
 body.detail-expanded .board{grid-template-columns:1fr}
 body.detail-expanded .list-panel{display:none}
 body.detail-expanded .detail-panel{position:relative;top:auto;max-height:none}
 body.detail-expanded .detail-scroll{overflow:visible}
 body.detail-expanded .edit-grid{grid-template-columns:repeat(4,1fr)}
 body.detail-expanded .readonly-grid{grid-template-columns:repeat(4,1fr)}
-body.detail-expanded .amount-grid{grid-template-columns:1.2fr .7fr .7fr 1.4fr auto}
+body.detail-expanded .amount-grid{grid-template-columns:1.05fr 1fr .52fr .8fr .78fr .78fr .78fr 1.08fr auto;min-width:0}
 body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
 .hidden{display:none!important}
 .loading,.empty-row{text-align:center;color:var(--muted);padding:38px 12px}
@@ -141,8 +143,9 @@ body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
   .board{grid-template-columns:1fr}
   .detail-panel{position:relative;top:auto;max-height:none}
   .table-wrap{max-height:none}
-  .amount-grid{grid-template-columns:1fr 1fr}
+  .amount-grid{grid-template-columns:1fr 1fr;min-width:0}
   .amount-remove{width:100%}
+  .calc-box.amount-total{grid-template-columns:1fr 1fr}
   body.detail-expanded .edit-grid,body.detail-expanded .readonly-grid{grid-template-columns:1fr 1fr}
   body.detail-expanded .image-grid{grid-template-columns:repeat(3,1fr)}
 }
@@ -539,15 +542,17 @@ function renderDetail(item) {
       <section class="section">
         <div class="section-title">금액</div>
         <div class="amount-toolbar">
-          <div class="amount-help">발주처, 금액, 비고를 행 단위로 추가할 수 있습니다.</div>
+          <div class="amount-help">품목별로 입력하면 갯수 × 단가로 구매가와 합계금액이 계산됩니다.</div>
           <button class="btn small" id="addAmountRowBtn" type="button">+ 항목 추가</button>
         </div>
         <div class="amount-rows" id="amountRows">
           ${amountRows.map((row, idx) => renderAmountRow(row, idx)).join('')}
         </div>
-        <div class="calc-box" style="margin-top:8px">
+        <div class="calc-box amount-total" style="margin-top:8px">
+          <div class="calc-item"><div class="calc-label">합계금액</div><div class="calc-value" id="calcPurchaseTotal">0</div></div>
+          <div class="calc-item"><div class="calc-label">판가 합계</div><div class="calc-value" id="calcSaleTotal">0</div></div>
           <div class="calc-item"><div class="calc-label">이익</div><div class="calc-value" id="calcProfit">0</div></div>
-          <div class="calc-item"><div class="calc-label">마진율</div><div class="calc-value" id="calcMargin">0%</div></div>
+          <div class="calc-item"><div class="calc-label">마진율(원가 대비)</div><div class="calc-value" id="calcMargin">0%</div></div>
         </div>
       </section>
 
@@ -646,7 +651,7 @@ async function saveDetail(requestId) {
   const salePrice = amountItems.reduce((sum, row) => sum + parseNumber(row.salePrice), 0);
   const hasMoney = amountItems.some(row => String(row.purchasePrice || '').trim() || String(row.salePrice || '').trim());
   const profit = hasMoney ? salePrice - purchasePrice : '';
-  const marginRate = salePrice ? (profit / salePrice) * 100 : '';
+  const marginRate = purchasePrice ? (profit / purchasePrice) * 100 : '';
 
   const params = new URLSearchParams({
     action: 'update',
@@ -660,6 +665,7 @@ async function saveDetail(requestId) {
     vendor: firstAmount.vendor || '',
     amountNote: firstAmount.note || '',
     amountItems: JSON.stringify(amountItems),
+    amountTotal: hasMoney ? String(purchasePrice) : '',
     purchasePrice: hasMoney ? String(purchasePrice) : '',
     salePrice: hasMoney ? String(salePrice) : '',
     profit: String(profit),
@@ -694,9 +700,11 @@ function updateMoneyPreview() {
   const sale = rows.reduce((sum, row) => sum + parseNumber(row.salePrice), 0);
   const hasMoney = rows.some(row => String(row.purchasePrice || '').trim() || String(row.salePrice || '').trim());
   const profit = hasMoney ? sale - purchase : 0;
-  const margin = sale ? (profit / sale) * 100 : 0;
+  const margin = purchase ? (profit / purchase) * 100 : 0;
+  setText('calcPurchaseTotal', hasMoney ? formatMoney(purchase) : '');
+  setText('calcSaleTotal', hasMoney ? formatMoney(sale) : '');
   setText('calcProfit', hasMoney ? formatMoney(profit) : '');
-  setText('calcMargin', sale ? `${margin.toFixed(2)}%` : '0%');
+  setText('calcMargin', purchase ? `${margin.toFixed(2)}%` : '0%');
 }
 
 function getAmountRows(item) {
@@ -713,7 +721,11 @@ function getAmountRows(item) {
   }
 
   return [normalizeAmountRow({
+    itemName: '',
     vendor: item['디자인발주처'] || '',
+    quantity: '',
+    size: '',
+    unitPrice: '',
     purchasePrice: item._purchase || '',
     salePrice: item._sale || '',
     note: item['금액비고'] || ''
@@ -721,25 +733,52 @@ function getAmountRows(item) {
 }
 
 function normalizeAmountRow(row) {
+  const quantity = row.quantity === '' || row.quantity == null ? '' : parseNumber(row.quantity);
+  const unitPrice = row.unitPrice === '' || row.unitPrice == null ? '' : parseNumber(row.unitPrice);
+  const calculatedPurchase = quantity !== '' && unitPrice !== '' ? quantity * unitPrice : '';
+  const purchasePrice = row.purchasePrice === '' || row.purchasePrice == null
+    ? calculatedPurchase
+    : parseNumber(row.purchasePrice);
   return {
+    itemName: String(row.itemName || row.item || row['품목'] || '').trim(),
     vendor: String(row.vendor || row['디자인발주처'] || '').trim(),
-    purchasePrice: row.purchasePrice === '' || row.purchasePrice == null ? '' : parseNumber(row.purchasePrice),
+    quantity,
+    size: String(row.size || row['사이즈'] || '').trim(),
+    unitPrice,
+    purchasePrice,
     salePrice: row.salePrice === '' || row.salePrice == null ? '' : parseNumber(row.salePrice),
     note: String(row.note || row['비고'] || '').trim()
   };
 }
 
 function renderAmountRow(row, idx) {
+  const purchaseValue = row.purchasePrice !== '' ? row.purchasePrice : (row.quantity !== '' && row.unitPrice !== '' ? row.quantity * row.unitPrice : '');
   return `
     <div class="amount-row" data-index="${idx}">
       <div class="amount-grid">
         <div class="form-group">
-          <label class="form-label">디자인 발주처</label>
+          <label class="form-label">품목</label>
+          <input class="input amount-item" value="${escapeAttr(row.itemName)}" placeholder="백릿, 배너, 메뉴판">
+        </div>
+        <div class="form-group">
+          <label class="form-label">발주처</label>
           <input class="input amount-vendor" value="${escapeAttr(row.vendor)}" placeholder="내부, 외주, 업체명">
         </div>
         <div class="form-group">
+          <label class="form-label">갯수</label>
+          <input class="input amount-qty" value="${escapeAttr(row.quantity)}" inputmode="numeric" placeholder="1">
+        </div>
+        <div class="form-group">
+          <label class="form-label">사이즈</label>
+          <input class="input amount-size" value="${escapeAttr(row.size)}" placeholder="600x900">
+        </div>
+        <div class="form-group">
+          <label class="form-label">단가</label>
+          <input class="input amount-unit money-input" value="${escapeAttr(formatMoney(row.unitPrice))}" inputmode="numeric">
+        </div>
+        <div class="form-group">
           <label class="form-label">구매가</label>
-          <input class="input amount-purchase money-input" value="${escapeAttr(formatMoney(row.purchasePrice))}" inputmode="numeric">
+          <input class="input amount-purchase money-input readonly" value="${escapeAttr(formatMoney(purchaseValue))}" inputmode="numeric" readonly>
         </div>
         <div class="form-group">
           <label class="form-label">판가</label>
@@ -762,7 +801,21 @@ function addAmountRow(row) {
 
 function bindAmountRows() {
   document.querySelectorAll('.amount-row').forEach(row => {
-    row.querySelectorAll('.amount-purchase,.amount-sale').forEach(input => {
+    row.querySelectorAll('.amount-qty,.amount-unit').forEach(input => {
+      if (input.dataset.calcBound) return;
+      input.dataset.calcBound = '1';
+      input.addEventListener('input', () => {
+        updateRowPurchase(row);
+        updateMoneyPreview();
+      });
+      input.addEventListener('blur', () => {
+        if (input.classList.contains('amount-unit')) input.value = formatMoney(parseNumber(input.value));
+        updateRowPurchase(row);
+        updateMoneyPreview();
+      });
+    });
+
+    row.querySelectorAll('.amount-sale').forEach(input => {
       if (input.dataset.bound) return;
       input.dataset.bound = '1';
       input.addEventListener('input', updateMoneyPreview);
@@ -790,14 +843,30 @@ function bindAmountRows() {
 
 function collectAmountRows() {
   return [...document.querySelectorAll('.amount-row')].map(row => normalizeAmountRow({
+    itemName: row.querySelector('.amount-item')?.value || '',
     vendor: row.querySelector('.amount-vendor')?.value || '',
+    quantity: numericInputValue(row.querySelector('.amount-qty')),
+    size: row.querySelector('.amount-size')?.value || '',
+    unitPrice: numericInputValue(row.querySelector('.amount-unit')),
     purchasePrice: numericInputValue(row.querySelector('.amount-purchase')),
     salePrice: numericInputValue(row.querySelector('.amount-sale')),
     note: row.querySelector('.amount-note')?.value || ''
   })).filter((row, idx, arr) => {
     if (arr.length === 1) return true;
-    return row.vendor || row.purchasePrice !== '' || row.salePrice !== '' || row.note;
+    return row.itemName || row.vendor || row.quantity !== '' || row.size || row.unitPrice !== '' || row.purchasePrice !== '' || row.salePrice !== '' || row.note;
   });
+}
+
+function updateRowPurchase(row) {
+  const qty = numericInputValue(row.querySelector('.amount-qty'));
+  const unit = numericInputValue(row.querySelector('.amount-unit'));
+  const purchaseInput = row.querySelector('.amount-purchase');
+  if (!purchaseInput) return;
+  if (qty === '' || unit === '') {
+    purchaseInput.value = '';
+    return;
+  }
+  purchaseInput.value = formatMoney(qty * unit);
 }
 
 function toggleDetailWide() {
