@@ -44,9 +44,14 @@ h1{font-size:25px;letter-spacing:0;font-weight:800}
 .list-title{font-size:15px;font-weight:800}
 .list-count{font-family:"DM Mono",monospace;color:var(--muted);font-size:12px}
 .table-wrap{overflow:auto;max-height:calc(100vh - 276px)}
-table{width:100%;border-collapse:collapse;min-width:1120px}
-th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}
+table{width:100%;border-collapse:collapse;min-width:1320px}
+th,td{padding:11px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle;white-space:nowrap}
 th{position:sticky;top:0;background:#FAFAF8;color:var(--muted);font-size:12px;font-weight:800;z-index:1}
+th.sortable{cursor:pointer;user-select:none}
+th.sortable:hover{color:var(--text)}
+th.sortable::after{content:"";display:inline-block;margin-left:5px;color:#B8B8B2;font-size:10px}
+th.sortable.sort-asc::after{content:"▲"}
+th.sortable.sort-desc::after{content:"▼"}
 td{font-size:13px}
 tbody tr{cursor:pointer}
 tbody tr:hover td{background:#FCFCFA}
@@ -55,7 +60,8 @@ tbody tr.done{opacity:.58}
 .mono{font-family:"DM Mono",monospace;letter-spacing:0}
 .muted{color:var(--muted)}
 .work-title{font-weight:800;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.requester{max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.requester{max-width:170px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.date-cell,.assignee-cell{white-space:nowrap;word-break:keep-all}
 .money{text-align:right;font-family:"DM Mono",monospace;letter-spacing:0}
 .badge{display:inline-flex;align-items:center;justify-content:center;border-radius:999px;padding:4px 9px;font-size:12px;font-weight:800;white-space:nowrap;border:1px solid transparent}
 .status-received{background:#F1F1EE;color:#61615B}
@@ -207,18 +213,18 @@ body.detail-expanded .image-grid{grid-template-columns:repeat(6,1fr)}
         <table>
           <thead>
             <tr>
-              <th>접수일</th>
-              <th>브랜드</th>
-              <th>작업명</th>
-              <th>요청자</th>
-              <th>담당자</th>
-              <th>상태</th>
-              <th>긴급도</th>
-              <th>마감일</th>
-              <th class="money">구매가</th>
-              <th class="money">판가</th>
-              <th class="money">이익</th>
-              <th>완료여부</th>
+              <th class="sortable" data-sort-key="submittedDate">접수일</th>
+              <th class="sortable" data-sort-key="brand">브랜드</th>
+              <th class="sortable" data-sort-key="project">작업명</th>
+              <th class="sortable" data-sort-key="requester">요청자</th>
+              <th class="sortable" data-sort-key="assignee">담당자</th>
+              <th class="sortable" data-sort-key="status">상태</th>
+              <th class="sortable" data-sort-key="urgency">긴급도</th>
+              <th class="sortable" data-sort-key="deadline">마감일</th>
+              <th class="money sortable" data-sort-key="purchase">구매가</th>
+              <th class="money sortable" data-sort-key="sale">판가</th>
+              <th class="money sortable" data-sort-key="profit">이익</th>
+              <th class="sortable" data-sort-key="done">완료여부</th>
             </tr>
           </thead>
           <tbody id="tableBody">
@@ -261,6 +267,7 @@ let allItems = [];
 let filteredItems = [];
 let selectedId = '';
 let isLoading = false;
+let activeSort = { key: 'submittedDate', dir: 'desc' };
 
 document.addEventListener('DOMContentLoaded', () => {
   bindStaticEvents();
@@ -277,15 +284,35 @@ function bindStaticEvents() {
     if (event.target.id === 'imageModal') closeImageModal();
   });
 
-  ['searchInput','brandFilter','statusFilter','assigneeFilter','urgencyFilter','completeFilter','sortSelect'].forEach(id => {
+  ['searchInput','brandFilter','statusFilter','assigneeFilter','urgencyFilter','completeFilter'].forEach(id => {
     const el = document.getElementById(id);
     el.addEventListener(id === 'searchInput' ? 'input' : 'change', applyFilters);
   });
+  document.getElementById('sortSelect').addEventListener('change', event => {
+    activeSort = sortFromSelect(event.target.value);
+    applyFilters();
+  });
+  bindTableSortHeaders();
 }
 
 function renderStaticSelects() {
   document.getElementById('statusFilter').innerHTML = '<option value="">상태 전체</option>' + STATUS_OPTIONS.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
   document.getElementById('urgencyFilter').innerHTML = '<option value="">긴급도 전체</option>' + URGENCY_OPTIONS.map(v => `<option value="${escapeAttr(v)}">${escapeHtml(v)}</option>`).join('');
+}
+
+function bindTableSortHeaders() {
+  document.querySelectorAll('th.sortable[data-sort-key]').forEach(th => {
+    th.addEventListener('click', () => {
+      const key = th.dataset.sortKey;
+      const sameKey = activeSort.key === key;
+      activeSort = {
+        key,
+        dir: sameKey ? (activeSort.dir === 'asc' ? 'desc' : 'asc') : defaultSortDir(key)
+      };
+      document.getElementById('sortSelect').value = sortSelectValueFor(activeSort);
+      applyFilters();
+    });
+  });
 }
 
 async function loadData() {
@@ -399,7 +426,6 @@ function applyFilters() {
   const assignee = document.getElementById('assigneeFilter').value;
   const urgency = document.getElementById('urgencyFilter').value;
   const complete = document.getElementById('completeFilter').value;
-  const sort = document.getElementById('sortSelect').value;
 
   filteredItems = allItems.filter(item => {
     if (q && !item._searchBlob.includes(q)) return false;
@@ -412,21 +438,35 @@ function applyFilters() {
     return true;
   });
 
-  sortItems(filteredItems, sort);
+  sortItems(filteredItems, activeSort);
   renderTable();
 }
 
 function sortItems(items, sort) {
   const urgencyRank = { '긴급': 0, '빠름': 1, '일반': 2 };
   const byDate = value => value ? new Date(value).getTime() : 0;
+  const byText = value => String(value || '').trim();
+  const direction = sort.dir === 'asc' ? 1 : -1;
+  const compareText = (a, b) => byText(a).localeCompare(byText(b), 'ko-KR') * direction;
+  const compareNumber = (a, b) => ((Number(a) || 0) - (Number(b) || 0)) * direction;
+  const compareDate = (a, b) => (byDate(a) - byDate(b)) * direction;
+
   items.sort((a,b) => {
-    if (sort === 'oldest') return byDate(a['제출일시']) - byDate(b['제출일시']);
-    if (sort === 'deadline') return (a._deadline ? new Date(a._deadline).getTime() : 9999999999999) - (b._deadline ? new Date(b._deadline).getTime() : 9999999999999);
-    if (sort === 'urgency') return (urgencyRank[a._urgency] ?? 9) - (urgencyRank[b._urgency] ?? 9);
-    if (sort === 'saleDesc') return b._sale - a._sale;
-    if (sort === 'profitDesc') return b._profit - a._profit;
-    return byDate(b['제출일시']) - byDate(a['제출일시']);
+    if (sort.key === 'submittedDate') return compareDate(a['제출일시'], b['제출일시']);
+    if (sort.key === 'brand') return compareText(a._brand, b._brand);
+    if (sort.key === 'project') return compareText(a['프로젝트명'], b['프로젝트명']);
+    if (sort.key === 'requester') return compareText(`${a['발주자'] || ''} ${a['발주부서'] || ''}`, `${b['발주자'] || ''} ${b['발주부서'] || ''}`);
+    if (sort.key === 'assignee') return compareText(a._assignee, b._assignee);
+    if (sort.key === 'status') return compareText(a._status, b._status);
+    if (sort.key === 'urgency') return ((urgencyRank[a._urgency] ?? 9) - (urgencyRank[b._urgency] ?? 9)) * direction;
+    if (sort.key === 'deadline') return compareNullableDate(a._deadline, b._deadline, direction);
+    if (sort.key === 'purchase') return compareNumber(a._purchase, b._purchase);
+    if (sort.key === 'sale') return compareNumber(a._sale, b._sale);
+    if (sort.key === 'profit') return compareNumber(a._profit, b._profit);
+    if (sort.key === 'done') return compareNumber(a._done ? 1 : 0, b._done ? 1 : 0);
+    return compareDate(a['제출일시'], b['제출일시']);
   });
+  updateSortHeaderState();
 }
 
 function renderTable() {
@@ -442,11 +482,11 @@ function renderTable() {
     const dueClass = getDeadlineClass(item);
     return `
       <tr data-id="${escapeAttr(item._id)}" class="${item._done ? 'done' : ''} ${selectedId === item._id ? 'selected' : ''}">
-        <td class="mono muted">${escapeHtml(item._submittedDate || '-')}</td>
+        <td class="mono muted date-cell">${escapeHtml(item._submittedDate || '-')}</td>
         <td>${escapeHtml(item._brand || '미지정')}</td>
         <td><div class="work-title" title="${escapeAttr(item['프로젝트명'] || '')}">${escapeHtml(item['프로젝트명'] || '-')}</div></td>
         <td><div class="requester">${escapeHtml(item['발주자'] || '-')}<span class="muted">${item['발주부서'] ? ' / ' + escapeHtml(item['발주부서']) : ''}</span></div></td>
-        <td>${escapeHtml(item._assignee)}</td>
+        <td class="assignee-cell">${escapeHtml(item._assignee)}</td>
         <td>${statusBadge(item._status)}</td>
         <td>${urgencyBadge(item._urgency)}</td>
         <td><span class="deadline-pill ${dueClass}">${escapeHtml(item._deadline || '-')}</span></td>
@@ -471,6 +511,49 @@ function selectItem(id) {
   renderTable();
   const item = allItems.find(entry => entry._id === id);
   renderDetail(item || null);
+}
+
+function sortFromSelect(value) {
+  const map = {
+    latest: { key: 'submittedDate', dir: 'desc' },
+    oldest: { key: 'submittedDate', dir: 'asc' },
+    deadline: { key: 'deadline', dir: 'asc' },
+    urgency: { key: 'urgency', dir: 'asc' },
+    saleDesc: { key: 'sale', dir: 'desc' },
+    profitDesc: { key: 'profit', dir: 'desc' }
+  };
+  return map[value] || { key: 'submittedDate', dir: 'desc' };
+}
+
+function sortSelectValueFor(sort) {
+  if (sort.key === 'submittedDate' && sort.dir === 'desc') return 'latest';
+  if (sort.key === 'submittedDate' && sort.dir === 'asc') return 'oldest';
+  if (sort.key === 'deadline' && sort.dir === 'asc') return 'deadline';
+  if (sort.key === 'urgency' && sort.dir === 'asc') return 'urgency';
+  if (sort.key === 'sale' && sort.dir === 'desc') return 'saleDesc';
+  if (sort.key === 'profit' && sort.dir === 'desc') return 'profitDesc';
+  return 'latest';
+}
+
+function defaultSortDir(key) {
+  if (['purchase', 'sale', 'profit', 'submittedDate'].includes(key)) return 'desc';
+  return 'asc';
+}
+
+function compareNullableDate(a, b, direction) {
+  const aTime = a ? new Date(a).getTime() : null;
+  const bTime = b ? new Date(b).getTime() : null;
+  if (aTime == null && bTime == null) return 0;
+  if (aTime == null) return 1;
+  if (bTime == null) return -1;
+  return (aTime - bTime) * direction;
+}
+
+function updateSortHeaderState() {
+  document.querySelectorAll('th.sortable[data-sort-key]').forEach(th => {
+    th.classList.toggle('sort-asc', th.dataset.sortKey === activeSort.key && activeSort.dir === 'asc');
+    th.classList.toggle('sort-desc', th.dataset.sortKey === activeSort.key && activeSort.dir === 'desc');
+  });
 }
 
 function clearSelection() {
@@ -1003,6 +1086,7 @@ function resetFilters() {
   document.getElementById('urgencyFilter').value = '';
   document.getElementById('completeFilter').value = '';
   document.getElementById('sortSelect').value = 'latest';
+  activeSort = sortFromSelect('latest');
   applyFilters();
 }
 
